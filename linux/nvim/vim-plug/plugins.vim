@@ -1,4 +1,4 @@
-" auto-install vim-plug
+" Auto-install vim-plug
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
   silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -27,8 +27,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 
 " Git integration
-"Plug 'mhinz/vim-signify'                            " Show modified lines on sidebar
-Plug 'tpope/vim-fugitive'                           " Git integreation
+Plug 'tpope/vim-fugitive'                           " Git integration
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-rhubarb'                            " Enables :Gbrowse to access Github URL's
 Plug 'junegunn/gv.vim'                              " Git browser

@@ -1,15 +1,15 @@
 " Set leader key
 let g:mapleader = "\<Space>"
 
-syntax enable                           " Enables syntax highlighing
+syntax enable                           " Enables syntax highlighting
 set hidden                              " Required to keep multiple buffers open with unsaved changes
 set nowrap                              " Display long lines as just one line
 set encoding=utf-8                      " The encoding displayed
 set pumheight=10                        " Makes popup menu smaller
 set fileencoding=utf-8                  " The encoding written to file
-set ruler              			        " Show the cursor position all the time
+set ruler                               " Show the cursor position all the time
 set cmdheight=2                         " More space for displaying messages
-set iskeyword+=-                      	" treat dash separated words as a word text object"
+set iskeyword+=-                        " Treat dash separated words as a word text object"
 set mouse=a                             " Enable your mouse
 set splitbelow                          " Horizontal splits will automatically be below
 set splitright                          " Vertical splits will automatically be to the right
@@ -59,6 +59,9 @@ set background=dark
 let g:gruvbox_colors = { 'bright_red': ['#ffff00', 0] }
 "let g:gruvbox_contrast_dark = 'soft'
 colorscheme gruvbox
+
+" Remove background colour
+highlight Normal guibg=none
 
 let g:airline_theme='base16'
 

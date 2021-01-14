@@ -9,10 +9,7 @@
 source $HOME/.config/nvim/vim-plug/plugins.vim
 source $HOME/.config/nvim/general/settings.vim
 source $HOME/.config/nvim/general/spaces.vim
-source $HOME/.config/nvim/general/vtech.vim
-"source $HOME/.config/nvim/themes/one.vim
-
-"source $HOME/.config/nvim/colors/mmp-theme.vim
+"source $HOME/.config/nvim/general/vtech.vim
 
 source $HOME/.config/nvim/vim-plug/plug-config/nerdtree.vim
 source $HOME/.config/nvim/vim-plug/plug-config/rainbow.vim
@@ -31,4 +28,3 @@ lua require'plug-colorizer'
 " Mappings
 source $HOME/.config/nvim/keys/mappings.vim
 source $HOME/.config/nvim/keys/cscope_maps.vim
-
