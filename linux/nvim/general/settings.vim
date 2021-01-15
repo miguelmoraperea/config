@@ -39,6 +39,9 @@ set autoread                            " When a file has changed on disk, just 
 set ignorecase                          " Case insensitive search
 set smartcase                           " If there are uppercase letters, become case-sensitive
 set gdefault                            " Use the `g` flag by default
+set diffopt+=vertical
+set diffopt+=filler,context:15
+set scrolloff=10
 "set autochdir                           " Your working directory will always be the same as your working directory
 
 " Relative number bar

@@ -2,8 +2,8 @@
 nmap gp <Plug>(GitGutterPreviewHunk)
 
 " Navigate hunks
-nmap [c <Plug>(GitGutterNextHunk)
-nmap ]c <Plug>(GitGutterPrevHunk)
+nmap [c <Plug>(GitGutterNextHunk)zz <Plug>(GitGutterPreviewHunk)
+nmap ]c <Plug>(GitGutterPrevHunk)zz <Plug>(GitGutterPreviewHunk)
 
 " Change base diff to origin/master
 nmap gm :let g:gitgutter_diff_base = 'origin/master'<CR> :e <CR>

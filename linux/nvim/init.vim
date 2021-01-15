@@ -22,6 +22,7 @@ source $HOME/.config/nvim/vim-plug/plug-config/nerdcommenter.vim
 source $HOME/.config/nvim/vim-plug/plug-config/tagbar.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-fugitive.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-test.vim
+source $HOME/.config/nvim/vim-plug/plug-config/firenvim.vim
 source $HOME/.config/nvim/syntax/c.vim
 lua require'plug-colorizer'
 
