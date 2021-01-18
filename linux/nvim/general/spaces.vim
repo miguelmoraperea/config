@@ -1,6 +1,6 @@
 :highlight ExtraWhitespace ctermbg=red guibg=red
 
-" Highlight traiing whitespaces
+" Highlight trailing whitespaces
 :autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
 
 " Show trailing whitespace:
