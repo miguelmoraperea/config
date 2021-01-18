@@ -80,3 +80,5 @@ nnoremap <Leader>fc :foldclose<CR>
 "nnoremap <Enter> o<ESC>
 "nnoremap <S-Enter> O<ESC>
 
+" Open a terminal at the bottom of the screen
+nnoremap <Leader>te :vsplit<Bar>terminal<CR>
