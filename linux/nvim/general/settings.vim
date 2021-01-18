@@ -98,9 +98,18 @@ endif
 au BufRead,BufNewFile *.kl1 set filetype=c
 au BufRead,BufNewFile *.inc set filetype=c
 au BufRead,BufNewFile README set syntax=rst
-autocmd FileType rst setlocal shiftwidth=3 softtabstop=3 tabstop=3 expandtab colorcolumn=100 textwidth=99
+au BufRead,BufNewFile *.md setlocal syntax=markdown colorcolumn=100 textwidth=99 wrap linebreak
+autocmd FileType rst setlocal syntax=rst shiftwidth=3 softtabstop=3 tabstop=3 expandtab colorcolumn=100 textwidth=99
 
 " Disable quote concealing in JSON files
 autocmd Filetype json
   \ let g:indentLine_setConceal = 0 |
   \ let g:vim_json_syntax_conceal = 0
+
+" Print the highlight groups associated with the word under the cursor
+map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+" Display comments in italics
+highlight Comment cterm=italic gui=italic
