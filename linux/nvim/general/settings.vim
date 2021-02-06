@@ -113,3 +113,13 @@ map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans
 
 " Display comments in italics
 highlight Comment cterm=italic gui=italic
+
+let g:coc_global_extensions=[
+    \'coc-spell-checker',
+    \'coc-yaml',
+    \'coc-python',
+    \'coc-sh',
+    \'coc-json',
+    \'coc-docker',
+    \'coc-html',
+\]
