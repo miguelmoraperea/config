@@ -39,6 +39,9 @@ Plug 'vim-test/vim-test'                            " Run unit tests
 Plug 'davidhalter/jedi-vim'
 Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 
+" C Language
+ Plug 'ericcurtin/CurtineIncSw.vim'
+
 " Jenkinsfile
 Plug 'martinda/Jenkinsfile-vim-syntax'
 

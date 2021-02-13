@@ -42,6 +42,7 @@ set gdefault                            " Use the `g` flag by default
 set diffopt+=vertical
 set diffopt+=filler,context:15
 set scrolloff=10
+set nowrapscan                          " Do not wrap searches to the beginning of the file
 "set autochdir                           " Your working directory will always be the same as your working directory
 
 " Relative number bar
@@ -97,6 +98,7 @@ endif
 " File Types
 au BufRead,BufNewFile *.kl1 set filetype=c
 au BufRead,BufNewFile *.inc set filetype=c
+au BufRead,BufNewFile *.html set shiftwidth=2 softtabstop=2 tabstop=2 expandtab
 au BufRead,BufNewFile README set syntax=rst
 au BufRead,BufNewFile *.md setlocal syntax=markdown colorcolumn=100 textwidth=99 wrap linebreak
 autocmd FileType rst setlocal syntax=rst shiftwidth=3 softtabstop=3 tabstop=3 expandtab colorcolumn=100 textwidth=99

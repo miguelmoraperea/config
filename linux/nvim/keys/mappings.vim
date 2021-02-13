@@ -1,3 +1,6 @@
+" Reload my VIMRC file
+nnoremap <Leader>my :so $MYVIMRC<CR>
+
 " Set nav for omnicomplete
 inoremap <expr> <c-j> ("\<C-n>")
 inoremap <expr> <c-k> ("\<C-p>")
@@ -64,7 +67,7 @@ nmap <Leader>t :TagbarToggle<CR>
 nnoremap <Leader>f :Files<CR>
 
 " Open buffers
-nnoremap <Leader>b :b<Space>
+nnoremap <Leader>b :Buffers<CR>
 
 " Change workspace to current file
 nnoremap <Leader>w :cd %:p:h<CR>
@@ -80,5 +83,7 @@ nnoremap <Leader>fc :foldclose<CR>
 "nnoremap <Enter> o<ESC>
 "nnoremap <S-Enter> O<ESC>
 
-" Open a terminal at the bottom of the screen
+" Open a terminal at the side of the screen
 nnoremap <Leader>te :vsplit<Bar>terminal<CR>
+
+nnoremap <Leader>h :call CurtineIncSw()<CR>
