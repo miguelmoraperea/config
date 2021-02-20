@@ -15,7 +15,8 @@ source $HOME/.config/nvim/vim-plug/plug-config/nerdtree.vim
 source $HOME/.config/nvim/vim-plug/plug-config/rainbow.vim
 source $HOME/.config/nvim/vim-plug/plug-config/cpp.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-gitgutter.vim
-source $HOME/.config/nvim/vim-plug/plug-config/coc.vim
+"source $HOME/.config/nvim/vim-plug/plug-config/coc.vim
+source $HOME/.config/nvim/vim-plug/plug-config/lsp.vim
 source $HOME/.config/nvim/vim-plug/plug-config/jedi.vim
 source $HOME/.config/nvim/vim-plug/plug-config/nerdcommenter.vim
 source $HOME/.config/nvim/vim-plug/plug-config/tagbar.vim

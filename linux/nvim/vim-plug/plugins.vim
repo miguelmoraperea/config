@@ -51,8 +51,11 @@ Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 " Vim Flex
 Plug 'miguelmoraperea/vim-flex'
 
-call plug#end()
+" LSP
+Plug 'neovim/nvim-lspconfig'
+Plug 'nvim-lua/completion-nvim'
 
+call plug#end()
 
 " Automatically install missing plugins on startup
 autocmd VimEnter *
