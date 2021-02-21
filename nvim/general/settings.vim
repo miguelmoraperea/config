@@ -43,7 +43,6 @@ set diffopt+=vertical
 set diffopt+=filler,context:15
 set scrolloff=10
 set nowrapscan                          " Do not wrap searches to the beginning of the file
-"set autochdir                           " Your working directory will always be the same as your working directory
 
 " Relative number bar
 :set number relativenumber
@@ -61,13 +60,7 @@ cmap w!! w !sudo tee %
 
 set background=dark
 let g:gruvbox_colors = { 'bright_red': ['#ffff00', 0] }
-"let g:gruvbox_contrast_dark = 'soft'
 colorscheme gruvbox
-
-" Remove background colour
-highlight Normal guibg=none
-
-let g:airline_theme='base16'
 
 " Enable true color
 if exists('+termguicolors')
@@ -76,14 +69,17 @@ if exists('+termguicolors')
   set termguicolors
 endif
 
+" Remove background colour
+highlight Normal guibg=none
+
+let g:airline_theme='base16'
+
 " Set current directory as workspace
 " autocmd BufEnter * lcd %:p:h
 
 " Show Tabs
 set list
 set listchars+=tab:>-
-"set listchars+=space:·
-
 
 let g:virtualenv_directory = $PWD
 
@@ -126,8 +122,10 @@ let g:coc_global_extensions=[
     \'coc-html',
 \]
 
+" Define auto-complete options
 set completeopt=menuone,noinsert,noselect
 let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 
+" Define LSP servers
 lua require'lspconfig'.tsserver.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.clangd.setup{}

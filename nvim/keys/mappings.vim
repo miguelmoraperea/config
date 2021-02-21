@@ -64,7 +64,7 @@ nnoremap <Leader>q :bd<cr>
 nmap <Leader>t :TagbarToggle<CR>
 
 " Fzf files
-nnoremap <Leader>f :Files<CR>
+" nnoremap <Leader>f :Files<CR>
 
 " Open buffers
 nnoremap <Leader>b :Buffers<CR>
@@ -87,6 +87,9 @@ nnoremap <Leader>fc :foldclose<CR>
 nnoremap <Leader>te :vsplit<Bar>terminal<CR>
 
 nnoremap <Leader>h :call CurtineIncSw()<CR>
+
+" Trigger Vim-Flex
+nnoremap <Leader>tf :call VimFlexTimeToFlex()<CR>
 
 " Incremental window resize
 nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>

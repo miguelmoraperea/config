@@ -1,8 +1,7 @@
-" Auto-install vim-plug
+
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
   silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  "autocmd VimEnter * PlugInstall
   autocmd VimEnter * PlugInstall | source $MYVIMRC
 endif
 
@@ -13,18 +12,15 @@ Plug 'scrooloose/nerdtree'                          " File explorer
 Plug 'vim-airline/vim-airline'                      " Status bar
 Plug 'vim-airline/vim-airline-themes'               " Status bar
 Plug 'mhinz/vim-startify'                           " Start screen
-Plug 'neoclide/coc.nvim', {'branch': 'release'}     " Intellisense
 Plug 'junegunn/rainbow_parentheses.vim'             " Rainbow parentheses
-Plug 'morhetz/gruvbox'                              " Theme
-Plug 'octol/vim-cpp-enhanced-highlight'             " C++ highlighter
-Plug 'norcalli/nvim-colorizer.lua'
-Plug 'Yggdroot/indentLine'
-Plug 'preservim/nerdcommenter'
-Plug 'majutsushi/tagbar'
 
-" Fuzzy finder
-Plug 'junegunn/fzf.vim'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'morhetz/gruvbox'                              " Theme
+
+Plug 'octol/vim-cpp-enhanced-highlight'             " C++ highlighter
+Plug 'norcalli/nvim-colorizer.lua'                  " Display colour codes with their actual colour in the background
+Plug 'Yggdroot/indentLine'
+Plug 'preservim/nerdcommenter'                      " Easy comments
+Plug 'majutsushi/tagbar'                            " Show a tags bar with types and functions
 
 " Git integration
 Plug 'tpope/vim-fugitive'                           " Git integration
@@ -40,7 +36,10 @@ Plug 'davidhalter/jedi-vim'
 Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 
 " C Language
- Plug 'ericcurtin/CurtineIncSw.vim'
+Plug 'ericcurtin/CurtineIncSw.vim'
+
+" Lua
+Plug 'euclidianAce/BetterLua.vim'
 
 " Jenkinsfile
 Plug 'martinda/Jenkinsfile-vim-syntax'
@@ -49,11 +48,23 @@ Plug 'martinda/Jenkinsfile-vim-syntax'
 Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 
 " Vim Flex
-Plug 'miguelmoraperea/vim-flex'
+" Plug 'miguelmoraperea/vim-flex'
+
+" Learning Vim
+Plug 'ThePrimeagen/vim-be-good'
+
+" Try
+Plug 'tjdevries/descriptive_maps.vim'
+Plug 'kdheepak/lazygit.nvim'
 
 " LSP
 Plug 'neovim/nvim-lspconfig'
 Plug 'nvim-lua/completion-nvim'
+
+" Telescope
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
 
 call plug#end()
 
