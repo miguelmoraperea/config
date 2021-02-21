@@ -87,3 +87,7 @@ nnoremap <Leader>fc :foldclose<CR>
 nnoremap <Leader>te :vsplit<Bar>terminal<CR>
 
 nnoremap <Leader>h :call CurtineIncSw()<CR>
+
+" Incremental window resize
+nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
+nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
