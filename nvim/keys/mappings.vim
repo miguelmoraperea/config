@@ -91,6 +91,9 @@ nnoremap <Leader>h :call CurtineIncSw()<CR>
 " Trigger Vim-Flex
 nnoremap <Leader>tf :call VimFlexTimeToFlex()<CR>
 
+" Trigger Vim-Jenkinsfile-Validate
+nmap <Leader>jv <Plug>VimJenkinsfileValidate<CR>
+
 " Incremental window resize
 nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
 nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>

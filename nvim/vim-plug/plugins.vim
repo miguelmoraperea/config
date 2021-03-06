@@ -47,8 +47,9 @@ Plug 'martinda/Jenkinsfile-vim-syntax'
 " Nvim in browser
 Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 
-" Vim Flex
-" Plug 'miguelmoraperea/vim-flex'
+" My plugins
+Plug 'miguelmoraperea/vim-flex'
+Plug 'miguelmoraperea/vim-jenkinsfile-validate'
 
 " Learning Vim
 Plug 'ThePrimeagen/vim-be-good'
