@@ -40,6 +40,7 @@ Plug 'ericcurtin/CurtineIncSw.vim'
 
 " Lua
 Plug 'euclidianAce/BetterLua.vim'
+Plug 'nvim-lua/plenary.nvim'
 
 " Jenkinsfile
 Plug 'martinda/Jenkinsfile-vim-syntax'
