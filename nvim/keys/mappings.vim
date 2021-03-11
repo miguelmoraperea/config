@@ -17,10 +17,6 @@ inoremap kj <Esc>
 vnoremap jk <Esc>
 vnoremap kj <Esc>
 
-" Keep cursor in the middle of the screen
-:nnoremap j jzz
-:nnoremap k kzz
-
 " Easy CAPS
 inoremap <c-u> <ESC>viwUi
 nnoremap <c-u> viwU<Esc>
@@ -45,10 +41,10 @@ vnoremap < <gv
 vnoremap > >gv
 
 " Better window navigation
-nnoremap <Leader>h <C-W><C-H>
-nnoremap <Leader>j <C-W><C-J>
-nnoremap <Leader>k <C-W><C-K>
-nnoremap <Leader>l <C-W><C-L>
+nnoremap <C-h> <C-W><C-H>
+nnoremap <C-j> <C-W><C-J>
+nnoremap <C-k> <C-W><C-K>
+nnoremap <C-l> <C-W><C-L>
 
 " Better window navigation
 nnoremap <Leader>wq :close<CR>
