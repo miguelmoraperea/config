@@ -1,0 +1,114 @@
+*    Original
+*    --------
+*
+*    =   1   2   3   4   5   6   7   8   9   0   -
+*    \t  '   ,   .   p   y   f   g   c   r   l   /
+*    CPS a   o   e   u   i   d   h   t   n   s   \
+*    SFT ;   q   j   k   x   b   m   w   v   z   SFT
+*        `   ; LEFT RGHT         UP DOWN [   ]
+*
+*    +   !   @   #   $   %   ^   &   *   (   )   _
+*        "   <   >                               ?
+*                                                |
+*        :
+*        ~                               {   }
+*
+*
+*    Modified
+*    --------
+*
+*    _   1   2   3   4   5   6   7   8   9   0   -
+*    TAB '   ,   .   p   y   f   g   c   r   l   /
+*    CPS a   o   e   u   i   d   h   t   n   s   \
+*    SFT ;   q   j   k   x   b   m   w   v   z   SFT
+*        `   ;  DOWN UP        LEFT RGHT *   #
+*
+*    @   <   [   {   (   +   =   )   }   ]   >   ~
+*        "   !   &                               ?
+*                                                |
+*        $                               ^   %
+
+
+* = > _
+{=}>{-lshift}{hyphen}{+lshift}
+{=}>{-rshift}{hyphen}{+rshift}
+
+* Arrow keys
+[left]>[down]
+[right]>[up]
+[up]>[left]
+[down]>[right]
+
+* [ > *
+{obrack}>{-lshift}{8}{+lshift}
+
+* ] > #
+{cbrack}>{-lshift}{3}{+lshift}
+
+* + > @
+{lshift}{=}>{-lshift}{2}{+lshift}
+{rshift}{=}>{-rshift}{2}{+rshift}
+
+* ! > <
+{lshift}{1}>{-lshift}{,}{+lshift}
+{rshift}{1}>{-rshift}{,}{+rshift}
+
+* @ > [
+{lshift}{2}>{obrack}
+{rshift}{2}>{obrack}
+
+* # > {
+{lshift}{3}>{-lshift}{obrack}{+lshift}
+{rshift}{3}>{-rshift}{obrack}{+rshift}
+
+* $ > (
+{lshift}{4}>{-lshift}{9}{+lshift}
+{rshift}{4}>{-rshift}{9}{+rshift}
+
+* % > +
+{lshift}{5}>{-lshift}{=}{+lshift}
+{rshift}{5}>{-rshift}{=}{+rshift}
+
+* ^ > =
+{lshift}{6}>{=}
+{rshift}{6}>{=}
+
+* & > )
+{lshift}{7}>{-lshift}{0}{+lshift}
+{rshift}{7}>{-rshift}{0}{+rshift}
+
+* * > }
+{lshift}{8}>{-lshift}{cbrack}{+lshift}
+{rshift}{8}>{-rshift}{cbrack}{+rshift}
+
+* ( > ]
+{lshift}{9}>{cbrack}
+{rshift}{9}>{cbrack}
+
+* ) > >
+{lshift}{0}>{-lshift}{.}{+lshift}
+{rshift}{0}>{-rshift}{.}{+rshift}
+
+* _ > ~
+{lshift}{hyphen}>{-lshift}{`}{+lshift}
+{rshift}{hyphen}>{-rshift}{`}{+rshift}
+
+* < > !
+{lshift}{,}>{-lshift}{1}{+lshift}
+{rshift}{,}>{-rshift}{1}{+rshift}
+
+* > > &
+{lshift}{.}>{-lshift}{7}{+lshift}
+{rshift}{.}>{-rshift}{7}{+rshift}
+
+* ~ > $
+{lshift}{`}>{-lshift}{4}{+lshift}
+{rshift}{`}>{-rshift}{4}{+rshift}
+
+* { > ^
+{lshift}{obrack}>{-lshift}{6}{+lshift}
+{rshift}{obrack}>{-rshift}{6}{+rshift}
+
+* } > %
+{lshift}{cbrack}>{-lshift}{5}{+lshift}
+{rshift}{cbrack}>{-rshift}{5}{+rshift}
