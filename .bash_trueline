@@ -8,7 +8,7 @@ declare -A TRUELINE_COLORS=(
 declare -a TRUELINE_SEGMENTS=(
     'working_dir,light_blue,black,normal'
     'git,grey,black,normal'
-    'time,white,black,normal'
+    'exit_status,red,black,normal'
     'newline,pink,black,bold'
 )
 
@@ -20,7 +20,7 @@ declare -A TRUELINE_SYMBOLS=(
     [working_dir_separator]='/'
     [working_dir_home]='~'
     [newline]='❯'
-    [clock]='🕒'
+    [exit_status]=''
 )
 
 TRUELINE_GIT_SHOW_STATUS_NUMBERS=false
@@ -28,8 +28,8 @@ TRUELINE_GIT_MODIFIED_COLOR='grey'
 TRUELINE_WORKING_DIR_SPACE_BETWEEN_PATH_SEPARATOR=false
 
 _trueline_time_segment() {
-    local prompt_time="${TRUELINE_SYMBOLS[clock]} \t"
-    if [[ -n "$prompt_time" ]]; then
+    local prompt_exit_status="${TRUELINE_SYMBOLS[exit_status]} \t"
+    if [[ -n "$prompt_exit_status" ]]; then
         local fg_color="$1"
         local bg_color="$2"
         local font_style="$3"
