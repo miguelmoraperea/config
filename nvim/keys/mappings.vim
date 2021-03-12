@@ -75,9 +75,9 @@ nnoremap <Leader>g <C-S-^><CR>
 nnoremap <Leader>fo :foldopen<CR>
 nnoremap <Leader>fc :foldclose<CR>
 
-" Adding lines without entering insert mode (not working for some reason)
-"nnoremap <Enter> o<ESC>
-"nnoremap <S-Enter> O<ESC>
+" Adding lines without entering insert mode
+nnoremap <Leader>j o<ESC>
+nnoremap <Leader>k O<ESC>
 
 " Open a terminal at the side of the screen
 nnoremap <Leader>te :vsplit<Bar>terminal<CR>
