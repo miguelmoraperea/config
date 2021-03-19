@@ -129,5 +129,8 @@ let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 " Define LSP servers
 lua require'lspconfig'.tsserver.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.clangd.setup{}
+lua require'lspconfig'.bashls.setup{}
+lua require'lspconfig'.pyls.setup{}
+lua require'lspconfig'.dockerls.setup{}
 
 lua require('mmp.globals')

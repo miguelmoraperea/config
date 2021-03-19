@@ -38,9 +38,16 @@ Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 " C Language
 Plug 'ericcurtin/CurtineIncSw.vim'
 
+" Docker
+Plug 'ekalinin/Dockerfile.vim'
+
 " Lua
 Plug 'euclidianAce/BetterLua.vim'
 Plug 'nvim-lua/plenary.nvim'
+
+" Try this Lua language server
+" Plug 'summeko/lua-language-server'
+" Plug 'tjdevries/nlua.vim'
 
 " Jenkinsfile
 Plug 'martinda/Jenkinsfile-vim-syntax'
@@ -58,6 +65,9 @@ Plug 'ThePrimeagen/vim-be-good'
 " Try
 Plug 'tjdevries/descriptive_maps.vim'
 Plug 'kdheepak/lazygit.nvim'
+
+" Bash
+" Plug 'mads-hartmann/bash-language-server'
 
 " LSP
 Plug 'neovim/nvim-lspconfig'
