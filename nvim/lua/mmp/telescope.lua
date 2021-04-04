@@ -70,4 +70,24 @@ M.git_branches = function()
     })
 end
 
+M.spellcheck = function()
+    local pickers = require('telescope.pickers')
+    local finders = require('telescope.finders')
+    local make_entry = require('telescope.make_entry')
+
+    local locations = vim.fn.getqflist()
+
+    if vim.tbl_isempty(locations) then
+        return
+    end
+
+    pickers.new({
+        prompt_title  = 'SpellCheck',
+        finder = finders.new_table {
+            results = locations,
+            entry_maker = make_entry.gen_from_quickfix(),
+        },
+    }):find()
+end
+
 return M
