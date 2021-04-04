@@ -43,6 +43,8 @@ set diffopt+=vertical
 set diffopt+=filler,context:15
 set scrolloff=10
 set nowrapscan                          " Do not wrap searches to the beginning of the file
+set spell
+set spelllang=en_us
 
 " Relative number bar
 :set number relativenumber
