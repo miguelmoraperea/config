@@ -6,6 +6,8 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>ft <cmd>Telescope git_files<cr>
 nnoremap <leader>fr :lua require'mmp.telescope'.search_dotfiles()<cr>
 nnoremap <leader>fa :lua require'mmp.telescope'.git_branches()<cr>
+nnoremap <Leader>re :lua require'telescope.builtin'.lsp_references{}<cr>
+nnoremap <Leader>di :lua require'telescope.builtin'.lsp_workspace_diagnostics{}<cr>
 
 highlight TelescopeSelection      guifg=#D79921 gui=bold " selected item
 highlight TelescopeSelectionCaret guifg=#CC241D " selection caret
