@@ -24,6 +24,7 @@ source $HOME/.config/nvim/vim-plug/plug-config/firenvim.vim
 source $HOME/.config/nvim/vim-plug/plug-config/telescope.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-flex.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-devicons.vim
+source $HOME/.config/nvim/vim-plug/plug-config/vim-spellcheck.vim
 source $HOME/.config/nvim/syntax/c.vim
 lua require 'plug-colorizer'
 

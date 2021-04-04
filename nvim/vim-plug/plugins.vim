@@ -22,6 +22,10 @@ Plug 'Yggdroot/indentLine'
 Plug 'preservim/nerdcommenter'                      " Easy comments
 Plug 'majutsushi/tagbar'                            " Show a tags bar with types and functions
 
+" Spelling
+Plug 'inkarkat/vim-ingo-library'                    " Dependency for vim-spellcheck
+Plug 'inkarkat/vim-spellcheck'
+
 " Git integration
 Plug 'tpope/vim-fugitive'                           " Git integration
 Plug 'airblade/vim-gitgutter'
