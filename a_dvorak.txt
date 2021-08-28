@@ -112,3 +112,9 @@
 * } > %
 {lshift}{cbrack}>{-lshift}{5}{+lshift}
 {rshift}{cbrack}>{-rshift}{5}{+rshift}
+
+* RCTRL > ESC
+[rctrl]>[escape]
+
+* RWIN > LALT
+[rwin]>[lalt]
