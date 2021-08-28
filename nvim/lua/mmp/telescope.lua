@@ -90,4 +90,31 @@ M.spellcheck = function()
     }):find()
 end
 
+M.mappings = function()
+    -- TODO: When selected, open the file where the mapping is defined
+    local pickers = require('telescope.pickers')
+    local finders = require('telescope.finders')
+    local sorters = require('telescope.sorters')
+    local make_entry = require('telescope.make_entry')
+
+    local map_output = vim.api.nvim_exec('map', true)
+
+    local locations = {}
+    for line in map_output:gmatch("([^\n]*)\n?") do
+        table.insert(locations, line)
+    end
+
+    if vim.tbl_isempty(locations) then
+        return
+    end
+
+    pickers.new({
+        prompt_title  = 'Mappings',
+        finder = finders.new_table {
+            results = locations,
+        },
+        sorter = sorters.get_generic_fuzzy_sorter(),
+    }):find()
+end
+
 return M
