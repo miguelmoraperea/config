@@ -87,3 +87,7 @@ nmap <Leader>jv <Plug>VimJenkinsfileValidate<CR>
 " Incremental window resize
 nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
 nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
+
+" Keep it centered
+nnoremap n nzzzv
+nnoremap N Nzzzv
