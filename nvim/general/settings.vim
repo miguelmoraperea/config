@@ -132,7 +132,16 @@ let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 lua require'lspconfig'.tsserver.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.clangd.setup{}
 lua require'lspconfig'.bashls.setup{}
-lua require'lspconfig'.pyls.setup{}
+lua require'lspconfig'.pylsp.setup{}
 lua require'lspconfig'.dockerls.setup{}
 
+" Ignore CamelCase words when spell checking
+fun! IgnoreCamelCaseSpell()
+  syn match CamelCase /\<[A-Z][a-z]\+[A-Z].\{-}\>/ contains=@NoSpell transparent
+  syn cluster Spell add=CamelCase
+endfun
+
+autocmd BufRead,BufNewFile * :call IgnoreCamelCaseSpell()
+
 lua require('mmp.globals')
+" lua require('mmp.indent-blankline')
