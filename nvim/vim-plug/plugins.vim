@@ -36,7 +36,6 @@ Plug 'junegunn/gv.vim'                              " Git browser
 Plug 'vim-test/vim-test'                            " Run unit tests
 
 " Python
-Plug 'davidhalter/jedi-vim'
 Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 
 " C Language
@@ -82,6 +81,15 @@ Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
+
+
+" Python docstrings
+Plug 'heavenshell/vim-pydocstring', { 'do': 'make install', 'for': 'python' }
+
+" Treesitter
+Plug 'haorenW1025/completion-nvim'
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/completion-treesitter'
 
 call plug#end()
 

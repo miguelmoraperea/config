@@ -132,8 +132,11 @@ let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 lua require'lspconfig'.tsserver.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.clangd.setup{}
 lua require'lspconfig'.bashls.setup{}
-lua require'lspconfig'.pylsp.setup{}
 lua require'lspconfig'.dockerls.setup{}
+
+" Python
+lua require'lspconfig'.pylsp.setup{}
+lua require'lspconfig'.pylsp.setup{on_attach=require'completion'.on_attach}
 
 " Ignore CamelCase words when spell checking
 fun! IgnoreCamelCaseSpell()
