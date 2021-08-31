@@ -53,9 +53,6 @@ nnoremap <Leader>q :bd<cr>
 " Tagbar
 nmap <Leader>t :TagbarToggle<CR>
 
-" Fzf files
-" nnoremap <Leader>f :Files<CR>
-
 " Open buffers
 nnoremap <Leader>b :Buffers<CR>
 
