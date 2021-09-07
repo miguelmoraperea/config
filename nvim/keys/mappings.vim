@@ -34,8 +34,13 @@ nnoremap <C-j> <C-W><C-J>
 nnoremap <C-k> <C-W><C-K>
 nnoremap <C-l> <C-W><C-L>
 
-" Better window navigation
-nnoremap <Leader>wq :close<CR>
+" Open window vertically
+nnoremap <Leader>vw :vsplit <bar> enew<cr>
+
+" Open window vertically
+nnoremap <Leader>hw :split <bar> enew<cr>
+
+" Close window
 nnoremap <Leader>qw :close<CR>
 
 " Clear highlighting
