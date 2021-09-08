@@ -133,6 +133,7 @@ lua require'lspconfig'.tsserver.setup{ on_attach=require'completion'.on_attach }
 lua require'lspconfig'.clangd.setup{}
 lua require'lspconfig'.bashls.setup{}
 lua require'lspconfig'.dockerls.setup{}
+lua require'lspconfig'.solargraph.setup{}
 
 " Python
 lua require'lspconfig'.pylsp.setup{}
