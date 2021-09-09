@@ -119,6 +119,18 @@ M.mappings = function()
     }):find()
 end
 
+M.grep_word_under_cursor = function()
+  opts = opts or {}
+
+  local register = vim.fn.expand('<cword>')
+
+  opts.path_display = { "absolute" }
+  opts.word_match = "-w"
+  opts.search = register
+
+  require("telescope.builtin").grep_string(opts)
+end
+
 local function set_background(content)
     local cmd = "feh --bg-fill "
             .. content
