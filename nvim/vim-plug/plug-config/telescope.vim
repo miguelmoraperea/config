@@ -4,7 +4,7 @@ nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>ft <cmd>Telescope git_files<cr>
-nnoremap <leader>fr :lua require'mmp.telescope'.search_dotfiles()<cr>
+nnoremap <leader>fr :lua R('mmp.telescope').search_dotfiles()<cr>
 nnoremap <leader>fa :lua require'mmp.telescope'.git_branches()<cr>
 nnoremap <leader>st :SpellCheck <bar> lua R('mmp.telescope').spellcheck()<cr>
 nnoremap <leader>ma :lua R('mmp.telescope').mappings()<cr>

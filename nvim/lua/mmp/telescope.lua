@@ -15,11 +15,16 @@ require('telescope').setup{
         initial_mode = "insert",
         selection_strategy = "reset",
         sorting_strategy = "ascending",
-        layout_strategy = "horizontal",
+        layout_strategy = "vertical",
         layout_config = {
-            width = 0.75,
-            prompt_position = "top",
-            preview_cutoff = 120,
+            horizontal = {
+                width = 0.75,
+                prompt_position = "top",
+                preview_cutoff = 120
+            },
+            vertical = {
+                width = 0.7,
+            }
         },
         file_sorter = require'telescope.sorters'.get_fzy_sorter,
         file_ignore_patterns = {},
