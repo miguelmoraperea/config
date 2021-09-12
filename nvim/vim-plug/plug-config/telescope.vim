@@ -11,7 +11,7 @@ nnoremap <leader>ma :lua R('mmp.telescope').mappings()<cr>
 nnoremap <leader>ba :lua R('mmp.telescope').background_selector()<CR>
 nnoremap <Leader>re :lua require'telescope.builtin'.lsp_references{}<cr>
 nnoremap <Leader>di :lua require'telescope.builtin'.lsp_workspace_diagnostics{}<cr>
-nnoremap <Leader>co :lua R('telescope.builtin').git_commits()<cr>
+nnoremap <Leader>co :lua R('mmp.telescope').git_commits({})<cr>
 nnoremap <Leader>gu :lua R('mmp.telescope').grep_word_under_cursor()<cr>
 
 highlight TelescopeSelection      guifg=#D79921 gui=bold " selected item

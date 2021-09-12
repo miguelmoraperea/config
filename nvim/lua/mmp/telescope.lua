@@ -1,4 +1,10 @@
 local actions = require('telescope.actions')
+local utils = require('telescope.utils')
+local entry_display = require('telescope.pickers.entry_display')
+local pickers = require('telescope.pickers')
+local finders = require('telescope.finders')
+local conf = require('telescope.config').values
+local previewers = require('telescope.previewers')
 
 require('telescope').setup{
     defaults = {
@@ -196,5 +202,74 @@ local function image_selector(prompt, cwd)
 end
 
 M.background_selector = image_selector("< Background Selector > ", "~/Desktop/git/backgrounds")
+
+M.git_commits = function(opts)
+    local output = utils.get_os_command_output({ "git", "log", "--pretty=format:%h/%s/%an", "--abbrev-commit", "--", "."})
+
+    local results = {}
+    local parse_line = function(line)
+        local fields = vim.split(line, "/", true)
+        local entry = {
+            hash = fields[1],
+            subject = fields[2],
+            author = fields[3],
+        }
+        local index = 1
+        if entry.hash ~= "*" then
+            index = #results + 1
+        end
+        -- P(results)
+        table.insert(results, index, entry)
+    end
+
+    for _, line in ipairs(output) do
+        parse_line(line)
+    end
+
+  local displayer = entry_display.create {
+    separator = " ",
+    items = {
+            { width = 10 },
+            { width = 80 },
+            { width = 20},
+        },
+    }
+
+  local make_display = function(entry)
+    return displayer {
+        { entry.hash },
+        { entry.subject, "TelescopeResultsIdentifier" },
+        { entry.author },
+    }
+  end
+
+    local entry_maker = function(entry)
+        entry.value = entry.hash
+        entry.ordinal = entry.subject .. entry.author .. entry.hash
+        entry.display = make_display
+        return entry
+    end
+
+    opts.entry_maker = entry_maker
+
+    pickers.new(opts, {
+        prompt_title = "Custom Git Branches",
+        finder = finders.new_table {
+            results = results,
+            entry_maker = function(entry)
+                entry.value = entry.hash
+                entry.ordinal = entry.subject .. entry.author .. entry.hash
+                entry.display = make_display
+                return entry
+            end,
+        },
+    previewer = previewers.git_commit_message.new(opts),
+    sorter = conf.file_sorter(opts),
+    attach_mappings = function(_, map)
+        actions.select_default:replace(actions.git_checkout)
+            return true
+        end,
+  }):find()
+end
 
 return M
