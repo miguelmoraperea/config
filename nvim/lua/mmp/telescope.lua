@@ -1,4 +1,5 @@
 local actions = require('telescope.actions')
+local action_state = require "telescope.actions.state"
 local utils = require('telescope.utils')
 local entry_display = require('telescope.pickers.entry_display')
 local pickers = require('telescope.pickers')
@@ -203,6 +204,14 @@ end
 
 M.background_selector = image_selector("< Background Selector > ", "~/Desktop/git/backgrounds")
 
+local diff_commit = function(prompt_bufnr, mode)
+  local cwd = action_state.get_current_picker(prompt_bufnr).cwd
+  local selection = action_state.get_selected_entry()
+  local cmd = "Git difftool --name-only " .. selection.value
+  vim.g.gitgutter_diff_base = selection.value
+  vim.cmd(cmd)
+end
+
 M.git_commits = function(opts)
     local output = utils.get_os_command_output({ "git", "log", "--pretty=format:%h/%s/%an", "--abbrev-commit", "--", "."})
 
@@ -267,8 +276,10 @@ M.git_commits = function(opts)
     sorter = conf.file_sorter(opts),
     attach_mappings = function(_, map)
         actions.select_default:replace(actions.git_checkout)
-            return true
-        end,
+        map("i", "<c-d>", diff_commit)
+        map("n", "<c-d>", diff_commit)
+        return true
+    end,
   }):find()
 end
 
