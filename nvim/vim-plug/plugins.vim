@@ -38,9 +38,6 @@ Plug 'vim-test/vim-test'                            " Run unit tests
 " Python
 Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 
-" C Language
-Plug 'ericcurtin/CurtineIncSw.vim'
-
 " Docker
 Plug 'ekalinin/Dockerfile.vim'
 
@@ -84,7 +81,7 @@ Plug 'nvim-telescope/telescope-fzy-native.nvim'
 
 
 " Python docstrings
-Plug 'heavenshell/vim-pydocstring', { 'do': 'make install', 'for': 'python' }
+Plug 'heavenshell/vim-pydocstring', { 'do': 'make install >> /tmp/pydocstring.log 2>&1', 'for': 'python' }
 
 " Treesitter
 Plug 'haorenW1025/completion-nvim'

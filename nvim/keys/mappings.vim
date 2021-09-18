@@ -72,7 +72,8 @@ nnoremap <Leader>k O<ESC>
 " Open a terminal at the side of the screen
 nnoremap <Leader>te :vsplit<Bar>terminal<CR>
 
-nnoremap <Leader>h :call CurtineIncSw()<CR>
+" Switch between source and header files
+nnoremap <Leader>h :ClangdSwitchSourceHeader<CR>
 
 " Trigger Vim-Flex
 nnoremap <Leader>tf :call VimFlexTimeToFlex()<CR>
