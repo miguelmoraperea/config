@@ -27,6 +27,7 @@ source $HOME/.config/nvim/vim-plug/plug-config/vim-devicons.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-spellcheck.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-pydocstring.vim
 source $HOME/.config/nvim/vim-plug/plug-config/completion-nvim.vim
+source $HOME/.config/nvim/vim-plug/plug-config/vim-interestingwords.vim
 source $HOME/.config/nvim/syntax/c.vim
 lua require 'plug-colorizer'
 

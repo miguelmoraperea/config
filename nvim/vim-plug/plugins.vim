@@ -88,6 +88,8 @@ Plug 'haorenW1025/completion-nvim'
 Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'nvim-treesitter/completion-treesitter'
 
+Plug 'lfv89/vim-interestingwords'
+
 call plug#end()
 
 " Automatically install missing plugins on startup
