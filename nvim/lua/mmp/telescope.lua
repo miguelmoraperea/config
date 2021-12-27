@@ -205,8 +205,8 @@ end
 M.background_selector = image_selector("< Background Selector > ", "~/Desktop/git/backgrounds")
 
 local diff_commit = function(prompt_bufnr, mode)
-  local cwd = action_state.get_current_picker(prompt_bufnr).cwd
   local selection = action_state.get_selected_entry()
+  require("telescope.actions").close(prompt_bufnr)
   local cmd = "Git difftool --name-only " .. selection.value
   vim.g.gitgutter_diff_base = selection.value
   vim.cmd(cmd)
@@ -262,7 +262,7 @@ M.git_commits = function(opts)
     opts.entry_maker = entry_maker
 
     pickers.new(opts, {
-        prompt_title = "Custom Git Branches",
+        prompt_title = "Custom Git Commits",
         finder = finders.new_table {
             results = results,
             entry_maker = function(entry)
