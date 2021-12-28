@@ -138,6 +138,15 @@ M.grep_word_under_cursor = function()
   require("telescope.builtin").grep_string(opts)
 end
 
+M.buffers = function()
+    require("telescope.builtin").buffers({
+        attach_mappings = function(_, map)
+            map('i', '<c-d>', actions.delete_buffer)
+            return true
+        end
+    })
+end
+
 local function set_background(content)
     local cmd = "feh --bg-fill "
             .. content
