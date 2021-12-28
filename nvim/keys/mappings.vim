@@ -89,5 +89,6 @@ nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
-" Diff on commit under the cursor
-nnoremap <expr> <Leader>diff ':let g:gitgutter_diff_base = "'.expand('<cword>').'"<CR> <Bar> :Git difftool --name-only '.expand('<cword>').'<CR>'
+" Diff from quickfix list
+nnoremap <Leader>nd :call VimDiffNext()<CR>
+nnoremap <Leader>pd :call VimDiffPrev()<CR>

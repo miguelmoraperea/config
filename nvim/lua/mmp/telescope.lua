@@ -216,9 +216,7 @@ M.background_selector = image_selector("< Background Selector > ", "~/Desktop/gi
 local diff_commit = function(prompt_bufnr, mode)
   local selection = action_state.get_selected_entry()
   require("telescope.actions").close(prompt_bufnr)
-  local cmd = "Git difftool --name-only " .. selection.value
-  vim.g.gitgutter_diff_base = selection.value
-  vim.cmd(cmd)
+  vim.cmd(string.format('call VimDiffView("%s")', selection.value))
 end
 
 M.git_commits = function(opts)

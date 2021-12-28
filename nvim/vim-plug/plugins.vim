@@ -58,6 +58,7 @@ Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 " My plugins
 Plug 'miguelmoraperea/vim-flex'
 Plug 'miguelmoraperea/vim-jenkinsfile-validate'
+Plug 'miguelmoraperea/vim-diffview'
 
 " Learning Vim
 Plug 'ThePrimeagen/vim-be-good'
