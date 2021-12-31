@@ -39,9 +39,10 @@ end
 
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches
-local servers = { 'tsserver', 'clangd', 'bashls', 'dockerls', 'solargraph', 'pylsp' }
+local servers = { 'tsserver', 'clangd', 'bashls', 'dockerls', 'solargraph', 'pyright' }
 for _, lsp in ipairs(servers) do
     nvim_lsp[lsp].setup {
+        root_dir = nvim_lsp.util.root_pattern('.git');
         on_attach = on_attach,
         flags = {
            debounce_text_changes = 150,

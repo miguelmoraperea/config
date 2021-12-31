@@ -135,10 +135,6 @@ lua require'lspconfig'.bashls.setup{}
 lua require'lspconfig'.dockerls.setup{}
 lua require'lspconfig'.solargraph.setup{}
 
-" Python
-lua require'lspconfig'.pylsp.setup{}
-lua require'lspconfig'.pylsp.setup{on_attach=require'completion'.on_attach}
-
 " Ignore CamelCase words when spell checking
 fun! IgnoreCamelCaseSpell()
   syn match CamelCase /\<[A-Z][a-z]\+[A-Z].\{-}\>/ contains=@NoSpell transparent
