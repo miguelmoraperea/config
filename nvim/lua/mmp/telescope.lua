@@ -99,6 +99,13 @@ M.spellcheck = function()
     }):find()
 end
 
+M.find_files_under = function()
+    require("telescope.builtin").find_files({
+        prompt_title = "< Find files under... >",
+        cwd = vim.fn.expand('%:p:h')
+    })
+end
+
 M.mappings = function()
     -- TODO: When selected, open the file where the mapping is defined
     local pickers = require('telescope.pickers')
