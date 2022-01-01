@@ -36,7 +36,7 @@ Plug 'junegunn/gv.vim'                              " Git browser
 Plug 'vim-test/vim-test'                            " Run unit tests
 
 " Python
-Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
+" Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 
 " Docker
 Plug 'ekalinin/Dockerfile.vim'
@@ -86,7 +86,8 @@ Plug 'heavenshell/vim-pydocstring', { 'do': 'make install >> /tmp/pydocstring.lo
 
 " Treesitter
 Plug 'haorenW1025/completion-nvim'
-Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
+Plug 'nvim-treesitter/playground'
 Plug 'nvim-treesitter/completion-treesitter'
 
 Plug 'lfv89/vim-interestingwords'

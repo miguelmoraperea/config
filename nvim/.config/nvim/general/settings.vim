@@ -150,3 +150,5 @@ augroup END
 
 lua require('mmp.globals')
 " lua require('mmp.indent-blankline')
+
+lua require('nvim-treesitter.configs').setup { highlight = { enable = true } }
