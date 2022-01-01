@@ -79,7 +79,7 @@ Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
-
+Plug '/home/miguel/Desktop/git/telescope-file-browser.nvim'
 
 " Python docstrings
 Plug 'heavenshell/vim-pydocstring', { 'do': 'make install >> /tmp/pydocstring.log 2>&1', 'for': 'python' }

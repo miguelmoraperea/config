@@ -14,6 +14,7 @@ nnoremap <Leader>re :lua require'telescope.builtin'.lsp_references{}<cr>
 nnoremap <Leader>di :lua require'telescope.builtin'.lsp_workspace_diagnostics{}<cr>
 nnoremap <Leader>co :lua R('mmp.telescope').git_commits({})<cr>
 nnoremap <Leader>gu :lua R('mmp.telescope').grep_word_under_cursor()<cr>
+nnoremap <Leader>bf :lua R('telescope').extensions.file_browser.file_browser()<cr>
 
 highlight TelescopeSelection      guifg=#D79921 gui=bold " selected item
 highlight TelescopeSelectionCaret guifg=#CC241D " selection caret
