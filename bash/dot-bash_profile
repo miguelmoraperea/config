@@ -1,2 +1,6 @@
 export STOW_DIRS="alacritty,bash,bash_trueline,compton,i3,nvim,tmux"
 export DOTFILES="/home/miguel/Desktop/git/config"
+
+send_test_email() {
+    echo "This is a test email." | mail -s "Test email from $(uname -n)" root
+}
