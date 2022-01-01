@@ -1,0 +1,7 @@
+#!/bin/bash
+
+IFS=',' read -ra DIRS <<< "$STOW_DIRS"
+for i in "${DIRS[@]}"; do
+    stow --verbose --dotfiles --target=$HOME -D $i
+    stow --verbose --dotfiles --dir=$DOTFILES --target=$HOME $i
+done

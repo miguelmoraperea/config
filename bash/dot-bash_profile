@@ -1,0 +1,2 @@
+export STOW_DIRS="alacritty,bash,bash_trueline,compton,i3,nvim,tmux"
+export DOTFILES="/home/miguel/Desktop/git/config"
