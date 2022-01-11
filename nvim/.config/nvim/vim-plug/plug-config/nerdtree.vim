@@ -12,3 +12,5 @@ let NERDTreeWinSize = 60
 
 " Make sure relative line numbers are used
 autocmd FileType nerdtree setlocal relativenumber
+
+let g:NERDTreeChDirMode = 2
