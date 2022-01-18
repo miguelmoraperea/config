@@ -148,6 +148,24 @@ augroup highlight_yank
     au TextYankPost * silent! lua vim.highlight.on_yank { higroup='IncSearch', timeout=200 }
 augroup END
 
+function! PreciseTrimWhiteSpace()
+  " We need to save the view because the substitute command might
+  " or might not move the cursor, depending on whether it finds
+  " any whitespace.
+  let saved_view = winsaveview()
+
+  " Remove white space. Ignore "not found" errors. Don't change jumplist.
+  keepjumps '[,']s/\s\+$//e
+
+  " Move cursor back if necessary.
+  call winrestview(saved_view)
+endfunction
+
+augroup PreciseTrimWhiteSpace
+  autocmd!
+  autocmd InsertLeave * call PreciseTrimWhiteSpace()
+augroup end
+
 lua require('mmp.globals')
 " lua require('mmp.indent-blankline')
 
