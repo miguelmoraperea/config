@@ -92,6 +92,9 @@ Plug 'nvim-treesitter/completion-treesitter'
 
 Plug 'lfv89/vim-interestingwords'
 
+" C
+Plug 'rhysd/vim-clang-format'
+
 call plug#end()
 
 " Automatically install missing plugins on startup
