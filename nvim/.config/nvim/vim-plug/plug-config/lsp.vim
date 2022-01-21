@@ -49,4 +49,11 @@ for _, lsp in ipairs(servers) do
         }
     }
 end
+
+nvim_lsp['clangd'].setup {
+    cmd = { "clangd-12" },
+    on_attach = on_attach,
+    root_dir = nvim_lsp.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git") or dirname
+}
+
 EOF
