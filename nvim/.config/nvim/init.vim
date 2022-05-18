@@ -31,6 +31,7 @@ source $HOME/.config/nvim/vim-plug/plug-config/vim-interestingwords.vim
 source $HOME/.config/nvim/vim-plug/plug-config/vim-clang-format.vim
 source $HOME/.config/nvim/syntax/c.vim
 lua require 'plug-colorizer'
+lua require 'mmp.harpoon'
 
 " Mappings
 source $HOME/.config/nvim/keys/mappings.vim

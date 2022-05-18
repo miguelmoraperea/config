@@ -95,6 +95,9 @@ Plug 'lfv89/vim-interestingwords'
 " C
 Plug 'rhysd/vim-clang-format'
 
+" Harpoon
+Plug 'ThePrimeagen/harpoon'
+
 call plug#end()
 
 " Automatically install missing plugins on startup
