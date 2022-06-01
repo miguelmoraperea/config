@@ -118,3 +118,9 @@
 
 * RWIN > LALT
 [rwin]>[lalt]
+
+* Home > cmd
+[home]>[lwin]
+
+* Page up > cmd
+[pup]>[rwin]
