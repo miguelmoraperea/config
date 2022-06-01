@@ -98,6 +98,10 @@ Plug 'rhysd/vim-clang-format'
 " Harpoon
 Plug 'ThePrimeagen/harpoon'
 
+
+" Markdown visualizer
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+
 call plug#end()
 
 " Automatically install missing plugins on startup
