@@ -1,0 +1,25 @@
+jobs:
+  include:
+  - stage: macOS
+    os: osx
+    osx_image: xcode13.3
+    env:
+      - STOW_DIRS="nvim"
+      - DOTFILES="$(pwd)/mac"
+    before_script:
+      - brew install stow
+    script:
+      - echo "Running on macOS"
+      - ./install
+
+  - stage: Linux
+    os: linux
+    dist: focal
+    env:
+      - STOW_DIRS="tmux, i3, compton, bash, bash_true_line, alacritty, nvim"
+      - DOTFILES="$(pwd)/linux"
+    before_install:
+      - sudo apt-get install stow
+    script:
+      - echo "Running on Linux"
+      - ./install
