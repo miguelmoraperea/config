@@ -8,8 +8,12 @@ jobs:
       - DOTFILES="$(pwd)/mac"
     before_script:
       - brew install stow
+      - python3 -m venv venv && source venv/bin/activate
+      - pip3 install ansible
+      - pip3 install ansible-lint
     script:
       - echo "Running on macOS"
+      - ansible-playbook playbook.yml -vvv --tags mac
       - ./install
 
   - stage: Linux

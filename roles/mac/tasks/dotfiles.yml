@@ -1,0 +1,6 @@
+- name: Personal dotfiles
+  ansible.builtin.git:
+    repo: https://github.com/miguelmoraperea/config.git
+    dest: ~/Desktop/git/config
+    version: master
+    update: false

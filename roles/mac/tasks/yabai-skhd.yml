@@ -1,0 +1,21 @@
+- name: Install yabai & skhd
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - koekeishiya/formulae/yabai
+    - koekeishiya/formulae/skhd
+
+- name: Install yabai scripting additions
+  ansible.builtin.command: yabai --install-sa
+  become: true
+
+- name: Load yabai scripting additions
+  ansible.builtin.command: yabai --load-sa
+  become: true
+
+- name: Restart yabai & skhd
+  ansible.builtin.command: brew services restart "{{ item }}"
+  loop:
+    - yabai
+    - skhd

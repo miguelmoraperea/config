@@ -1,0 +1,18 @@
+- name: Install packages
+  import_tasks: installs.yml
+
+- name: Download dotfiles
+  import_tasks: dotfiles.yml
+  tags:
+  - dotfiles
+
+- name: Configuration
+  import_tasks: config.yml
+  tags:
+  - config
+
+- name: Yabai and Skhd
+  import_tasks: yabai-skhd.yml
+  tags:
+  - yabai
+  - skhd

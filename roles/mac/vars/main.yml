@@ -1,0 +1,12 @@
+homebrew_packages:
+  - htop
+  - node
+  - stow
+  - wget
+  - tmux
+
+homebrew_cask_packages:
+  - iterm2
+  - firefox
+  - docker
+  - 1password

@@ -1,0 +1,20 @@
+- name: Upgrade brew and install homebrew packages
+  community.general.homebrew:
+    name: '{{ homebrew_packages }}'
+    state: latest
+    update_homebrew: true
+  tags:
+    - brew
+
+- name: Install homebrew cask packages
+  community.general.homebrew_cask:
+    name: '{{ homebrew_cask_packages }}'
+    state: latest
+    update_homebrew: true
+  tags:
+    - brew
+
+- name: homebrew cleanup
+  ansible.builtin.command: brew cleanup
+  tags:
+    - clean
