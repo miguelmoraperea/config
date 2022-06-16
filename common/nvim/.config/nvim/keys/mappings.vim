@@ -92,3 +92,10 @@ nnoremap N Nzzzv
 " Diff from quickfix list
 nnoremap <Leader>nd :call VimDiffNext()<CR>
 nnoremap <Leader>pd :call VimDiffPrev()<CR>
+
+" Diff on commit under the cursor
+nnoremap <expr> <Leader>diff ':let g:gitgutter_diff_base = "'.expand('<cword>').'"<CR> <Bar> :Git difftool --name-only '.expand('<cword>').'<CR>'
+
+" Git gutter navigate hunks
+nnorema <Leader>nh :GitGutterNextHunk<cr>
+nnorema <Leader>ph :GitGutterPrevHunk<cr>
