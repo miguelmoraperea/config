@@ -16,7 +16,6 @@ Plug 'junegunn/rainbow_parentheses.vim'             " Rainbow parentheses
 
 Plug 'morhetz/gruvbox'                              " Theme
 
-Plug 'octol/vim-cpp-enhanced-highlight'             " C++ highlighter
 Plug 'norcalli/nvim-colorizer.lua'                  " Display colour codes with their actual colour in the background
 Plug 'Yggdroot/indentLine'
 Plug 'preservim/nerdcommenter'                      " Easy comments
@@ -34,9 +33,6 @@ Plug 'junegunn/gv.vim'                              " Git browser
 
 " Testing
 Plug 'vim-test/vim-test'                            " Run unit tests
-
-" Python
-" Plug 'numirias/semshi', {'do': ':UpdateRemotePlugins'}
 
 " Docker
 Plug 'ekalinin/Dockerfile.vim'
