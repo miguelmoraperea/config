@@ -1,6 +1,20 @@
 #!/bin/bash
 
-IFS=',' read -ra DIRS <<< "$STOW_DIRS"
+# Determine the operating system
+readonly OS=$(uname)
+readonly PWD=$(pwd)
+
+if [[ "${OS}" == "Darwin" ]]; then
+    echo "Running on (macOS)"
+    STOW_DIRS="nvim, tmux"
+    DOTFILES="${PWD}/mac"
+else
+    echo "Running on (Linux)"
+    STOW_DIRS="valacritty, bash, bash_trueline, compton, i3, nvim, tmux"
+    DOTFILES="${PWD}/mac"
+fi
+
+IFS=',' read -ra DIRS <<< "${STOW_DIRS}"
 for i in "${DIRS[@]}"; do
-    stow --verbose --restow --dotfiles --dir=$DOTFILES --target=$HOME $i
+    stow --verbose --restow --dotfiles --dir=${DOTFILES} --target=${HOME} ${i}
 done

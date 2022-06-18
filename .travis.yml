@@ -3,9 +3,6 @@ jobs:
   - stage: macOS
     os: osx
     osx_image: xcode13.3
-    env:
-      - STOW_DIRS="nvim"
-      - DOTFILES="$(pwd)/mac"
     before_script:
       - brew install stow
       - python3 -m venv venv && source venv/bin/activate
@@ -19,9 +16,6 @@ jobs:
   - stage: Linux
     os: linux
     dist: focal
-    env:
-      - STOW_DIRS="tmux, i3, compton, bash, bash_true_line, alacritty, nvim"
-      - DOTFILES="$(pwd)/linux"
     before_install:
       - sudo apt-get install stow
     script:
