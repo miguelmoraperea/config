@@ -28,3 +28,11 @@ In some cases sudo password is required:
 ```
 ansible-playbook playbook.yml playbook.yml --tags yabai --ask-become-pass
 ```
+
+# Dotfiles
+
+To symlink all the dotfiles simply run:
+
+```
+./install
+```
