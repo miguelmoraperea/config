@@ -60,9 +60,11 @@ au! BufWritePost $MYVIMRC source %      " auto source when writing to init.vm al
 " You can't stop me
 cmap w!! w !sudo tee %
 
-set background=dark
-let g:gruvbox_colors = { 'bright_red': ['#ffff00', 0] }
-colorscheme gruvbox
+" set background=dark
+" let g:gruvbox_colors = { 'bright_red': ['#ffff00', 0] }
+" colorscheme gruvbox
+
+colorscheme nightfox
 
 " Enable true color
 if exists('+termguicolors')

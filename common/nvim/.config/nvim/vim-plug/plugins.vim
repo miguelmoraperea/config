@@ -14,6 +14,7 @@ Plug 'vim-airline/vim-airline-themes'               " Status bar
 Plug 'mhinz/vim-startify'                           " Start screen
 Plug 'junegunn/rainbow_parentheses.vim'             " Rainbow parentheses
 
+Plug 'EdenEast/nightfox.nvim'                       " Theme
 Plug 'morhetz/gruvbox'                              " Theme
 
 Plug 'norcalli/nvim-colorizer.lua'                  " Display colour codes with their actual colour in the background
