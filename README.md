@@ -7,6 +7,7 @@
 Create a new python3 virtual environment:
 ```
 python3 -m venv venv
+python3 -m pip install --upgrade pip
 sourve venv/bin/activate
 ```
 
