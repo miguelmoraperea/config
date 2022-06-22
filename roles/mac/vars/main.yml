@@ -5,6 +5,8 @@ homebrew_packages:
   - wget
   - tmux
   - neofetch
+  - ripgrep
+  - fd
 
 homebrew_cask_packages:
   - iterm2
