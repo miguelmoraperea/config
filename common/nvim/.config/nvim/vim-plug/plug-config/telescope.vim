@@ -1,5 +1,5 @@
 " Find files using Telescope command-line sugar.
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>ff <cmd>Telescope find_files hidden=True<cr>
 nnoremap <leader>fd :lua R('mmp.telescope').find_files_under()<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb :lua R('mmp.telescope').buffers()<cr>
