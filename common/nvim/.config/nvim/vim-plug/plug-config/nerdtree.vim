@@ -3,6 +3,7 @@ nnoremap <Leader>n :NERDTreeFind<Enter>         " Find opened buffer
 
 let NERDTreeQuitOnOpen = 1
 let NERDTreeMapOpenInTab='<c-t>'
+let NERDTreeShowHidden=1
 
 " Enable line numbers
 let NERDTreeShowLineNumbers=1
