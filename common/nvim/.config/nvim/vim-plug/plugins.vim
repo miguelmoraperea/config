@@ -55,7 +55,7 @@ Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 " My plugins
 Plug 'miguelmoraperea/vim-flex'
 Plug 'miguelmoraperea/vim-jenkinsfile-validate'
-Plug 'miguelmoraperea/vim-diffview'
+" Plug 'miguelmoraperea/vim-diffview'
 
 " Learning Vim
 Plug 'ThePrimeagen/vim-be-good'
@@ -95,9 +95,11 @@ Plug 'rhysd/vim-clang-format'
 " Harpoon
 Plug 'ThePrimeagen/harpoon'
 
-
 " Markdown visualizer
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+
+" Diff view
+Plug 'sindrets/diffview.nvim'
 
 call plug#end()
 
