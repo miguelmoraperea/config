@@ -1,4 +1,4 @@
-lua vim.lsp.set_log_level("debug")
+lua vim.lsp.set_log_level("warn")
 let g:lsp_log_verbose=1
 
 lua << EOF
