@@ -16,3 +16,8 @@
   tags:
   - yabai
   - skhd
+
+- name: nvim
+  import_tasks: nvim.yml
+  tags:
+    - nvim

@@ -69,7 +69,14 @@ Plug 'kdheepak/lazygit.nvim'
 
 " LSP
 Plug 'neovim/nvim-lspconfig'
-Plug 'nvim-lua/completion-nvim'
+
+" Completion
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'L3MON4D3/LuaSnip'
 
 " Telescope
 Plug 'nvim-lua/popup.nvim'
@@ -82,7 +89,7 @@ Plug 'nvim-telescope/telescope-fzy-native.nvim'
 Plug 'heavenshell/vim-pydocstring', { 'do': 'make install >> /tmp/pydocstring.log 2>&1', 'for': 'python' }
 
 " Treesitter
-Plug 'haorenW1025/completion-nvim'
+" Plug 'haorenW1025/completion-nvim'
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
 Plug 'nvim-treesitter/playground'
 Plug 'nvim-treesitter/completion-treesitter'
