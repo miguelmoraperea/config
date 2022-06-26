@@ -157,10 +157,12 @@ function! PreciseTrimWhiteSpace()
   let saved_view = winsaveview()
 
   " Remove white space. Ignore "not found" errors. Don't change jumplist.
-  keepjumps '[,']s/\s\+$//e
+  if &modifiable
+    keepjumps '[,']s/\s\+$//e
 
-  " Move cursor back if necessary.
-  call winrestview(saved_view)
+    " Move cursor back if necessary.
+    call winrestview(saved_view)
+  endif
 endfunction
 
 augroup PreciseTrimWhiteSpace
