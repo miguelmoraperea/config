@@ -7,6 +7,7 @@ homebrew_packages:
   - neofetch
   - ripgrep
   - fd
+  - ranger
 
 homebrew_cask_packages:
   - iterm2
