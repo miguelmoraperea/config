@@ -99,3 +99,6 @@ nnoremap <expr> <Leader>diff ':let g:gitgutter_diff_base = "'.expand('<cword>').
 " Git gutter navigate hunks
 nnorema <Leader>nh :GitGutterNextHunk<cr>
 nnorema <Leader>ph :GitGutterPrevHunk<cr>
+
+" Git diffview
+nnoremap <Leader>hi :DiffviewFileHistory %<CR>
