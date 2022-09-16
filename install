@@ -10,8 +10,8 @@ if [[ "${OS}" == "Darwin" ]]; then
     DOTFILES="${PWD}/mac"
 else
     echo "Running on (Linux)"
-    STOW_DIRS="valacritty, bash, bash_trueline, compton, i3, nvim, tmux"
-    DOTFILES="${PWD}/mac"
+    STOW_DIRS="alacritty, bash, bash_trueline, compton, i3, nvim, ranger, tmux"
+    DOTFILES="${PWD}/linux"
 fi
 
 IFS=',' read -ra DIRS <<< "${STOW_DIRS}"

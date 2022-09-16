@@ -1,0 +1,11 @@
+apt_packages:
+  - htop
+  - stow
+  - wget
+  - tmux
+  - neofetch
+  - ripgrep
+  - ranger
+  - firefox
+  - docker
+  - 1password

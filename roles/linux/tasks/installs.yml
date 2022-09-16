@@ -1,0 +1,7 @@
+- name: Upgrade apt and install packages
+  become: yes
+  ansible.builtin.apt:
+    name: '{{ apt_packages }}'
+    state: latest
+  tags:
+    - apt

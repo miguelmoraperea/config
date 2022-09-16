@@ -1,0 +1,16 @@
+- name: Install packages
+  import_tasks: installs.yml
+  tags:
+    - linux
+
+- name: Download dotfiles
+  import_tasks: dotfiles.yml
+  tags:
+    - linux
+    - dotfiles
+
+- name: nvim
+  import_tasks: nvim.yml
+  tags:
+    - linux
+    - nvim

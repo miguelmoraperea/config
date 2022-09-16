@@ -6,3 +6,10 @@
     - mac
   tags:
     - mac
+
+- hosts: localhost
+  connection: local
+  roles:
+    - linux
+  tags:
+    - linux
