@@ -27,7 +27,7 @@ ansible-playbook playbook.yml --tags mac
 In some cases sudo password is required:
 
 ```
-ansible-playbook playbook.yml playbook.yml --tags yabai --ask-become-pass
+ansible-playbook playbook.yml --tags yabai --ask-become-pass
 ```
 
 # Dotfiles
