@@ -7,7 +7,7 @@ local finders = require('telescope.finders')
 local conf = require('telescope.config').values
 local previewers = require('telescope.previewers')
 
-require('telescope').setup{
+require('telescope').setup {
     defaults = {
         vimgrep_arguments = {
             'rg',
@@ -33,22 +33,22 @@ require('telescope').setup{
                 width = 0.7,
             }
         },
-        file_sorter = require'telescope.sorters'.get_fzy_sorter,
+        file_sorter = require 'telescope.sorters'.get_fzy_sorter,
         file_ignore_patterns = {},
-        generic_sorter =  require'telescope.sorters'.get_generic_fuzzy_sorter,
+        generic_sorter = require 'telescope.sorters'.get_generic_fuzzy_sorter,
         path_display = {},
         winblend = 0,
         border = {},
-        borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰'},
+        borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
         color_devicons = true,
         use_less = true,
         set_env = { ['COLORTERM'] = 'truecolor' }, -- default = nil,
-        file_previewer = require'telescope.previewers'.vim_buffer_cat.new,
-        grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
-        qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
+        file_previewer = require 'telescope.previewers'.vim_buffer_cat.new,
+        grep_previewer = require 'telescope.previewers'.vim_buffer_vimgrep.new,
+        qflist_previewer = require 'telescope.previewers'.vim_buffer_qflist.new,
 
         -- Developer configurations: Not meant for general override
-        buffer_previewer_maker = require'telescope.previewers'.buffer_previewer_maker
+        buffer_previewer_maker = require 'telescope.previewers'.buffer_previewer_maker
     },
     extensions = {
         fzy_native = {
@@ -66,7 +66,7 @@ local M = {}
 M.search_dotfiles = function()
     require("telescope.builtin").find_files({
         prompt_title = "< VimRC >",
-        cwd = "~/Desktop/git/config",
+        cwd = "~/.config/nvim",
         hidden = true,
     })
 end
@@ -93,8 +93,8 @@ M.spellcheck = function()
     end
 
     pickers.new({
-        prompt_title  = 'SpellCheck',
-        finder = finders.new_table {
+        prompt_title = 'SpellCheck',
+        finder       = finders.new_table {
             results = locations,
             entry_maker = make_entry.gen_from_quickfix(),
         },
@@ -127,24 +127,24 @@ M.mappings = function()
     end
 
     pickers.new({
-        prompt_title  = 'Mappings',
-        finder = finders.new_table {
+        prompt_title = 'Mappings',
+        finder       = finders.new_table {
             results = locations,
         },
-        sorter = sorters.get_generic_fuzzy_sorter(),
+        sorter       = sorters.get_generic_fuzzy_sorter(),
     }):find()
 end
 
 M.grep_word_under_cursor = function()
-  opts = opts or {}
+    opts = opts or {}
 
-  local register = vim.fn.expand('<cword>')
+    local register = vim.fn.expand('<cword>')
 
-  opts.path_display = { "absolute" }
-  opts.word_match = "-w"
-  opts.search = register
+    opts.path_display = { "absolute" }
+    opts.word_match = "-w"
+    opts.search = register
 
-  require("telescope.builtin").grep_string(opts)
+    require("telescope.builtin").grep_string(opts)
 end
 
 M.buffers = function()
@@ -157,8 +157,11 @@ M.buffers = function()
 end
 
 local function set_background(content)
-    local cmd = "feh --bg-fill "
-            .. content
+    -- local cmd = "feh --bg-fill "
+    --     .. content
+    local cmd = "changeBackground "
+        .. content
+        P(cmd)
     vim.fn.system(cmd)
 end
 
@@ -169,7 +172,7 @@ local function delete_background(prompt_bufnr, map)
         )
         local file = content.cwd .. "/" .. content.value
         local cmd = "rm -f "
-                .. file
+            .. file
         -- TODO: Add confirmation before deleting the file
         vim.fn.system(cmd)
     end
@@ -223,14 +226,14 @@ end
 M.background_selector = image_selector("< Background Selector > ", "~/Desktop/git/backgrounds")
 
 local diff_commit = function(prompt_bufnr, mode)
-  local selection = action_state.get_selected_entry()
-  require("telescope.actions").close(prompt_bufnr)
-  -- vim.cmd(string.format('call VimDiffView("%s")', selection.value))
-  vim.cmd(string.format('DiffviewOpen %s', selection.value))
+    local selection = action_state.get_selected_entry()
+    require("telescope.actions").close(prompt_bufnr)
+    -- vim.cmd(string.format('call VimDiffView("%s")', selection.value))
+    vim.cmd(string.format('DiffviewOpen %s', selection.value))
 end
 
 M.git_commits = function(opts)
-    local output = utils.get_os_command_output({ "git", "log", "--pretty=format:%h/%s/%an", "--abbrev-commit", "--", "."})
+    local output = utils.get_os_command_output({ "git", "log", "--pretty=format:%h/%s/%an", "--abbrev-commit", "--", "." })
 
     local results = {}
     local parse_line = function(line)
@@ -252,22 +255,22 @@ M.git_commits = function(opts)
         parse_line(line)
     end
 
-  local displayer = entry_display.create {
-    separator = " ",
-    items = {
+    local displayer = entry_display.create {
+        separator = " ",
+        items = {
             { width = 10 },
             { width = 80 },
-            { width = 20},
+            { width = 20 },
         },
     }
 
-  local make_display = function(entry)
-    return displayer {
-        { entry.hash },
-        { entry.subject, "TelescopeResultsIdentifier" },
-        { entry.author },
-    }
-  end
+    local make_display = function(entry)
+        return displayer {
+            { entry.hash },
+            { entry.subject, "TelescopeResultsIdentifier" },
+            { entry.author },
+        }
+    end
 
     local entry_maker = function(entry)
         entry.value = entry.hash
@@ -289,15 +292,15 @@ M.git_commits = function(opts)
                 return entry
             end,
         },
-    previewer = previewers.git_commit_message.new(opts),
-    sorter = conf.file_sorter(opts),
-    attach_mappings = function(_, map)
-        actions.select_default:replace(actions.git_checkout)
-        map("i", "<c-d>", diff_commit)
-        map("n", "<c-d>", diff_commit)
-        return true
-    end,
-  }):find()
+        previewer = previewers.git_commit_message.new(opts),
+        sorter = conf.file_sorter(opts),
+        attach_mappings = function(_, map)
+            actions.select_default:replace(actions.git_checkout)
+            map("i", "<c-d>", diff_commit)
+            map("n", "<c-d>", diff_commit)
+            return true
+        end,
+    }):find()
 end
 
 return M

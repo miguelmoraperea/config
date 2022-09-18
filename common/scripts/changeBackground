@@ -1,0 +1,16 @@
+#!/bin/bash
+
+readonly OS=$(uname)
+
+changeBackground() {
+
+    if [[ "${OS}" == "Darwin" ]]; then
+        osascript \
+            -e 'on run(argv)' \
+            -e 'tell application "Finder" to set desktop picture to POSIX file (item 1 of argv)' \
+            -e 'end' \
+            -- "$1"
+    else
+        feh --bg-fill $1
+    fi
+}

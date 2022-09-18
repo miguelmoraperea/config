@@ -1,3 +1,4 @@
 common/nvim/.config/nvim/autoload
 venv
+common/nvim/.config/nvim/plugin/
 
