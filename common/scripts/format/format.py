@@ -7,6 +7,7 @@ CWD = os.getcwd()
 IS_DRY_RUN = False
 IS_TO_LOWER = False
 IS_RECURSIVE = False
+IS_FILE_ONLY = False
 
 
 class Rename:
@@ -20,6 +21,7 @@ def main():
     global IS_DRY_RUN
     global IS_TO_LOWER
     global IS_RECURSIVE
+    global IS_FILE_ONLY
 
     parser = argparse.ArgumentParser(description='Reformat file names')
     parser.add_argument('targets', nargs='+', help='Targets to rename')
@@ -29,42 +31,52 @@ def main():
                         help='Apply reformatting recursively')
     parser.add_argument('-l', '--lower', action='store_true',
                         help='Change to all lower case')
+    parser.add_argument('-f', '--files', action='store_true',
+                        help='Change files only, ignore dirs')
 
     args = parser.parse_args()
 
     IS_DRY_RUN = args.dry_run
     IS_TO_LOWER = args.lower
     IS_RECURSIVE = args.recursive
+    IS_FILE_ONLY = args.files
 
     process(args.targets)
 
 
 def process(targets):
-    rename = Rename()
-    rename_targets = {}
+    rename_dict = {}
 
     if IS_DRY_RUN:
         print('DRY-RUN', end='\n\n')
 
-    for target in targets:
-        if IS_RECURSIVE:
-            rename_targets.update(recurse(target))
-        else:
-            rename_targets[target] = rename.run(target)
+    rename_dict = find_elements_to_rename(targets)
 
-    for old_name, new_name in rename_targets.items():
+    for old_name, new_name in rename_dict.items():
         move_file(old_name, new_name)
 
 
-def recurse(root):
+def find_elements_to_rename(targets):
     rename = Rename()
     result = {}
 
-    for root, _, files in os.walk(os.path.join(CWD, root)):
-        for file in files:
-            result[os.path.join(root, file)] = os.path.join(root, rename.run(file))
+    for target in targets:
+        if IS_RECURSIVE:
+            result[target] = rename.run(target)
+            for root, dirs, files in os.walk(os.path.join(CWD, target)):
+                nodes = files + dirs
+                for node in nodes:
+                    full_path = os.path.join(root, node)
+                    if IS_FILE_ONLY and os.path.isdir(full_path):
+                        continue
+                    result[full_path] = os.path.join(root, rename.run(node))
+        else:
+            if IS_FILE_ONLY and os.path.isdir(target):
+                continue
+            result[target] = rename.run(target)
 
     return result
+
 
 def move_file(target, new_name):
     if not IS_DRY_RUN:
@@ -79,11 +91,13 @@ def move(target, new_name):
     subprocess.call(cmd, shell=True)
 
 
-def print_message(old_name, new_name):
+def print_message(old_path, new_path):
     word = '-->'
     if IS_DRY_RUN:
         word = '~~>'
-    print(f'{os.path.basename(old_name):<50} {word:} {os.path.basename(new_name)}')
+    old_name = os.path.basename(old_path)
+    new_name = os.path.basename(new_path)
+    print(f'{old_name:<50} {word:} {new_name}')
 
 
 if __name__ == '__main__':
