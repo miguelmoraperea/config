@@ -51,9 +51,13 @@ def process(targets):
         print('DRY-RUN', end='\n\n')
 
     rename_dict = find_elements_to_rename(targets)
+    rename_cnt = 0
 
     for old_name, new_name in rename_dict.items():
-        move_file(old_name, new_name)
+        rename_cnt += move_file(old_name, new_name)
+
+    if rename_cnt == 0:
+        print('Not items found that need formatting.')
 
 
 def find_elements_to_rename(targets):
@@ -79,14 +83,17 @@ def find_elements_to_rename(targets):
 
 
 def move_file(target, new_name):
-    if not IS_DRY_RUN:
-        move(target, new_name)
-    print_message(target, new_name)
-
-
-def move(target, new_name):
     src = os.path.join(CWD, target.replace(' ', '\ '))
     dest = os.path.join(CWD, new_name)
+    if src == dest:
+        return 0
+    if not IS_DRY_RUN:
+        move(src, dest)
+    print_message(src, dest)
+    return 1
+
+
+def move(src, dest):
     cmd = f'mv {src} {dest}'
     subprocess.call(cmd, shell=True)
 
