@@ -170,3 +170,10 @@ null_ls.setup({
 -- Symbols outline
 require("symbols-outline").setup({ show_relative_numbers = true })
 vim.keymap.set("n", "<Leader>t", ":SymbolsOutline<CR>", { noremap = false })
+
+-- nvim-treesitter
+require'nvim-treesitter.configs'.setup {
+  highlight = {
+    enable = true,
+  },
+}
