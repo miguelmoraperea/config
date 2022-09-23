@@ -83,13 +83,16 @@ def find_elements_to_rename(targets):
 
 
 def move_file(target, new_name):
-    src = os.path.join(CWD, target.replace(' ', '\ '))
+    src = os.path.join(CWD, target)
     dest = os.path.join(CWD, new_name)
+    scaped_chars = str.maketrans({"(": r"\(", ")": r"\)", " ": r"\ "})
+    scaped_src = src.translate(scaped_chars)
+    scaped_dest = dest.translate(scaped_chars)
     if src == dest:
         return 0
     if not IS_DRY_RUN:
-        move(src, dest)
-    print_message(src, dest)
+        move(scaped_src, scaped_dest)
+    print_message(target, new_name)
     return 1
 
 
