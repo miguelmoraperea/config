@@ -2,6 +2,7 @@
 import argparse
 import subprocess
 import os
+from collections import OrderedDict
 
 CWD = os.getcwd()
 IS_DRY_RUN = False
@@ -45,14 +46,24 @@ def main():
 
 
 def process(targets):
-    rename_dict = {}
+    rename_cnt = 0
+    renamed_targets = targets
 
     if IS_DRY_RUN:
         print('DRY-RUN', end='\n\n')
 
-    rename_dict = find_elements_to_rename(targets)
-    rename_cnt = 0
+    if not IS_FILE_ONLY:
+       # Rename dirs
+       rename_dict, renamed_targets = find_dirs_to_rename(targets)
+       for old_name, new_name in rename_dict.items():
+           rename_cnt += move_file(old_name, new_name)
+       rename_dict.clear()
 
+    # Rename files
+    if IS_DRY_RUN:
+        # Use originial targets
+        renamed_targets = targets
+    rename_dict = find_files_to_rename(renamed_targets)
     for old_name, new_name in rename_dict.items():
         rename_cnt += move_file(old_name, new_name)
 
@@ -60,27 +71,40 @@ def process(targets):
         print('Not items found that need formatting.')
 
 
-def find_elements_to_rename(targets):
+def find_dirs_to_rename(targets):
     rename = Rename()
-    result = {}
+    result = OrderedDict()
+    renamed_targets = []
 
     for target in targets:
         if IS_RECURSIVE:
-            result[target] = rename.run(target)
-            for root, dirs, files in os.walk(os.path.join(CWD, target)):
-                nodes = files + dirs
-                for node in nodes:
-                    full_path = os.path.join(root, node)
-                    if IS_FILE_ONLY and os.path.isdir(full_path):
-                        continue
-                    result[full_path] = os.path.join(root, rename.run(node))
+            for root, dirs, _ in os.walk(os.path.join(CWD, target), topdown=False):
+                for dir in dirs:
+                    full_path = os.path.join(root, dir)
+                    result[full_path] = os.path.join(root, rename.run(dir))
+        if os.path.isdir(target):
+            renamed_target = rename.run(target)
+            result[target] = renamed_target
+            renamed_targets.append(renamed_target)
         else:
-            if IS_FILE_ONLY and os.path.isdir(target):
-                continue
-            result[target] = rename.run(target)
+            renamed_targets.append(target)
+
+    return result, renamed_targets
+
+def find_files_to_rename(targets):
+    rename = Rename()
+    result = OrderedDict()
+
+    for target in targets:
+        if IS_RECURSIVE:
+            if os.path.isfile(target):
+                result[target] = rename.run(target)
+            for root, _, files in os.walk(os.path.join(CWD, target)):
+                for file in files:
+                    full_path = os.path.join(root, file)
+                    result[full_path] = os.path.join(root, rename.run(file))
 
     return result
-
 
 def move_file(target, new_name):
     src = os.path.join(CWD, target)
