@@ -10,13 +10,18 @@ IS_TO_LOWER = False
 IS_RECURSIVE = False
 IS_FILE_ONLY = False
 EXCLUDE_DIRS = []
+SUBSTITUTE = None
 
 
 class Rename:
 
     def run(self, name):
         tmp = name.lower() if IS_TO_LOWER else name
-        return tmp.replace(' ', '_')
+        tmp2 = tmp.replace(' ', '_')
+        old = new = ''
+        if SUBSTITUTE:
+            old, new = SUBSTITUTE[0].split('/', maxsplit=1)
+        return tmp2.replace(old, new) if SUBSTITUTE else tmp2
 
 
 def main():
@@ -25,6 +30,7 @@ def main():
     global IS_RECURSIVE
     global IS_FILE_ONLY
     global EXCLUDE_DIRS
+    global SUBSTITUTE
 
     parser = argparse.ArgumentParser(description='Reformat file names')
     parser.add_argument('targets', nargs='+', help='Targets to rename')
@@ -38,6 +44,8 @@ def main():
                         help='Change files only, ignore dirs')
     parser.add_argument('-e', '--exclude_dirs', nargs=1, default=[],
                         help='Exclude the directories that match')
+    parser.add_argument('-s', '--substitute', nargs=1,
+                        help='Substitute with matching sequence')
 
     args = parser.parse_args()
 
@@ -46,6 +54,7 @@ def main():
     IS_RECURSIVE = args.recursive
     IS_FILE_ONLY = args.files
     EXCLUDE_DIRS = args.exclude_dirs
+    SUBSTITUTE = args.substitute
 
     process(args.targets)
 
@@ -99,6 +108,7 @@ def find_dirs_to_rename(targets):
 
     return result, renamed_targets
 
+
 def find_files_to_rename(targets):
     rename = Rename()
     result = OrderedDict()
@@ -114,8 +124,11 @@ def find_files_to_rename(targets):
                 for file in files:
                     full_path = os.path.join(root, file)
                     result[full_path] = os.path.join(root, rename.run(file))
+        else:
+            result[target] = os.path.join(rename.run(target))
 
     return result
+
 
 def move_file(target, new_name):
     src = os.path.join(CWD, target)
