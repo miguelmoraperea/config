@@ -22,6 +22,7 @@ def hashfile(file):
 
 def process(targets):
     files = []
+    errors = []
     database_hashes, database_pairs = load_from_library()
 
     for target in targets:
@@ -30,7 +31,7 @@ def process(targets):
         elif os.path.isfile(target):
             files.append(os.path.join(CWD, target))
 
-    for file in files:
+    for file in sorted(files):
         hash = hashfile(file)
         found_file = ''
 
@@ -41,15 +42,22 @@ def process(targets):
                 found_file = database_file
 
         if found_file:
-            print(f'❌ [{file}] == [{found_file}]')
+            msg = (f'\n❌\n{file}\n{found_file}\n')
+            print(msg)
+            errors.append(msg)
             continue
-        print(f'✅ [{file}]')
+        print(f'✅ {file}')
         database_hashes.add(hash)
         database_pairs[hash] = file
 
     with open(DATABASE, 'w') as file:
         for hash, path in sorted(database_pairs.items()):
             file.write(f'{hash} | {path}\n')
+
+    with open('errors', 'w') as file:
+        if errors:
+            for err in errors:
+                file.write(f'{err}\n')
     print('Done')
 
 
@@ -73,7 +81,9 @@ def recursively_find_all_images_under(directory):
         dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
         for file in files:
             full_path = os.path.join(root, file)
-            files_.append(full_path)
+            extension = full_path.rsplit('.', 1)[-1].lower()
+            if extension in ['jpg']:
+                files_.append(full_path)
     return files_
 
 
@@ -88,14 +98,14 @@ def main():
                         help='Apply reformatting recursively')
     parser.add_argument('-e', '--exclude_dirs', nargs=1, default=[],
                         help='Exclude the directories that match')
-    parser.add_argument('-d', '--database', nargs=1, default='img_database',
+    parser.add_argument('-d', '--database', nargs=1, default=['img_database'],
                         help='Path to the hashes database')
 
     args = parser.parse_args()
 
     IS_RECURSIVE = args.recursive
     EXCLUDE_DIRS = args.exclude_dirs
-    DATABASE = args.database
+    DATABASE = args.database[0]
 
     process(args.targets)
 
