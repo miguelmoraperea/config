@@ -3,7 +3,7 @@ import argparse
 import subprocess
 import os
 from datetime import datetime
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 CWD = os.getcwd()
 IS_DRY_RUN = False
@@ -13,10 +13,18 @@ IS_FILE_ONLY = False
 EXCLUDE_DIRS = []
 SUBSTITUTE = None
 NAME = ''
+IMAGE_EXTENSIONS = ['jpg']
 
 
 def get_date_taken(path):
-    return datetime.strptime(str(Image.open(path)._getexif()[36867]), '%Y:%m:%d %H:%M:%S')
+    try:
+        return datetime.strptime(str(Image.open(path)._getexif()[36867]), '%Y:%m:%d %H:%M:%S')
+    except (UnidentifiedImageError, TypeError):
+        stat = os.stat(path)
+        try:
+            return datetime.fromtimestamp(stat.st_birthtime)
+        except AttributeError:
+            return datetime.fromtimestamp(stat.st_mtime)
 
 
 class Rename:
@@ -37,7 +45,7 @@ class Rename:
             if self._last_dir != os.path.dirname(full_path):
                 self._counter = 1
             if '.' in name:
-                extension = name.rsplit('.', 1)[-1].lower()
+                extension = get_extension(name)
                 tmp = f'{NAME}_{self._counter}.{extension}'
             else:
                 tmp = f'{NAME}_{self._counter}'
@@ -121,9 +129,21 @@ def process(targets):
     for old_path in files:
         new_path = rename.run(old_path)
         rename_cnt += move_file(old_path, new_path)
+        extension = get_extension(old_path)
+        if extension is not None and extension in IMAGE_EXTENSIONS:
+            pp3_path = f'{old_path}.pp3'
+            if os.path.exists(pp3_path):
+                rename_cnt += move_file(pp3_path, f'{new_path}.pp3')
+                files.remove(pp3_path)
 
     if rename_cnt == 0:
         print('Not items found that need formatting.')
+
+
+def get_extension(path):
+    if '.' in path:
+        return path.rsplit('.', 1)[-1].lower()
+    return None
 
 
 def find_dirs_to_rename(targets):
