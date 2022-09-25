@@ -6,6 +6,7 @@ fi
 export STOW_DIRS="alacritty,bash,bash_trueline,compton,i3,nvim,tmux"
 export DOTFILES="$HOME/Desktop/git/config"
 export PATH=$PATH:"$HOME/Desktop/git/config/common/scripts"
+export CONFIG_DIR="$HOME/Desktop/git/config"
 
 send_test_email() {
     echo "This is a test email." | mail -s "Test email from $(uname -n)" root
