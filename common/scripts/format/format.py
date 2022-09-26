@@ -20,7 +20,7 @@ IMAGE_EXTENSIONS = ['jpg']
 def get_date_taken(path):
     try:
         return datetime.strptime(str(Image.open(path)._getexif()[36867]), '%Y:%m:%d %H:%M:%S')
-    except (UnidentifiedImageError, TypeError):
+    except (UnidentifiedImageError, TypeError, KeyError):
         stat = os.stat(path)
         try:
             return datetime.fromtimestamp(stat.st_birthtime)
