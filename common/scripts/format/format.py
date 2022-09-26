@@ -34,11 +34,11 @@ class Rename:
         self._counter = 1
         self._last_dir = ''
 
-    def run(self, path):
-        full_path = os.path.join(CWD, path)
+    def run(self, path, is_file, is_dry_run=False):
+        full_path = os.path.join(CWD, path)[:-4] if is_file else os.path.join(CWD, path)
         dir_name = os.path.dirname(full_path)
         name = os.path.basename(full_path)
-        is_file = os.path.isfile(full_path)
+        is_file = os.path.isfile(f'{full_path}.tmp') if not is_dry_run else True
         if NAME and IS_RECURSIVE:
             raise RuntimeError(
                 'Do not use the recursive option when renaming  batch files')
@@ -115,27 +115,38 @@ def process(targets):
         # Rename dirs
         dirs, renamed_targets = find_dirs_to_rename(targets)
         for old_path in dirs:
-            new_path = rename.run(old_path)
-            rename_cnt += move_file(old_path, new_path)
+            new_path = rename.run(old_path, is_file=False)
+            rename_cnt += move_file(old_path, new_path, is_file=False)
             if old_path in renamed_targets:
                 renamed_targets.remove(old_path)
                 renamed_targets.append(new_path)
 
     # Rename files
     files = find_files_to_rename(renamed_targets)
+
+    # Sort the files
     if NAME:
         files.sort(key=lambda x: get_date_taken(x))
     else:
         natsorted(files)
-    for old_path in files:
-        new_path = rename.run(old_path)
-        rename_cnt += move_file(old_path, new_path)
-        extension = get_extension(old_path)
+
+    # Rename files with a .tmp extension
+    tmp_files = []
+    for path in files:
+        tmp_path = f'{path}.tmp'
+        move_file(path, tmp_path, print_msg=False, is_file=True)
+        tmp_files.append(tmp_path)
+
+    for old_path in tmp_files:
+        new_path = rename.run(old_path, is_file=True, is_dry_run=IS_DRY_RUN)
+        rename_cnt += move_file(old_path, new_path, is_file=True)
+        extension = get_extension(old_path[:-4])
         if extension is not None and extension in IMAGE_EXTENSIONS:
-            pp3_path = f'{old_path}.pp3'
+            pp3_path = f'{old_path[:-4]}.pp3.tmp'
             if os.path.exists(pp3_path):
-                rename_cnt += move_file(pp3_path, f'{new_path}.pp3')
-                files.remove(pp3_path)
+                rename_cnt += move_file(pp3_path, f'{new_path}.pp3', is_file=True)
+                if not IS_DRY_RUN:
+                    tmp_files.remove(pp3_path)
 
     if rename_cnt == 0:
         print('Not items found that need formatting.')
@@ -188,7 +199,7 @@ def find_files_to_rename(targets):
     return files_
 
 
-def move_file(src, dest):
+def move_file(src, dest, is_file, print_msg=True):
     escaped_chars = str.maketrans(
         {"(": r"\(", ")": r"\)", " ": r"\ ", "'": r"\'", "&": r"\&"})
     escaped_src = src.translate(escaped_chars)
@@ -197,7 +208,9 @@ def move_file(src, dest):
         return 0
     if not IS_DRY_RUN:
         move(escaped_src, escaped_dest)
-    print_message(os.path.basename(src), os.path.basename(dest))
+    if print_msg:
+        src_name = os.path.basename(src)[:-4] if is_file else os.path.basename(src)
+        print_message(src_name, os.path.basename(dest))
     return 1
 
 
