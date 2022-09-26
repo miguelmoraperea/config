@@ -4,6 +4,7 @@ import subprocess
 import os
 from datetime import datetime
 from PIL import Image, UnidentifiedImageError
+from natsort import natsorted
 
 CWD = os.getcwd()
 IS_DRY_RUN = False
@@ -125,7 +126,7 @@ def process(targets):
     if NAME:
         files.sort(key=lambda x: get_date_taken(x))
     else:
-        files.sort()
+        natsorted(files)
     for old_path in files:
         new_path = rename.run(old_path)
         rename_cnt += move_file(old_path, new_path)

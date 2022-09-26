@@ -1,6 +1,7 @@
 import os
 import argparse
 import hashlib
+from natsort import natsorted
 
 CWD = os.getcwd()
 IS_RECURSIVE = False
@@ -32,7 +33,7 @@ def process(targets):
         elif os.path.isfile(target):
             files.append(os.path.join(CWD, target))
 
-    for file in sorted(files):
+    for file in natsorted(files):
         hash = hashfile(file)
         found_file = ''
 
