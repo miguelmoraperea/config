@@ -43,7 +43,13 @@ def process(targets):
             found_file = ''
             database_file = database_pairs[hash]
             if database_file != file:
-                found_file = database_file
+                # check if database file still exists
+                if os.path.exists(database_file):
+                    found_file = database_file
+                else:
+                    # Old file no longer exists, remove it from the database
+                    database_hashes.remove(hash)
+                    del database_pairs[hash]
 
         if found_file:
             msg = (f'\n❌\n{file}\n{found_file}\n')
