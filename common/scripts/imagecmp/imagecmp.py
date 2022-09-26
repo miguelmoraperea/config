@@ -7,7 +7,7 @@ CWD = os.getcwd()
 IS_RECURSIVE = False
 EXCLUDE_DIRS = []
 DATABASE = None
-SUPPORTED_EXTENSIONS = ['jpg', 'mov']
+SUPPORTED_EXTENSIONS = ['jpg', 'mov', 'jpeg', 'mp4']
 
 
 def hashfile(file):
@@ -31,7 +31,9 @@ def process(targets):
         if os.path.isdir(target) and IS_RECURSIVE:
             files.extend(recursively_find_all_images_under(target))
         elif os.path.isfile(target):
-            files.append(os.path.join(CWD, target))
+            extension = target.rsplit('.', 1)[-1].lower()
+            if extension in SUPPORTED_EXTENSIONS:
+                files.append(os.path.join(CWD, target))
 
     for file in natsorted(files):
         hash = hashfile(file)
@@ -86,10 +88,16 @@ def recursively_find_all_images_under(directory):
         dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
         for file in files:
             full_path = os.path.join(root, file)
-            extension = full_path.rsplit('.', 1)[-1].lower()
-            if extension in SUPPORTED_EXTENSIONS:
+            extension = get_extension(full_path)
+            if extension is not None and extension in SUPPORTED_EXTENSIONS:
                 files_.append(full_path)
     return files_
+
+
+def get_extension(path):
+    if '.' in path:
+        return path.rsplit('.', 1)[-1].lower()
+    return None
 
 
 def main():
