@@ -55,10 +55,13 @@ def process(targets):
         for hash, path in sorted(database_pairs.items()):
             file.write(f'{hash} | {path}\n')
 
-    with open('errors', 'w') as file:
-        if errors:
-            for err in errors:
-                file.write(f'{err}\n')
+    if errors:
+        with open('errors', 'w') as file:
+                for err in errors:
+                    file.write(f'{err}\n')
+        print('\nDuplicated files found, see the "errors" file')
+    else:
+        print('\nNo Duplicated files found.')
     print('Done')
 
 
