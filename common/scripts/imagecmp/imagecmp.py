@@ -6,6 +6,7 @@ CWD = os.getcwd()
 IS_RECURSIVE = False
 EXCLUDE_DIRS = []
 DATABASE = None
+SUPPORTED_EXTENSIONS = ['jpg', 'mov']
 
 
 def hashfile(file):
@@ -82,7 +83,7 @@ def recursively_find_all_images_under(directory):
         for file in files:
             full_path = os.path.join(root, file)
             extension = full_path.rsplit('.', 1)[-1].lower()
-            if extension in ['jpg']:
+            if extension in SUPPORTED_EXTENSIONS:
                 files_.append(full_path)
     return files_
 
