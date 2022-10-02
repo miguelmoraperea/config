@@ -157,11 +157,16 @@ M.buffers = function()
 end
 
 local function set_background(content)
-    -- local cmd = "feh --bg-fill "
-    --     .. content
-    local cmd = "changeBackground "
-        .. content
-        P(cmd)
+
+    local os = vim.inspect(vim.fn.system('uname'))
+    os = string.gsub(os, "\\n", "")
+    os = string.gsub(os, '"', "")
+    local cmd = ""
+    if os == "Linux" then
+        cmd = "feh --bg-fill " .. content
+    else
+        cmd = "changeBackground " .. content
+    end
     vim.fn.system(cmd)
 end
 
