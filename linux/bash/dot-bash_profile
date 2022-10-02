@@ -1,9 +1,4 @@
-# Trueline
-if [ -f ~/.bash_trueline ]; then
-    . ~/.bash_trueline
-fi
-
-export STOW_DIRS="alacritty,bash,bash_trueline,compton,i3,nvim,tmux"
+export STOW_DIRS="alacritty,bash,compton,i3,nvim,tmux"
 export DOTFILES="$HOME/Desktop/git/config"
 export PATH=$PATH:"$HOME/Desktop/git/config/common/scripts"
 export CONFIG_DIR="$HOME/Desktop/git/config"
@@ -11,3 +6,8 @@ export CONFIG_DIR="$HOME/Desktop/git/config"
 send_test_email() {
     echo "This is a test email." | mail -s "Test email from $(uname -n)" root
 }
+
+SET_COLOUR="\[\033[0;36m\]"
+RESET_COLOUR="\[\033[0;0m\]"
+export PROMPT="\w > "
+export PS1="${SET_COLOUR} ${PROMPT} ${RESET_COLOUR}"
