@@ -29,6 +29,9 @@ vim.cmd([[:match ExtraWhitespace /\s\+$/]])
 vim.cmd("colorscheme nightfox")
 vim.cmd("highlight Comment cterm=italic gui=italic")
 
+vim.cmd(":highlight Normal guibg=none")
+vim.cmd(":highlight NormalNC guibg=none")
+
 -- General remaps
 vim.keymap.set("n", "<Leader>my", "<Cmd>so $MYVIMRC<CR>", { noremap = false })
 vim.keymap.set("n", "<C-s>", "<Cmd>w<CR>", { noremap = false })
