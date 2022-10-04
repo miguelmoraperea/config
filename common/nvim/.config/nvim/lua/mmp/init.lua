@@ -22,6 +22,7 @@ vim.opt.autoindent = true
 vim.opt.list = false
 vim.opt.splitbelow = true
 vim.opt.autoread = true
+vim.opt.cmdheight = 0
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
@@ -31,6 +32,7 @@ vim.cmd("highlight Comment cterm=italic gui=italic")
 
 vim.cmd(":highlight Normal guibg=none")
 vim.cmd(":highlight NormalNC guibg=none")
+vim.cmd(":highlight StatusLine guibg=none")
 
 -- General remaps
 vim.keymap.set("n", "<Leader>my", "<Cmd>so $MYVIMRC<CR>", { noremap = false })
