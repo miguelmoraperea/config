@@ -22,7 +22,6 @@ return require('packer').startup(function(use)
     use 'nvim-treesitter/completion-treesitter'
 
     use 'euclidianAce/BetterLua.vim'
-    use 'nvim-lua/plenary.nvim'
 
     use 'ThePrimeagen/harpoon'
 
