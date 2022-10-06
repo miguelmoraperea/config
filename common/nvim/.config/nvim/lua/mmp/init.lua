@@ -127,7 +127,7 @@ vim.keymap.set("n", "<Leader>gu", "<Cmd>lua R('mmp.telescope').grep_word_under_c
 require('mmp.nvim-cmp')
 
 -- Colorizer
-require 'colorizer'.setup()
+require 'colorizer'.setup(nil, { RRGGBBAA = true; })
 
 -- Precise Trim Whitespaces
 vim.cmd([[
