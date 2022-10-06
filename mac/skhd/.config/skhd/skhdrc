@@ -18,19 +18,19 @@ shift + alt - 4 : yabai -m window --space 4 && yabai -m space --focus 4
 shift + alt - 5 : yabai -m window --space 5 && yabai -m space --focus 5
 
 # Resize windows
-ctrl + alt - h : \
+alt + cmd - h : \
     yabai -m window --resize left:-100:0 ; \
     yabai -m window --resize right:-100:0
 
-ctrl + alt - j : \
+alt + cmd - j : \
     yabai -m window --resize bottom:0:100 ; \
     yabai -m window --resize top:0:100
 
-ctrl + alt - k : \
+alt + cmd - k : \
     yabai -m window --resize top:0:-100 ; \
     yabai -m window --resize bottom:0:-100
 
-ctrl + alt - l : \
+alt + cmd - l : \
     yabai -m window --resize right:100:0 ; \
     yabai -m window --resize left:100:0
 
@@ -39,10 +39,10 @@ shift + alt - c : yabai -m window --toggle float;\
                 yabai -m window --grid 4:4:1:1:2:2
 
 # Set insertion point for focused container
-shift + ctrl + alt - h : yabai -m window --insert west
-shift + ctrl + alt - j : yabai -m window --insert south
-shift + ctrl + alt - k : yabai -m window --insert north
-shift + ctrl + alt - l : yabai -m window --insert east
+shift + alt + cmd - h : yabai -m window --insert west
+shift + alt + cmd - j : yabai -m window --insert south
+shift + alt + cmd - k : yabai -m window --insert north
+shift + alt + cmd - l : yabai -m window --insert east
 
 # Float / Unfloat window
 shift + alt - space : yabai -m window --toggle float
