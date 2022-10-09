@@ -33,6 +33,7 @@ vim.cmd("highlight Comment cterm=italic gui=italic")
 vim.cmd(":highlight Normal guibg=none")
 vim.cmd(":highlight NormalNC guibg=none")
 vim.cmd(":highlight StatusLine guibg=none")
+vim.cmd(":highlight NvimTreeNormal guibg=none")
 
 -- General remaps
 vim.keymap.set("n", "<Leader>my", "<Cmd>so $MYVIMRC<CR>", { noremap = false })
@@ -48,15 +49,6 @@ vim.g.NERDSpaceDelims = 1
 vim.g.NERDCompactSexyComs = 1
 vim.g.NERDDefaultAlign = "left"
 vim.cmd(" let g:NERDCustomDelimiters = { 'c': { 'left': '//' }, 'Jenkinsfile': { 'left': '//' } }")
-
--- NERDTree
-vim.keymap.set("n", "<Leader>m", "<Cmd>NERDTreeToggle<CR>", { noremap = false })
-vim.keymap.set("n", "<Leader>n", "<Cmd>NERDTreeFind<CR>", { noremap = false })
-vim.g.NERDTreeQuitOnOpen = 1
-vim.g.NERDTreeShowHidden = 1
-vim.g.NERDTreeShowLineNumbers = 1
-vim.g.NERDTreeWinSize = 60
-vim.g.NERDTreeChDirMode = 2
 
 -- Rainbow
 vim.cmd("let g:rainbow#max_level = 16")
@@ -182,3 +174,21 @@ require'nvim-treesitter.configs'.setup {
     enable = true,
   },
 }
+
+-- nvim-tree
+
+-- disable netrw at the very start of your init.lua (strongly advised)
+vim.g.loaded = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- empty setup using defaults
+require("nvim-tree").setup({
+    view = {
+        adaptive_size = true,
+        relativenumber = true,
+    }
+})
+
+vim.keymap.set("n", "<Leader>m", "<Cmd>NvimTreeToggle<CR>", { noremap = false })
+vim.keymap.set("n", "<Leader>n", "<Cmd>NvimTreeFindFile<CR>", { noremap = false })
+

@@ -5,7 +5,6 @@ return require('packer').startup(function(use)
 
     use 'wbthomason/packer.nvim'
     use 'EdenEast/nightfox.nvim'
-    use 'scrooloose/nerdtree'
     use 'junegunn/rainbow_parentheses.vim'
     use 'preservim/nerdcommenter'
 
@@ -42,5 +41,7 @@ return require('packer').startup(function(use)
     use 'jose-elias-alvarez/null-ls.nvim'
 
     use 'simrat39/symbols-outline.nvim'
+
+    use 'nvim-tree/nvim-tree.lua'
 
 end)
