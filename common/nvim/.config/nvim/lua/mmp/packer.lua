@@ -44,4 +44,10 @@ return require('packer').startup(function(use)
 
     use 'nvim-tree/nvim-tree.lua'
 
+    use 'vim-test/vim-test'
+
+    use 'mfussenegger/nvim-dap'
+    use 'rcarriga/nvim-dap-ui'
+    use 'mfussenegger/nvim-dap-python'
+
 end)

@@ -22,7 +22,10 @@ vim.opt.autoindent = true
 vim.opt.list = false
 vim.opt.splitbelow = true
 vim.opt.autoread = true
-vim.opt.cmdheight = 0
+vim.opt.cmdheight = 1
+vim.opt.wrapscan = false
+
+vim.cmd("let g:python3_host_prog = '/home/miguel/Desktop/nvim_venv/bin/python'")
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
@@ -96,6 +99,8 @@ require("mmp.lsp")
 vim.lsp.set_log_level = "warn"
 vim.g.lsp_log_verbose = 1
 
+vim.keymap.set("n", "<leader>rn", "<Cmd>lua vim.lsp.buf.rename()", { noremap = false })
+
 -- Telescope
 require("mmp.globals")
 require("mmp.telescope")
@@ -165,7 +170,7 @@ null_ls.setup({
 })
 
 -- Symbols outline
-require("symbols-outline").setup({ show_relative_numbers = true })
+require("symbols-outline").setup({ show_relative_numbers = true, width=40, keymaps = { close = { nil } } })
 vim.keymap.set("n", "<Leader>t", ":SymbolsOutline<CR>", { noremap = false })
 
 -- nvim-treesitter
@@ -192,3 +197,39 @@ require("nvim-tree").setup({
 vim.keymap.set("n", "<Leader>m", "<Cmd>NvimTreeToggle<CR>", { noremap = false })
 vim.keymap.set("n", "<Leader>n", "<Cmd>NvimTreeFindFile<CR>", { noremap = false })
 
+-- Test
+vim.keymap.set("n", "<Leader>tf", ":TestFile<CR>", { noremap = false })
+vim.keymap.set("n", "<Leader>tn", ":TestNearest<CR>", { noremap = false })
+
+-- Debugger
+require('dap')
+require("dapui").setup()
+require('dap-python').setup('/home/miguel/Desktop/nvim_venv/bin/python')
+require('dap-python').test_runner = 'unittest'
+
+vim.keymap.set("n", "<Leader>db", ":lua require('dap').toggle_breakpoint()<CR>", { noremap = false })
+vim.keymap.set("n", "<Leader>dc", ":lua require('dap').continue()<CR>", { noremap = false })
+vim.keymap.set("n", "<Leader>do", ":lua require('dap').step_over()<CR>", { noremap = false })
+vim.keymap.set("n", "<Leader>de", ":lua require('dap').step_into()<CR>", { noremap = false })
+
+vim.keymap.set("n", "<leader>dfu", ":lua require('dap-python').test_method()<CR>", { noremap = false })
+vim.keymap.set("n", "<leader>dca", ":lua require('dap-python').test_class()<CR>", { noremap = false })
+vim.keymap.set("n", "<leader>dse", ":lua require('dap-python').debug_selection()<CR>", { noremap = false })
+
+vim.highlight.create('DapBreakpoint', { ctermbg=0, guifg='#993939', guibg='#31353f' }, false)
+vim.highlight.create('DapLogPoint', { ctermbg=0, guifg='#61afef', guibg='#31353f' }, false)
+vim.highlight.create('DapStopped', { ctermbg=0, guifg='#98c379', guibg='#31353f' }, false)
+
+vim.fn.sign_define('DapBreakpoint', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
+vim.fn.sign_define('DapBreakpointCondition', { text='ﳁ', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
+vim.fn.sign_define('DapBreakpointRejected', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl= 'DapBreakpoint' })
+vim.fn.sign_define('DapLogPoint', { text='', texthl='DapLogPoint', linehl='DapLogPoint', numhl= 'DapLogPoint' })
+vim.fn.sign_define('DapStopped', { text='', texthl='DapStopped', linehl='DapStopped', numhl= 'DapStopped' })
+
+vim.keymap.set("n", "<Leader>dd", ":lua require('dapui').toggle()<CR>", { noremap = false })
+
+
+-- Signify
+vim.g.signify_sign_add = ''
+vim.g.signify_sign_change = ''
+vim.g.signify_sign_delet = ''
