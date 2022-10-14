@@ -101,6 +101,11 @@ vim.g.lsp_log_verbose = 1
 
 vim.keymap.set("n", "<leader>rn", "<Cmd>lua vim.lsp.buf.rename()", { noremap = false })
 
+vim.fn.sign_define('DiagnosticSignError', { text='', texthl='DiagnosticSignError' })
+vim.fn.sign_define('DiagnosticSignWarn', { text='', texthl='DiagnosticSignWarn' })
+vim.fn.sign_define('DiagnosticSignInfo', { text='', texthl='DiagnosticSignInfo' })
+vim.fn.sign_define('DiagnosticSignHint', { text='', texthl='DiagnosticSignHint' })
+
 -- Telescope
 require("mmp.globals")
 require("mmp.telescope")
@@ -231,5 +236,10 @@ vim.keymap.set("n", "<Leader>dd", ":lua require('dapui').toggle()<CR>", { norema
 
 -- Signify
 vim.g.signify_sign_add = ''
-vim.g.signify_sign_change = ''
-vim.g.signify_sign_delet = ''
+-- vim.g.signify_sign_change = ''
+vim.g.signify_sign_change = ''
+vim.g.signify_sign_delete = ''
+
+vim.api.nvim_set_hl(0, 'SignifySignAdd', { fg='#98c379' })
+vim.api.nvim_set_hl(0, 'SignifySignDelete', { fg='#B37130' })
+vim.api.nvim_set_hl(0, 'SignifySignChange', { fg='#B3AF43' })
