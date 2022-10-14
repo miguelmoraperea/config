@@ -24,6 +24,7 @@ vim.opt.splitbelow = true
 vim.opt.autoread = true
 vim.opt.cmdheight = 1
 vim.opt.wrapscan = false
+vim.opt.fillchars = { diff = ' ' }
 
 vim.cmd("let g:python3_host_prog = '/home/miguel/Desktop/nvim_venv/bin/python'")
 
@@ -243,3 +244,12 @@ vim.g.signify_sign_delete = ''
 vim.api.nvim_set_hl(0, 'SignifySignAdd', { fg='#98c379' })
 vim.api.nvim_set_hl(0, 'SignifySignDelete', { fg='#B37130' })
 vim.api.nvim_set_hl(0, 'SignifySignChange', { fg='#B3AF43' })
+
+-- Diffview
+vim.api.nvim_set_hl(0, 'DiffAdd', { bg='#384238' })
+vim.api.nvim_set_hl(0, 'DiffDelete', { bg='#5e3838' })
+vim.api.nvim_set_hl(0, 'DiffChange', { bg='#573c2d' })
+vim.api.nvim_set_hl(0, 'DiffText', { bg='#3d271c' })
+
+vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
+vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
