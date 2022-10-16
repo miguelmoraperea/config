@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring, missing-class-docstring, missing-function-docstring
 """Reformat file names."""
 import argparse
 import subprocess
@@ -35,10 +36,12 @@ class Rename:
         self._last_dir = ''
 
     def run(self, path, is_file, is_dry_run=False):
-        full_path = os.path.join(CWD, path)[:-4] if is_file else os.path.join(CWD, path)
+        full_path = os.path.join(CWD, path)[
+            :-4] if is_file else os.path.join(CWD, path)
         dir_name = os.path.dirname(full_path)
         name = os.path.basename(full_path)
-        is_file = os.path.isfile(f'{full_path}.tmp') if not is_dry_run else True
+        is_file = os.path.isfile(
+            f'{full_path}.tmp') if not is_dry_run else True
         if NAME and IS_RECURSIVE:
             raise RuntimeError(
                 'Do not use the recursive option when renaming  batch files')
@@ -144,7 +147,8 @@ def process(targets):
         if extension is not None and extension in IMAGE_EXTENSIONS:
             pp3_path = f'{old_path[:-4]}.pp3.tmp'
             if os.path.exists(pp3_path):
-                rename_cnt += move_file(pp3_path, f'{new_path}.pp3', is_file=True)
+                rename_cnt += move_file(pp3_path,
+                                        f'{new_path}.pp3', is_file=True)
                 if not IS_DRY_RUN:
                     tmp_files.remove(pp3_path)
 
@@ -209,7 +213,8 @@ def move_file(src, dest, is_file, print_msg=True):
     if not IS_DRY_RUN:
         move(escaped_src, escaped_dest)
     if print_msg:
-        src_name = os.path.basename(src)[:-4] if is_file else os.path.basename(src)
+        src_name = os.path.basename(
+            src)[:-4] if is_file else os.path.basename(src)
         print_message(src_name, os.path.basename(dest))
     return 1
 
