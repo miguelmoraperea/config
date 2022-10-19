@@ -32,23 +32,37 @@ def get_date_taken(path):
             return datetime.fromtimestamp(stat.st_mtime)
 
 
+def is_file(path):
+    return os.path.isfile(path)
+
+
+def is_dir(path):
+    return os.path.isdir(path)
+
+
+def exists(path):
+    return os.path.exists(path)
+
+
 class Rename:
 
     def __init__(self):
         self._counter = 1
         self._last_dir = ''
 
-    def run(self, path, is_file, is_dry_run=False):
+    def run(self, path, is_file_, is_dry_run=False):
         full_path = os.path.join(CWD, path)[
-            :-4] if is_file else os.path.join(CWD, path)
+            :-4] if is_file_ else os.path.join(CWD, path)
         dir_name = os.path.dirname(full_path)
         name = os.path.basename(full_path)
-        is_file = os.path.isfile(
+        is_file_ = is_file(
             f'{full_path}.tmp') if not is_dry_run else True
+
         if NAME and IS_RECURSIVE:
             raise RuntimeError(
                 'Do not use the recursive option when renaming  batch files')
-        if NAME and is_file:
+
+        if NAME and is_file_:
             if self._last_dir != os.path.dirname(full_path):
                 self._counter = 1
             if '.' in name:
@@ -59,9 +73,11 @@ class Rename:
             self._counter += 1
             self._last_dir = os.path.dirname(full_path)
             return os.path.join(dir_name, tmp)
+
         tmp = name.lower() if IS_TO_LOWER else name
         tmp2 = tmp.replace(' ', '_')
         old = new = ''
+
         if SUBSTITUTE:
             old, new = SUBSTITUTE[0].split('/', maxsplit=1)
             return os.path.join(dir_name, tmp2.replace(old, new))
@@ -110,52 +126,72 @@ def main():
     process(args.targets)
 
 
-def process(targets):
+def rename_dirs(targets):
     rename = Rename()
     rename_cnt = 0
     renamed_targets = targets
+    dirs, renamed_targets = find_dirs_to_rename(targets)
+    for old_path in dirs:
+        new_path = rename.run(old_path, is_file_=False)
+        rename_cnt += move_file(old_path, new_path, is_file_=False)
+        if old_path in renamed_targets:
+            renamed_targets.remove(old_path)
+            renamed_targets.append(new_path)
+    return renamed_targets, rename_cnt
 
-    if IS_DRY_RUN:
-        print('DRY-RUN', end='\n\n')
 
-    if not IS_FILE_ONLY:
-        # Rename dirs
-        dirs, renamed_targets = find_dirs_to_rename(targets)
-        for old_path in dirs:
-            new_path = rename.run(old_path, is_file=False)
-            rename_cnt += move_file(old_path, new_path, is_file=False)
-            if old_path in renamed_targets:
-                renamed_targets.remove(old_path)
-                renamed_targets.append(new_path)
-
-    # Rename files
-    files = find_files_to_rename(renamed_targets)
-
-    # Sort the files
+def sort_files(files):
     if NAME:
-        #  files.sort(key=lambda x: get_date_taken(x))
         files.sort(key=lambda x: get_date_taken(x))
     else:
         natsorted(files)
 
-    # Rename files with a .tmp extension
+
+def add_tmp_extension_to_files(files):
     tmp_files = []
     for path in files:
         tmp_path = f'{path}.tmp'
-        move_file(path, tmp_path, print_msg=False, is_file=True)
+        move_file(path, tmp_path, print_msg=False, is_file_=True)
         tmp_files.append(tmp_path)
+    return tmp_files
 
-    for old_path in tmp_files:
-        new_path = rename.run(old_path, is_file=True, is_dry_run=IS_DRY_RUN)
-        rename_cnt += move_file(old_path, new_path, is_file=True)
-        extension = get_extension(old_path[:-4])
+
+def rename_files(files):
+    rename = Rename()
+    rename_cnt = 0
+    for relative_path in files:
+        new_relative_path = rename.run(relative_path,
+                                       is_file_=True,
+                                       is_dry_run=IS_DRY_RUN)
+        rename_cnt += move_file(relative_path, new_relative_path, is_file_=True)
+        extension = get_extension(relative_path[:-4])
         if extension is not None and extension in IMAGE_EXTENSIONS:
-            pp3_path = f'{old_path[:-4]}.pp3.tmp'
-            if os.path.exists(pp3_path):
-                rename_cnt += move_file(pp3_path,
-                                        f'{new_path}.pp3', is_file=True)
+            pp3_path = f'{relative_path[:-4]}.pp3'
+            new_pp3_path = f'{pp3_path}.tmp'
+            if exists(pp3_path):
+                rename_cnt += move_file(pp3_path, new_pp3_path, is_file_=True)
                 if not IS_DRY_RUN:
-                    tmp_files.remove(pp3_path)
+                    files.remove(pp3_path)
+
+    return rename_cnt
+
+
+def process(targets):
+
+    if IS_DRY_RUN:
+        print('DRY-RUN', end='\n\n')
+
+    rename_cnt = 0
+    if not IS_FILE_ONLY:
+        renamed_targets, rename_cnt = rename_dirs(targets)
+    else:
+        renamed_targets = targets
+
+    files = find_files_to_rename(renamed_targets)
+    sort_files(files)
+    tmp_files = add_tmp_extension_to_files(files)
+
+    rename_cnt += rename_files(tmp_files)
 
     if rename_cnt == 0:
         print('Not items found that need formatting.')
@@ -175,14 +211,14 @@ def find_dirs_to_rename(targets):
         if target in EXCLUDE_DIRS:
             continue
         if IS_RECURSIVE:
-            for root, dirs, _ in os.walk(os.path.join(CWD, target),
-                                         topdown=False):
+            start_path = os.path.join(CWD, target)
+            for root, dirs, _ in os.walk(start_path, topdown=False):
                 dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
                 for directory in dirs:
                     full_path = os.path.join(root, directory)
                     dirs_.append(full_path)
         target_path = os.path.join(CWD, target)
-        if os.path.isdir(target_path) and target not in EXCLUDE_DIRS:
+        if is_dir(target_path) and target not in EXCLUDE_DIRS:
             dirs_.append(target_path)
         targets_.append(target_path)
 
@@ -196,20 +232,20 @@ def find_files_to_rename(targets):
         if target in EXCLUDE_DIRS:
             continue
         if IS_RECURSIVE:
-            if os.path.isfile(target):
+            if is_file(target):
                 files_.append(target)
             for root, dirs, files in os.walk(os.path.join(CWD, target)):
                 dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
                 for file in files:
                     full_path = os.path.join(root, file)
                     files_.append(full_path)
-        elif os.path.isfile(target):
+        elif is_file(target):
             files_.append(target)
 
     return files_
 
 
-def move_file(src, dest, is_file, print_msg=True):
+def move_file(src, dest, is_file_, print_msg=True):
     escaped_chars = str.maketrans(
         {"(": r"\(", ")": r"\)", " ": r"\ ", "'": r"\'", "&": r"\&"})
     escaped_src = src.translate(escaped_chars)
@@ -220,7 +256,7 @@ def move_file(src, dest, is_file, print_msg=True):
         move(escaped_src, escaped_dest)
     if print_msg:
         src_name = os.path.basename(
-            src)[:-4] if is_file else os.path.basename(src)
+            src)[:-4] if is_file_ else os.path.basename(src)
         print_message(src_name, os.path.basename(dest))
     return 1
 
