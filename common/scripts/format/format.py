@@ -1,5 +1,7 @@
-# pylint: disable=missing-module-docstring, missing-class-docstring, missing-function-docstring
-"""Reformat file names."""
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=missing-function-docstring
+
 import argparse
 import subprocess
 import os
@@ -20,7 +22,8 @@ IMAGE_EXTENSIONS = ['jpg']
 
 def get_date_taken(path):
     try:
-        return datetime.strptime(str(Image.open(path)._getexif()[36867]), '%Y:%m:%d %H:%M:%S')
+        return datetime.strptime(str(Image.open(path)._getexif()[36867]),
+                                 '%Y:%m:%d %H:%M:%S')
     except (UnidentifiedImageError, TypeError, KeyError):
         stat = os.stat(path)
         try:
@@ -61,7 +64,8 @@ class Rename:
         old = new = ''
         if SUBSTITUTE:
             old, new = SUBSTITUTE[0].split('/', maxsplit=1)
-        return os.path.join(dir_name, tmp2.replace(old, new)) if SUBSTITUTE else os.path.join(dir_name, tmp2)
+            return os.path.join(dir_name, tmp2.replace(old, new))
+        return os.path.join(dir_name, tmp2)
 
     def reset(self):
         self._counter = 1
@@ -129,6 +133,7 @@ def process(targets):
 
     # Sort the files
     if NAME:
+        #  files.sort(key=lambda x: get_date_taken(x))
         files.sort(key=lambda x: get_date_taken(x))
     else:
         natsorted(files)
@@ -170,10 +175,11 @@ def find_dirs_to_rename(targets):
         if target in EXCLUDE_DIRS:
             continue
         if IS_RECURSIVE:
-            for root, dirs, _ in os.walk(os.path.join(CWD, target), topdown=False):
+            for root, dirs, _ in os.walk(os.path.join(CWD, target),
+                                         topdown=False):
                 dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
-                for dir in dirs:
-                    full_path = os.path.join(root, dir)
+                for directory in dirs:
+                    full_path = os.path.join(root, directory)
                     dirs_.append(full_path)
         target_path = os.path.join(CWD, target)
         if os.path.isdir(target_path) and target not in EXCLUDE_DIRS:

@@ -1,4 +1,6 @@
-# pylint: disable=missing-module-docstring, missing-class-docstring, missing-function-docstring
+# pylint: disable=missing-module-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=missing-function-docstring
 
 import os
 import unittest
@@ -8,7 +10,6 @@ from random import randint
 import hashlib
 from pathlib import Path
 from time import sleep
-from copy import deepcopy
 from checksumdir import dirhash
 
 
@@ -31,9 +32,9 @@ def _add_random_content_to_file(file_path):
 def _hashfile(file):
     buf_size = 65536
     sha256 = hashlib.sha256()
-    with open(file, 'rb') as file:
+    with open(file, 'rb') as my_file:
         while True:
-            data = file.read(buf_size)
+            data = my_file.read(buf_size)
             if not data:
                 break
             sha256.update(data)
@@ -56,7 +57,7 @@ def _remove_dir(dir_path):
     shutil.rmtree(dir_path, ignore_errors=True)
 
 
-def _create_test_dir():
+def _init_test_dir():
     _remove_dir(TEST_DIR)
     Path(TEST_DIR).mkdir()
 
@@ -65,47 +66,62 @@ def _create_test_tree(tree):
     return _create_dirs_and_files_from_tree(TEST_DIR, tree)
 
 
+def _is_dir(path):
+    return os.path.isdir(path)
+
+
 def _create_dirs_and_files_from_tree(root_pwd, tree_dict):
-    hashed_dict = {}
+    hashes_dict = {}
     for key, val in tree_dict.items():
         full_path = os.path.join(root_pwd, key)
         if isinstance(val, dict):
             Path(full_path).mkdir()
-            hashed_dict.update(
+            hashes_dict.update(
                 _create_dirs_and_files_from_tree(full_path, val))
-            hashed_dict[key] = _hashdir(full_path)
+            hashes_dict[key] = _hashdir(full_path)
         else:
             Path(full_path).touch()
             _add_random_content_to_file(full_path)
-            hashed_dict[key] = _hashfile(full_path)
+            hashes_dict[key] = _hashfile(full_path)
         # add a delay to show different creating time stamps for each file,
         # otherwise all files show the exact same creating time
         sleep(10/1000)
-    return hashed_dict
+    return hashes_dict
 
 
-def _assert_trees_are_equal(self, expected_tree, hashed_dict, expected_renaming, root_dir, files_only=False):
-    for key, val in expected_tree.items():
-        if files_only and os.path.isdir(os.path.join(root_dir, key)):
-            new_key = key
+def _assert_tree_renaming(self,
+                          expected_tree,
+                          hashes_dict,
+                          expected_renaming,
+                          root_path,
+                          is_files_only=False):
+    for name, children in expected_tree.items():
+        path = os.path.join(root_path, name)
+        if is_files_only and _is_dir(path):
+            new_name = name
         else:
-            new_key = key.replace(' ', '_')
-        new_path = os.path.join(root_dir, new_key)
-
-        if isinstance(val, dict):
-            _assert_trees_are_equal(
-                self, val, hashed_dict, expected_renaming, new_path, files_only=files_only)
+            new_name = name.replace(' ', '_')
+        new_path = os.path.join(root_path, new_name)
+        if isinstance(children, dict):
+            _assert_tree_renaming(self,
+                                  children,
+                                  hashes_dict,
+                                  expected_renaming,
+                                  new_path,
+                                  is_files_only=is_files_only)
         else:
             assert_file_exists(self, new_path)
-            assert_hash_is_same(self, expected_renaming, hashed_dict, new_path)
+            assert_hash_is_same(self, expected_renaming, hashes_dict, new_path)
 
 
-def assert_hash_is_same(self, renaming_dict, hashed_dict, file_path):
+def assert_hash_is_same(self, renaming_dict, hashes_dict, file_path):
     file_name = os.path.basename(file_path)
     old_name = renaming_dict[file_name]
-    prev_hash = hashed_dict[old_name]
-    self.assertEqual(prev_hash, _hashfile(
-        file_path), msg=f'{old_name} {prev_hash} != {file_name} {_hashfile(file_path)}')
+    prev_hash = hashes_dict[old_name]
+    self.assertEqual(prev_hash,
+                     _hashfile(file_path),
+                     msg=f'{old_name} {prev_hash} != '
+                     f'{file_name} {_hashfile(file_path)}')
 
 
 def assert_file_exists(self, path):
@@ -118,7 +134,7 @@ class TestRenameFile(unittest.TestCase):
     _test_file_name = 'TEST FILE'
 
     def setUp(self):
-        _create_test_dir()
+        _init_test_dir()
         os.chdir(TEST_DIR)
         self._expected_hash = _create_file(self._test_file_name)
 
@@ -172,7 +188,7 @@ class TestRenameDirectory(unittest.TestCase):
     _test_dir_name = 'TEST DIR'
 
     def setUp(self):
-        _create_test_dir()
+        _init_test_dir()
         os.chdir(TEST_DIR)
         _create_dir(self._test_dir_name)
 
@@ -233,9 +249,9 @@ class TestRenameRecursiveFiles(unittest.TestCase):
     }
 
     def setUp(self):
-        _create_test_dir()
+        _init_test_dir()
         os.chdir(TEST_DIR)
-        self._hashed_dict = _create_test_tree(self._tree)
+        self._hashes_dict = _create_test_tree(self._tree)
 
     def tearDown(self):
         _remove_dir(TEST_DIR)
@@ -266,8 +282,8 @@ class TestRenameRecursiveFiles(unittest.TestCase):
                        check=True,
                        stdout=subprocess.DEVNULL)
         self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
-        _assert_trees_are_equal(self, expected_tree,
-                                self._hashed_dict, expected_renaming, TEST_DIR)
+        _assert_tree_renaming(self, expected_tree,
+                              self._hashes_dict, expected_renaming, TEST_DIR)
 
     def test_recursive_files_only(self):
         expected_tree = {
@@ -296,8 +312,12 @@ class TestRenameRecursiveFiles(unittest.TestCase):
             check=True,
             stdout=subprocess.DEVNULL)
         self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
-        _assert_trees_are_equal(
-            self, expected_tree, self._hashed_dict, expected_renaming, TEST_DIR, files_only=True)
+        _assert_tree_renaming(self,
+                              expected_tree,
+                              self._hashes_dict,
+                              expected_renaming,
+                              TEST_DIR,
+                              is_files_only=True)
 
 
 class TestRenameNumberedFiles(unittest.TestCase):
@@ -313,14 +333,14 @@ class TestRenameNumberedFiles(unittest.TestCase):
     }
 
     def setUp(self):
-        _create_test_dir()
+        _init_test_dir()
         os.chdir(TEST_DIR)
 
     def tearDown(self):
         _remove_dir(TEST_DIR)
 
     def test_rename_numbered_files(self):
-        hashed_dict = _create_test_tree(self._tree)
+        hashes_dict = _create_test_tree(self._tree)
         expected_tree = {
             'TEST DIR 1': {
                 'sample_1': None,
@@ -344,8 +364,8 @@ class TestRenameNumberedFiles(unittest.TestCase):
                        check=True,
                        stdout=subprocess.DEVNULL)
         self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
-        _assert_trees_are_equal(self, expected_tree, hashed_dict,
-                                expected_renaming, TEST_DIR, files_only=True)
+        _assert_tree_renaming(self, expected_tree, hashes_dict,
+                              expected_renaming, TEST_DIR, is_files_only=True)
 
     def test_rename_numbered_files_already_with_same_name_and_sequence(self):
         tree = {
@@ -357,7 +377,7 @@ class TestRenameNumberedFiles(unittest.TestCase):
                 'sample_4': None,
             }
         }
-        hashed_dict = _create_test_tree(tree)
+        hashes_dict = _create_test_tree(tree)
         expected_tree = {
             'TEST DIR 1': {
                 'sample_1': None,
@@ -381,8 +401,8 @@ class TestRenameNumberedFiles(unittest.TestCase):
                        check=True,
                        stdout=subprocess.DEVNULL)
         self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
-        _assert_trees_are_equal(self, expected_tree, hashed_dict,
-                                expected_renaming, TEST_DIR, files_only=True)
+        _assert_tree_renaming(self, expected_tree, hashes_dict,
+                              expected_renaming, TEST_DIR, is_files_only=True)
 
 
 if __name__ == '__main__':
