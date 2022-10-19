@@ -44,6 +44,18 @@ def exists(path):
     return os.path.exists(path)
 
 
+def dirname(path):
+    return os.path.dirname(path)
+
+
+def basename(path):
+    return os.path.basename(path)
+
+
+def join(root, relative_path):
+    return os.path.join(root, relative_path)
+
+
 class Rename:
 
     def __init__(self):
@@ -51,19 +63,17 @@ class Rename:
         self._last_dir = ''
 
     def run(self, path, is_file_, is_dry_run=False):
-        full_path = os.path.join(CWD, path)[
-            :-4] if is_file_ else os.path.join(CWD, path)
-        dir_name = os.path.dirname(full_path)
-        name = os.path.basename(full_path)
-        is_file_ = is_file(
-            f'{full_path}.tmp') if not is_dry_run else True
+        full_path = join(CWD, path[:-4]) if is_file_ else join(CWD, path)
+        dir_name = dirname(full_path)
+        name = basename(full_path)
+        is_file_ = is_file(f'{full_path}.tmp') if not is_dry_run else True
 
         if NAME and IS_RECURSIVE:
             raise RuntimeError(
                 'Do not use the recursive option when renaming  batch files')
 
         if NAME and is_file_:
-            if self._last_dir != os.path.dirname(full_path):
+            if self._last_dir != dirname(full_path):
                 self._counter = 1
             if '.' in name:
                 extension = get_extension(name)
@@ -71,17 +81,16 @@ class Rename:
             else:
                 tmp = f'{NAME}_{self._counter}'
             self._counter += 1
-            self._last_dir = os.path.dirname(full_path)
-            return os.path.join(dir_name, tmp)
+            self._last_dir = dirname(full_path)
+            return join(dir_name, tmp)
 
         tmp = name.lower() if IS_TO_LOWER else name
         tmp2 = tmp.replace(' ', '_')
-        old = new = ''
 
         if SUBSTITUTE:
             old, new = SUBSTITUTE[0].split('/', maxsplit=1)
-            return os.path.join(dir_name, tmp2.replace(old, new))
-        return os.path.join(dir_name, tmp2)
+            return join(dir_name, tmp2.replace(old, new))
+        return join(dir_name, tmp2)
 
     def reset(self):
         self._counter = 1
@@ -163,7 +172,8 @@ def rename_files(files):
         new_relative_path = rename.run(relative_path,
                                        is_file_=True,
                                        is_dry_run=IS_DRY_RUN)
-        rename_cnt += move_file(relative_path, new_relative_path, is_file_=True)
+        rename_cnt += move_file(relative_path,
+                                new_relative_path, is_file_=True)
         extension = get_extension(relative_path[:-4])
         if extension is not None and extension in IMAGE_EXTENSIONS:
             pp3_path = f'{relative_path[:-4]}.pp3'
@@ -211,13 +221,13 @@ def find_dirs_to_rename(targets):
         if target in EXCLUDE_DIRS:
             continue
         if IS_RECURSIVE:
-            start_path = os.path.join(CWD, target)
+            start_path = join(CWD, target)
             for root, dirs, _ in os.walk(start_path, topdown=False):
                 dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
                 for directory in dirs:
-                    full_path = os.path.join(root, directory)
+                    full_path = join(root, directory)
                     dirs_.append(full_path)
-        target_path = os.path.join(CWD, target)
+        target_path = join(CWD, target)
         if is_dir(target_path) and target not in EXCLUDE_DIRS:
             dirs_.append(target_path)
         targets_.append(target_path)
@@ -234,10 +244,10 @@ def find_files_to_rename(targets):
         if IS_RECURSIVE:
             if is_file(target):
                 files_.append(target)
-            for root, dirs, files in os.walk(os.path.join(CWD, target)):
+            for root, dirs, files in os.walk(join(CWD, target)):
                 dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
                 for file in files:
-                    full_path = os.path.join(root, file)
+                    full_path = join(root, file)
                     files_.append(full_path)
         elif is_file(target):
             files_.append(target)
@@ -255,9 +265,9 @@ def move_file(src, dest, is_file_, print_msg=True):
     if not IS_DRY_RUN:
         move(escaped_src, escaped_dest)
     if print_msg:
-        src_name = os.path.basename(
-            src)[:-4] if is_file_ else os.path.basename(src)
-        print_message(src_name, os.path.basename(dest))
+        src_name = basename(
+            src)[:-4] if is_file_ else basename(src)
+        print_message(src_name, basename(dest))
     return 1
 
 
@@ -270,8 +280,8 @@ def print_message(old_path, new_path):
     word = '-->'
     if IS_DRY_RUN:
         word = '~~>'
-    old_name = os.path.basename(old_path)
-    new_name = os.path.basename(new_path)
+    old_name = basename(old_path)
+    new_name = basename(new_path)
     print(f'{old_name:<50} {word:} {new_name}')
 
 
