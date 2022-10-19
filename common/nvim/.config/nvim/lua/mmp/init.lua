@@ -206,6 +206,7 @@ vim.keymap.set("n", "<Leader>n", "<Cmd>NvimTreeFindFile<CR>", { noremap = false 
 -- Test
 vim.keymap.set("n", "<Leader>tf", ":TestFile<CR>", { noremap = false })
 vim.keymap.set("n", "<Leader>tn", ":TestNearest<CR>", { noremap = false })
+vim.keymap.set("n", "<Leader>tl", ":TestLast<CR>", { noremap = false })
 
 -- Debugger
 require('dap')
