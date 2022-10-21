@@ -94,13 +94,18 @@ def _assert_tree_renaming(self,
                           hashes_dict,
                           expected_renaming,
                           root_path,
-                          is_files_only=False):
+                          is_files_only=False,
+                          excluded_dir=""):
     for name, children in expected_tree.items():
         path = os.path.join(root_path, name)
         if is_files_only and _is_dir(path):
             new_name = name
         else:
-            new_name = name.replace(' ', '_')
+            # if part of excluded directory do not replace
+            if excluded_dir in path.split('/'):
+                new_name = name
+            else:
+                new_name = name.replace(' ', '_')
         new_path = os.path.join(root_path, new_name)
         if isinstance(children, dict):
             _assert_tree_renaming(self,
@@ -403,6 +408,58 @@ class TestRenameNumberedFiles(unittest.TestCase):
         self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
         _assert_tree_renaming(self, expected_tree, hashes_dict,
                               expected_renaming, TEST_DIR, is_files_only=True)
+
+
+class TestExcludeDirectory(unittest.TestCase):
+
+    _tree = {
+        'TEST DIR 1': {
+            'TEST FILE 1': None,
+            'TEST DIR 2': {
+                'TEST FILE 2': None,
+                'TEST DIR 3': {
+                    'TEST FILE 3': None,
+                }
+            }
+        }
+    }
+
+    def setUp(self):
+        _init_test_dir()
+        os.chdir(TEST_DIR)
+        self._hashes_dict = _create_test_tree(self._tree)
+
+    def tearDown(self):
+        _remove_dir(TEST_DIR)
+
+    def test_recursive(self):
+        expected_tree = {
+            'TEST_DIR_1': {
+                'TEST_FILE_1': None,
+                'TEST DIR 2': {
+                    'TEST FILE 2': None,
+                    'TEST DIR 3': {
+                        'TEST FILE 3': None,
+                    }
+                }
+            }
+        }
+        expected_renaming = {
+            'TEST_DIR_1': 'TEST DIR 1',
+            'TEST_FILE_1': 'TEST FILE 1',
+            'TEST DIR 2': 'TEST DIR 2',
+            'TEST FILE 2': 'TEST FILE 2',
+            'TEST DIR 3': 'TEST DIR 3',
+            'TEST FILE 3': 'TEST FILE 3',
+        }
+        hash_tree_before = _hashdir(TEST_DIR)
+        subprocess.run('frmt -r -e "TEST DIR 2" "TEST DIR 1"',
+                       shell=True,
+                       check=True,
+                       stdout=subprocess.DEVNULL)
+        self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
+        _assert_tree_renaming(self, expected_tree,
+                              self._hashes_dict, expected_renaming, TEST_DIR)
 
 
 if __name__ == '__main__':

@@ -213,22 +213,30 @@ def get_extension(path):
     return None
 
 
+def is_under_excluded_dirs(path):
+    for directory in EXCLUDE_DIRS:
+        if directory in path.split('/'):
+            return True
+    return False
+
+
 def find_dirs_to_rename(targets):
     dirs_ = []
     targets_ = []
 
     for target in targets:
-        if target in EXCLUDE_DIRS:
+        if is_under_excluded_dirs(target):
             continue
         if IS_RECURSIVE:
             start_path = join(CWD, target)
             for root, dirs, _ in os.walk(start_path, topdown=False):
-                dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
+                dirs[:] = [dir for dir in dirs
+                           if not is_under_excluded_dirs(join(root, dir))]
                 for directory in dirs:
                     full_path = join(root, directory)
                     dirs_.append(full_path)
         target_path = join(CWD, target)
-        if is_dir(target_path) and target not in EXCLUDE_DIRS:
+        if is_dir(target_path) and not is_under_excluded_dirs(target_path):
             dirs_.append(target_path)
         targets_.append(target_path)
 
@@ -239,13 +247,14 @@ def find_files_to_rename(targets):
     files_ = []
 
     for target in targets:
-        if target in EXCLUDE_DIRS:
+        if is_under_excluded_dirs(target):
             continue
         if IS_RECURSIVE:
             if is_file(target):
                 files_.append(target)
             for root, dirs, files in os.walk(join(CWD, target)):
-                dirs[:] = [dir for dir in dirs if dir not in EXCLUDE_DIRS]
+                dirs[:] = [dir for dir in dirs
+                           if not is_under_excluded_dirs(join(root, dir))]
                 for file in files:
                     full_path = join(root, file)
                     files_.append(full_path)
