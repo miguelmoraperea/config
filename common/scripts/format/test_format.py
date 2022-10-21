@@ -462,5 +462,109 @@ class TestExcludeDirectory(unittest.TestCase):
                               self._hashes_dict, expected_renaming, TEST_DIR)
 
 
+class TestToLower(unittest.TestCase):
+
+    _tree = {
+        'TEST DIR 1': {
+            'TEST FILE 1': None,
+            'TEST DIR 2': {
+                'TEST FILE 2': None,
+                'TEST DIR 3': {
+                    'TEST FILE 3': None,
+                }
+            }
+        }
+    }
+
+    def setUp(self):
+        _init_test_dir()
+        os.chdir(TEST_DIR)
+        self._hashes_dict = _create_test_tree(self._tree)
+
+    def tearDown(self):
+        _remove_dir(TEST_DIR)
+
+    def test_recursive(self):
+        expected_tree = {
+            'test_dir_1': {
+                'test_file_1': None,
+                'test_dir_2': {
+                    'test_file_2': None,
+                    'test_dir_3': {
+                        'test_file_3': None,
+                    }
+                }
+            }
+        }
+        expected_renaming = {
+            'test_dir_1': 'TEST DIR 1',
+            'test_file_1': 'TEST FILE 1',
+            'test_dir_2': 'TEST DIR 2',
+            'test_file_2': 'TEST FILE 2',
+            'test_dir_3': 'TEST DIR 3',
+            'test_file_3': 'TEST FILE 3',
+        }
+        hash_tree_before = _hashdir(TEST_DIR)
+        subprocess.run('frmt -r -l "TEST DIR 1"',
+                       shell=True,
+                       check=True,
+                       stdout=subprocess.DEVNULL)
+        self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
+        _assert_tree_renaming(self, expected_tree,
+                              self._hashes_dict, expected_renaming, TEST_DIR)
+
+
+class TestSubstitute(unittest.TestCase):
+
+    _tree = {
+        'TEST DIR 1': {
+            'TEST FILE 1': None,
+            'TEST DIR 2': {
+                'TEST FILE 2': None,
+                'TEST DIR 3': {
+                    'TEST FILE 3': None,
+                }
+            }
+        }
+    }
+
+    def setUp(self):
+        _init_test_dir()
+        os.chdir(TEST_DIR)
+        self._hashes_dict = _create_test_tree(self._tree)
+
+    def tearDown(self):
+        _remove_dir(TEST_DIR)
+
+    def test_recursive(self):
+        expected_tree = {
+            'SAMPLE_DIR_1': {
+                'SAMPLE_FILE_1': None,
+                'SAMPLE_DIR_2': {
+                    'SAMPLE_FILE_2': None,
+                    'SAMPLE_DIR_3': {
+                        'SAMPLE_FILE_3': None,
+                    }
+                }
+            }
+        }
+        expected_renaming = {
+            'SAMPLE_DIR_1': 'TEST DIR 1',
+            'SAMPLE_FILE_1': 'TEST FILE 1',
+            'SAMPLE_DIR_2': 'TEST DIR 2',
+            'SAMPLE_FILE_2': 'TEST FILE 2',
+            'SAMPLE_DIR_3': 'TEST DIR 3',
+            'SAMPLE_FILE_3': 'TEST FILE 3',
+        }
+        hash_tree_before = _hashdir(TEST_DIR)
+        subprocess.run('frmt -r -s TEST/SAMPLE "TEST DIR 1"',
+                       shell=True,
+                       check=True,
+                       stdout=subprocess.DEVNULL)
+        self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
+        _assert_tree_renaming(self, expected_tree,
+                              self._hashes_dict, expected_renaming, TEST_DIR)
+
+
 if __name__ == '__main__':
     unittest.main()
