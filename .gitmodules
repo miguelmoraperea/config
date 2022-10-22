@@ -1,3 +1,6 @@
 [submodule "common/scripts/format"]
 	path = common/scripts/format
 	url = https://github.com/miguelmoraperea/format
+[submodule "common/scripts/imagecmp"]
+	path = common/scripts/imagecmp
+	url = https://github.com/miguelmoraperea/imagecmp
