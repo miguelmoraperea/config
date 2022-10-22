@@ -1,0 +1,3 @@
+[submodule "common/scripts/format"]
+	path = common/scripts/format
+	url = https://github.com/miguelmoraperea/format
