@@ -1,3 +1,9 @@
 #!/bin/bash
 
-python3 ${CONFIG_DIR}/common/scripts/format/format.py "$@"
+if [[ -z "${FORMAT}" ]]; then
+    FORMAT=${CONFIG_DIR}/common/scripts/format/format.py
+else
+  FORMAT="${FORMAT}"
+fi
+
+python3 ${FORMAT} "$@"
