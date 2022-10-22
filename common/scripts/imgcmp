@@ -1,3 +1,9 @@
 #!/bin/bash
 
-python3 ${CONFIG_DIR}/common/scripts/imagecmp/imagecmp.py "$@"
+if [[ -z "${IMAGECMP}" ]]; then
+    IMAGECMP=${CONFIG_DIR}/common/scripts/imagecmp/imagecmp.py
+else
+  IMAGECMP="${IMAGECMP}"
+fi
+
+python3 ${IMAGECMP} "$@"
