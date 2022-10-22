@@ -238,7 +238,6 @@ vim.keymap.set("n", "<Leader>dd", ":lua require('dapui').toggle()<CR>", { norema
 
 -- Signify
 vim.g.signify_sign_add = ''
--- vim.g.signify_sign_change = ''
 vim.g.signify_sign_change = ''
 vim.g.signify_sign_delete = ''
 
@@ -247,10 +246,5 @@ vim.api.nvim_set_hl(0, 'SignifySignDelete', { fg='#B37130' })
 vim.api.nvim_set_hl(0, 'SignifySignChange', { fg='#B3AF43' })
 
 -- Diffview
-vim.api.nvim_set_hl(0, 'DiffAdd', { bg='#384238' })
-vim.api.nvim_set_hl(0, 'DiffDelete', { bg='#5e3838' })
-vim.api.nvim_set_hl(0, 'DiffChange', { bg='#573c2d' })
-vim.api.nvim_set_hl(0, 'DiffText', { bg='#3d271c' })
-
 vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
 vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
