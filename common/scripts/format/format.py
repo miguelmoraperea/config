@@ -156,32 +156,64 @@ def sort_files(files):
         natsorted(files)
 
 
+def is_image(path):
+    extension = get_extension(path)
+    if extension is not None and extension in IMAGE_EXTENSIONS:
+        return True
+    return False
+
+
+def move_pp3_file(path):
+    pp3_file_path = f'{path}.pp3'
+    if exists(pp3_file_path):
+        tmp_path = f'{pp3_file_path}.tmp'
+        move_file(pp3_file_path, tmp_path, print_msg=False, is_file_=True)
+        return tmp_path
+    return None
+
+
 def add_tmp_extension_to_files(files):
     tmp_files = []
     for path in files:
+        if is_image(path):
+            path_added = move_pp3_file(path)
+            if path_added is not None:
+                tmp_files.append(path_added)
         tmp_path = f'{path}.tmp'
         move_file(path, tmp_path, print_msg=False, is_file_=True)
         tmp_files.append(tmp_path)
     return tmp_files
 
 
+def filter_pp3_files(files):
+    non_pp3_files = []
+    pp3_files = []
+    for file in files:
+        if get_extension(file[:-4]) == 'pp3':
+            pp3_files.append(file)
+        else:
+            non_pp3_files.append(file)
+    return non_pp3_files, pp3_files
+
+
 def rename_files(files):
     rename = Rename()
     rename_cnt = 0
-    for relative_path in files:
+
+    non_pp3_files, pp3_files = filter_pp3_files(files)
+
+    for relative_path in non_pp3_files:
         new_relative_path = rename.run(relative_path,
                                        is_file_=True,
                                        is_dry_run=IS_DRY_RUN)
         rename_cnt += move_file(relative_path,
                                 new_relative_path, is_file_=True)
-        extension = get_extension(relative_path[:-4])
-        if extension is not None and extension in IMAGE_EXTENSIONS:
-            pp3_path = f'{relative_path[:-4]}.pp3'
-            new_pp3_path = f'{pp3_path}.tmp'
-            if exists(pp3_path):
-                rename_cnt += move_file(pp3_path, new_pp3_path, is_file_=True)
-                if not IS_DRY_RUN:
-                    files.remove(pp3_path)
+
+        corresponding_pp3_file = f'{relative_path[:-4]}.pp3.tmp'
+        if corresponding_pp3_file in pp3_files:
+            new_pp3_path = f'{new_relative_path}.pp3'
+            rename_cnt += move_file(corresponding_pp3_file,
+                                    new_pp3_path, is_file_=True)
 
     return rename_cnt
 

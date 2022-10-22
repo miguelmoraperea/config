@@ -566,5 +566,51 @@ class TestSubstitute(unittest.TestCase):
                               self._hashes_dict, expected_renaming, TEST_DIR)
 
 
+class TestRenamePP3FileInImages(unittest.TestCase):
+
+    _tree = {
+        'TEST DIR 1': {
+            'TEST FILE 1.jpg': None,
+            'TEST FILE 2.jpg': None,
+            'TEST FILE 2.jpg.pp3': None,
+            'TEST FILE 3': None,
+        }
+    }
+
+    def setUp(self):
+        _init_test_dir()
+        os.chdir(TEST_DIR)
+        self._hashes_dict = _create_test_tree(self._tree)
+
+    def tearDown(self):
+        _remove_dir(TEST_DIR)
+
+    def test_recursive(self):
+        expected_tree = {
+            'TEST DIR 1': {
+                'sample_1.jpg': None,
+                'sample_2.jpg': None,
+                'sample_2.jpg.pp3': None,
+                'TEST FILE 3': None,
+            }
+        }
+        expected_renaming = {
+            'TEST DIR 1': 'TEST DIR 1',
+            'sample_1.jpg': 'TEST FILE 1.jpg',
+            'sample_2.jpg': 'TEST FILE 2.jpg',
+            'sample_2.jpg.pp3': 'TEST FILE 2.jpg.pp3',
+            'TEST FILE 3': 'TEST FILE 3',
+        }
+        hash_tree_before = _hashdir(TEST_DIR)
+        os.chdir('TEST DIR 1')
+        subprocess.run('frmt -n sample *.jpg',
+                       shell=True,
+                       check=True,
+                       stdout=subprocess.DEVNULL)
+        self.assertEqual(hash_tree_before, _hashdir(TEST_DIR))
+        _assert_tree_renaming(self, expected_tree,
+                              self._hashes_dict, expected_renaming, TEST_DIR)
+
+
 if __name__ == '__main__':
     unittest.main()
