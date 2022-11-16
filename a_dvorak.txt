@@ -1,105 +1,116 @@
 *    Original
 *    --------
 *
-*    =   1   2   3   4   5   6   7   8   9   0   -
-*    \t  '   ,   .   p   y   f   g   c   r   l   /
-*    CPS a   o   e   u   i   d   h   t   n   s   \
-*    SFT ;   q   j   k   x   b   m   w   v   z   SFT
-*        `   ; LEFT RGHT         UP DOWN [   ]
+*  ---------------------------------------------------------------------------------------
+*    | =   |  1  |  2  |  3   |  4   |  5  |     |  6  |  7  |  8   |  9  |  0  |  -   |
+*    | \t  |  '  |  ,  |  .   |  p   |  y  |     |  f  |  g  |  c   |  r  |  l  |  /   |
+*    | CPS |  a  |  o  |  e   |  u   |  i  |     |  d  |  h  |  t   |  n  |  s  |  \   |
+*    | SFT |  ;  |  q  |  j   |  k   |  x  |     |  b  |  m  |  w   |  v  |  z  |  SFT |
+*          |  `  |  ;  | LEFT | RGHT |                 |  UP | DOWN |  [  |  ]  |
+*  ---------------------------------------------------------------------------------------
 *
-*    +   !   @   #   $   %   ^   &   *   (   )   _
-*        "   <   >                               ?
-*                                                |
-*        :
-*        ~                               {   }
+*  ---------------------------------------------------------------------------------------
+*    | +  |  !  |  @  |  #  |  $  |  %  |        |  ^  |  &  |  *  |  (  |  )  |  _  |
+*    |    |  "  |  <  |  >  |     |     |        |     |     |     |     |     |  ?  |
+*    |    |     |     |     |     |     |        |     |     |     |     |     |  |  |
+*    |    |  :  |     |     |     |     |        |     |     |     |     |     |     |
+*         |  ~  |     |     |     |                    |     |     |  {  |  }  |
+*  ---------------------------------------------------------------------------------------
 *
+*
+*  ---------------------------------------------------------------------------------------
+*                        | LCTRL | LALT |        | RWIN  | RCTRL |
+*               | BSPACE | DEL   | HOME |        | PUP   | ENTER | SPACE |
+*               |        |       | END  |        | PDOWN |       |       |
+*  ---------------------------------------------------------------------------------------
 *
 *    Modified
 *    --------
 *
-*    _   1   2   3   4   5   6   7   8   9   0   -
-*    TAB '   ,   .   p   y   f   g   c   r   l   /
-*    CPS a   o   e   u   i   d   h   t   n   s   \
-*    SFT ;   q   j   k   x   b   m   w   v   z   SFT
-*        `   ;  DOWN UP        LEFT RGHT *   #
+*  ---------------------------------------------------------------------------------------
+*    | _    |  1  |  2  |  3  |  4  |  5  |  | 6  |  7  |  8  |  9  |  0  |  -   |
+*    | TAB  |  '  |  ,  |  .  |  p  |  y  |  | f  |  g  |  c  |  r  |  l  |  /   |
+*    | CPS  |  a  |  o  |  e  |  u  |  i  |  | d  |  h  |  t  |  n  |  s  |  \   |
+*    | SFT  |  ;  |  q  |  j  |  k  |  x  |  | b  |  m  |  w  |  v  |  z  |  SFT |
+*           |  <  |  [  |  {  |  (  |             |  )  |  }  |  ]  |  >  |
+*  ---------------------------------------------------------------------------------------
 *
-*    @   <   [   {   (   +   =   )   }   ]   >   ~
-*        "   !   &                               ?
-*                                                |
-*        $                               ^   %
-
+*  ---------------------------------------------------------------------------------------
+*    |    |  @  |  !  |  *  |  +  |     |        |     |  =  |  &  |  |  |  ~  |     |
+*    |    |  "  |     |     |     |     |        |     |     |     |     |     |  ?  |
+*    |    |     |     |     |     |     |        |     |     |     |     |     |     |
+*    |    |  :  |     |     |     |     |        |     |     |     |     |     |     |
+*         |  $  |  #  |     |     |                    |     |     |  ^  |  %  |
+*  ---------------------------------------------------------------------------------------
+*
+*  ---------------------------------------------------------------------------------------
+*                        | LCTRL | LALT    |        | RALT    | ESCAPE |
+*               | BSPACE | DEL   | CMD     |        | CMD     | ENTER | SPACE |
+*               |        |       | KPSHIFT |        | KPSHIFT |       |       |
+*  ---------------------------------------------------------------------------------------
 
 * = > _
 {=}>{-lshift}{hyphen}{+lshift}
-{=}>{-rshift}{hyphen}{+rshift}
 
-* Arrow keys
-[left]>[down]
-[right]>[up]
-[up]>[left]
-[down]>[right]
+* + > NULL
+{lshift}{=}>{}
+{rshift}{=}>{}
 
-* [ > *
-{obrack}>{-lshift}{8}{+lshift}
+* ! > @
+{lshift}{1}>{-lshift}{2}{+lshift}
+{rshift}{1}>{-rshift}{2}{+rshift}
 
-* ] > #
-{cbrack}>{-lshift}{3}{+lshift}
+* @ > !
+{lshift}{2}>{-lshift}{1}{+lshift}
+{rshift}{2}>{-rshift}{1}{+rshift}
 
-* + > @
-{lshift}{=}>{-lshift}{2}{+lshift}
-{rshift}{=}>{-rshift}{2}{+rshift}
+* # > *
+{lshift}{3}>{-lshift}{8}{+lshift}
+{rshift}{3}>{-rshift}{8}{+rshift}
 
-* ! > <
-{lshift}{1}>{-lshift}{,}{+lshift}
-{rshift}{1}>{-rshift}{,}{+rshift}
+* $ > +
+{lshift}{4}>{-lshift}{=}{+lshift}
+{rshift}{4}>{-rshift}{=}{+rshift}
 
-* @ > [
-{lshift}{2}>{obrack}
-{rshift}{2}>{obrack}
+* % > NULL
+{lshift}{5}>{}
+{rshift}{5}>{}
 
-* # > {
-{lshift}{3}>{-lshift}{obrack}{+lshift}
-{rshift}{3}>{-rshift}{obrack}{+rshift}
+* ^ > NULL
+{lshift}{6}>{}
+{rshift}{6}>{}
 
-* $ > (
-{lshift}{4}>{-lshift}{9}{+lshift}
-{rshift}{4}>{-rshift}{9}{+rshift}
+* & > =
+{lshift}{7}>{=}
+{rshift}{7}>{=}
 
-* % > +
-{lshift}{5}>{-lshift}{=}{+lshift}
-{rshift}{5}>{-rshift}{=}{+rshift}
+* * > 8
+{lshift}{8}>{-lshift}{7}{+lshift}
+{rshift}{8}>{-rshift}{7}{+rshift}
 
-* ^ > =
-{lshift}{6}>{=}
-{rshift}{6}>{=}
+* ( > |
+{lshift}{9}>{-lshift}{\}{+lshift}
+{rshift}{9}>{-rshift}{\}{+rshift}
 
-* & > )
-{lshift}{7}>{-lshift}{0}{+lshift}
-{rshift}{7}>{-rshift}{0}{+rshift}
+* ) > ~
+{lshift}{0}>{-lshift}{`}{+lshift}
+{rshift}{0}>{-rshift}{`}{+rshift}
 
-* * > }
-{lshift}{8}>{-lshift}{cbrack}{+lshift}
-{rshift}{8}>{-rshift}{cbrack}{+rshift}
+* _ > NULL
+{lshift}{hyphen}>{}
+{rshift}{hyphen}>{}
 
-* ( > ]
-{lshift}{9}>{cbrack}
-{rshift}{9}>{cbrack}
+* < > NULL
+{lshift}{,}>{}
+{rshift}{,}>{}
 
-* ) > >
-{lshift}{0}>{-lshift}{.}{+lshift}
-{rshift}{0}>{-rshift}{.}{+rshift}
+* > > NULL
+{lshift}{.}>{}
+{rshift}{.}>{}
 
-* _ > ~
-{lshift}{hyphen}>{-lshift}{`}{+lshift}
-{rshift}{hyphen}>{-rshift}{`}{+rshift}
-
-* < > !
-{lshift}{,}>{-lshift}{1}{+lshift}
-{rshift}{,}>{-rshift}{1}{+rshift}
-
-* > > &
-{lshift}{.}>{-lshift}{7}{+lshift}
-{rshift}{.}>{-rshift}{7}{+rshift}
+* | > NULL
+{lshift}{\}>{}
+{rshift}{\}>{}
 
 * ~ > $
 {lshift}{`}>{-lshift}{4}{+lshift}
@@ -116,11 +127,59 @@
 * RCTRL > ESC
 [rctrl]>[escape]
 
-* RWIN > LALT
-[rwin]>[lalt]
+* RWIN > RALT
+[rwin]>[ralt]
 
-* Home > cmd
+* HOME > CMD
 [home]>[lwin]
 
-* Page up > cmd
+* PAGE UP > CMD
 [pup]>[rwin]
+
+* ` > <
+{`}>{-lshift}{,}{+lshift}
+
+* INTL >
+{intl-\}>{obrack}
+
+* DOWN
+{left}>{-lshift}{obrack}{+lshift}
+
+* UP
+{right}>{-lshift}{9}{+lshift}
+
+* END
+[end]>[kpshift]
+[kp-end]>[kpshift]
+
+* PAGE DOWN
+[pdown]>[kpshift]
+[kp-pdown]>[kpshift]
+
+* ` >
+{cbrack}>{-lshift}{.}{+lshift}
+
+* [ > ]
+{obrack}>{cbrack}
+
+* DOWN > }
+{down}>{-lshift}{cbrack}{+lshift}
+
+* UP > )
+{up}>{-lshift}{0}{+lshift}
+
+* ± > #
+{lshift}{intl-\}>{-lshift}{3}{+lshift}
+{rshift}{intl-\}>{-rshift}{3}{+rshift}
+
+* Disable keypad arrows
+[kp-down]>[null]
+[kp-up]>[null]
+[kp-right]>[null]
+[kp-left]>[null]
+
+* Use jklh arrow keys in keypad mode
+[kp-j]>[down]
+[kp-k]>[up]
+[kpmin]>[right]
+[kp4]>[left]
