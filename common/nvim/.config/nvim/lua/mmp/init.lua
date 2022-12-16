@@ -47,6 +47,7 @@ vim.keymap.set("n", "<C-j>", "<C-W><C-J>", { noremap = false })
 vim.keymap.set("n", "<C-k>", "<C-W><C-K>", { noremap = false })
 vim.keymap.set("n", "<C-l>", "<C-W><C-L>", { noremap = false })
 vim.keymap.set("n", "<Leader>c", "<Cmd>noh<CR>", { noremap = false })
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { noremap = false })
 
 -- NERDCommenter
 vim.g.NERDSpaceDelims = 1
