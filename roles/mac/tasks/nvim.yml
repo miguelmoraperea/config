@@ -4,9 +4,3 @@
     global: yes
   tags:
     - nvim
-
-- name: Install "packer"
-  ansible.builtin.git:
-    repo: https://github.com/wbthomason/packer.nvim/
-    dest: ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-    depth: 1
