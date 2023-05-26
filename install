@@ -6,7 +6,7 @@ readonly PWD=$(pwd)
 
 if [[ "${OS}" == "Darwin" ]]; then
     echo "Running on (macOS)"
-    STOW_DIRS="nvim, ranger, skhd, tmux, yabai, zsh"
+    STOW_DIRS="nvim, ranger, skhd, tmux, yabai, zsh, fish"
     DOTFILES="${PWD}/mac"
 else
     echo "Running on (Linux)"
