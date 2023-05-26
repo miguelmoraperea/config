@@ -16,6 +16,11 @@ shift + alt - 2 : yabai -m window --space 2 && yabai -m space --focus 2
 shift + alt - 3 : yabai -m window --space 3 && yabai -m space --focus 3
 shift + alt - 4 : yabai -m window --space 4 && yabai -m space --focus 4
 shift + alt - 5 : yabai -m window --space 5 && yabai -m space --focus 5
+shift + alt - 6 : yabai -m window --space 6 && yabai -m space --focus 6
+shift + alt - 7 : yabai -m window --space 7 && yabai -m space --focus 7
+shift + alt - 8 : yabai -m window --space 8 && yabai -m space --focus 8
+shift + alt - 9 : yabai -m window --space 9 && yabai -m space --focus 9
+shift + alt - 0 : yabai -m window --space 10 && yabai -m space --focus 10
 
 # Resize windows
 alt + cmd - h : \
@@ -51,11 +56,16 @@ shift + alt - space : yabai -m window --toggle float
 alt - f : yabai -m window --toggle zoom-fullscreen
 
 # Change desktop
-alt - 1 : yabai -m space --focus 1
-alt - 2 : yabai -m space --focus 2
-alt - 3 : yabai -m space --focus 3
-alt - 4 : yabai -m space --focus 4
-alt - 5 : yabai -m space --focus 5
+cmd - 1 : yabai -m space --focus 1
+cmd - 2 : yabai -m space --focus 2
+cmd - 3 : yabai -m space --focus 3
+cmd - 4 : yabai -m space --focus 4
+cmd - 5 : yabai -m space --focus 5
+cmd - 6 : yabai -m space --focus 6
+cmd - 7 : yabai -m space --focus 7
+cmd - 8 : yabai -m space --focus 8
+cmd - 9 : yabai -m space --focus 9
+cmd - 0 : yabai -m space --focus 10
 
 # Close windows
 alt - c : yabai -m window --close

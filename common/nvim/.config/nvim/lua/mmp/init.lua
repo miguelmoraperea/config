@@ -1,7 +1,5 @@
-require("mmp.packer")
-
-vim.g.mapleader = " "
 vim.opt.swapfile = false
+vim.g.mapleader = " "
 vim.opt.clipboard = "unnamedplus"
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -25,13 +23,16 @@ vim.opt.autoread = true
 vim.opt.cmdheight = 1
 vim.opt.wrapscan = false
 vim.opt.fillchars = { diff = ' ' }
+vim.opt.foldenable = false
+vim.opt.conceallevel = 3
+
+require("mmp.lazy")
 
 vim.cmd("let g:python3_host_prog = '/home/miguel/Desktop/nvim_venv/bin/python'")
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
 
-vim.cmd("colorscheme nightfox")
 vim.cmd("highlight Comment cterm=italic gui=italic")
 
 vim.cmd(":highlight Normal guibg=none")
@@ -39,7 +40,7 @@ vim.cmd(":highlight NormalNC guibg=none")
 vim.cmd(":highlight StatusLine guibg=none")
 vim.cmd(":highlight NvimTreeNormal guibg=none")
 
--- General remaps
+-- -- General remaps
 vim.keymap.set("n", "<Leader>my", "<Cmd>so $MYVIMRC<CR>", { noremap = false })
 vim.keymap.set("n", "<C-s>", "<Cmd>w<CR>", { noremap = false })
 vim.keymap.set("n", "<C-h>", "<C-W><C-H>", { noremap = false })
@@ -49,66 +50,23 @@ vim.keymap.set("n", "<C-l>", "<C-W><C-L>", { noremap = false })
 vim.keymap.set("n", "<Leader>c", "<Cmd>noh<CR>", { noremap = false })
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { noremap = false })
 
--- NERDCommenter
-vim.g.NERDSpaceDelims = 1
-vim.g.NERDCompactSexyComs = 1
-vim.g.NERDDefaultAlign = "left"
-vim.cmd(" let g:NERDCustomDelimiters = { 'c': { 'left': '//' }, 'Jenkinsfile': { 'left': '//' } }")
+-- Indentation
+vim.keymap.set("v", ">", ">gv", { noremap = false })
+vim.keymap.set("v", "<", "<gv", { noremap = false })
 
--- Rainbow
-vim.cmd("let g:rainbow#max_level = 16")
-vim.cmd("let g:rainbow#pairs = [['(', ')'], ['[', ']'], ['{', '}']]")
-vim.cmd("autocmd FileType * RainbowParentheses")
-
--- Harpoon
-require("mmp.harpoon")
-
--- Files
-vim.api.nvim_set_keymap('n', '<Leader><Backspace>', '<Cmd>lua require("harpoon.ui").toggle_quick_menu()<CR>',
-    { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>mk', '<Cmd>lua require("harpoon.mark").add_file()<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>0', '<Cmd>lua require("harpoon.ui").nav_file(0)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>1', '<Cmd>lua require("harpoon.ui").nav_file(1)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>2', '<Cmd>lua require("harpoon.ui").nav_file(2)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>3', '<Cmd>lua require("harpoon.ui").nav_file(3)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>4', '<Cmd>lua require("harpoon.ui").nav_file(4)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>5', '<Cmd>lua require("harpoon.ui").nav_file(5)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>6', '<Cmd>lua require("harpoon.ui").nav_file(6)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>7', '<Cmd>lua require("harpoon.ui").nav_file(7)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>8', '<Cmd>lua require("harpoon.ui").nav_file(8)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>9', '<Cmd>lua require("harpoon.ui").nav_file(9)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>10', '<Cmd>lua require("harpoon.ui").nav_file(10)<CR>', { noremap = true })
-
--- Terminals
-vim.api.nvim_set_keymap('n', '<Leader>t1', '<Cmd>lua require("harpoon.term").gotoTerminal(1)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>t2', '<Cmd>lua require("harpoon.term").gotoTerminal(2)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>t3', '<Cmd>lua require("harpoon.term").gotoTerminal(3)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>t4', '<Cmd>lua require("harpoon.term").gotoTerminal(4)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>t5', '<Cmd>lua require("harpoon.term").gotoTerminal(5)<CR>', { noremap = true })
-
--- Commands
-vim.api.nvim_set_keymap('n', '<Leader><Backspace>c', '<Cmd>lua require("harpoon.cmd-ui").toggle_quick_menu()<CR>',
-    { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>c1', '<Cmd>lua require("harpoon.term").sendCommand(1, 1)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>c2', '<Cmd>lua require("harpoon.term").sendCommand(2, 2)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>c3', '<Cmd>lua require("harpoon.term").sendCommand(3, 3)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>c4', '<Cmd>lua require("harpoon.term").sendCommand(4, 4)<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<Leader>c5', '<Cmd>lua require("harpoon.term").sendCommand(5, 5)<CR>', { noremap = true })
-
-
--- LSP
+-- -- LSP
 require("mmp.lsp")
 vim.lsp.set_log_level = "warn"
 vim.g.lsp_log_verbose = 1
 
 vim.keymap.set("n", "<leader>rn", "<Cmd>lua vim.lsp.buf.rename()", { noremap = false })
 
-vim.fn.sign_define('DiagnosticSignError', { text='', texthl='DiagnosticSignError' })
-vim.fn.sign_define('DiagnosticSignWarn', { text='', texthl='DiagnosticSignWarn' })
-vim.fn.sign_define('DiagnosticSignInfo', { text='', texthl='DiagnosticSignInfo' })
-vim.fn.sign_define('DiagnosticSignHint', { text='', texthl='DiagnosticSignHint' })
+vim.fn.sign_define('DiagnosticSignError', { text = '', texthl = 'DiagnosticSignError' })
+vim.fn.sign_define('DiagnosticSignWarn', { text = '', texthl = 'DiagnosticSignWarn' })
+vim.fn.sign_define('DiagnosticSignInfo', { text = '', texthl = 'DiagnosticSignInfo' })
+vim.fn.sign_define('DiagnosticSignHint', { text = '', texthl = 'DiagnosticSignHint' })
 
--- Telescope
+-- -- Telescope
 require("mmp.globals")
 require("mmp.telescope")
 vim.keymap.set("n", "<leader>ff", "<Cmd>Telescope find_files hidden=True<cr>", { noremap = false })
@@ -126,12 +84,6 @@ vim.keymap.set("n", "<Leader>re", "<Cmd>lua require'telescope.builtin'.lsp_refer
 vim.keymap.set("n", "<Leader>di", "<Cmd>lua require'telescope.builtin'.diagnostics{}<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>co", "<Cmd>lua R('mmp.telescope').git_commits({})<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>gu", "<Cmd>lua R('mmp.telescope').grep_word_under_cursor()<cr>", { noremap = false })
-
--- nvim-cmp
-require('mmp.nvim-cmp')
-
--- Colorizer
-require 'colorizer'.setup(nil, { RRGGBBAA = true; })
 
 -- Precise Trim Whitespaces
 vim.cmd([[
@@ -166,86 +118,80 @@ augroup highlight_yank
 augroup END
 ]])
 
--- null-ls
-null_ls = require('null-ls')
-null_ls.setup({
-    sources = {
-        null_ls.builtins.diagnostics.pylint,
-        null_ls.builtins.diagnostics.flake8,
-        null_ls.builtins.formatting.autopep8,
-    },
-})
+-- Create a new autocmd to run the current buffer file if is a python file
+local run_python_file = function()
+    -- Send to terminal 1 using harpoon
+    vim.cmd("lua require('harpoon.term').sendCommand(1, 'python3 " .. vim.fn.expand("%") .. "')")
+    -- Go to terminal 1 using harpoon
+    vim.cmd("lua require('harpoon.term').gotoTerminal(1)")
+end
 
--- Symbols outline
-require("symbols-outline").setup({ show_relative_numbers = true, width=40, keymaps = { close = { nil } } })
-vim.keymap.set("n", "<Leader>t", ":SymbolsOutline<CR>", { noremap = false })
+-- Create a user command to run run_python_file
+vim.api.nvim_create_user_command("RunPythonFile", run_python_file, {})
+vim.keymap.set("n", "<Leader>ru", ":RunPythonFile<CR>", { noremap = false })
 
--- nvim-treesitter
-require'nvim-treesitter.configs'.setup {
-  highlight = {
-    enable = true,
-  },
-}
+-- Set syntax for thrift files
+vim.cmd([[
+au BufRead,BufNewFile *.thrift set filetype=thrift
+au! Syntax thrift source ~/.vim/thrift.vim
+]])
 
--- nvim-tree
+-- Keymay for switching between source and header files
+vim.keymap.set("n", "go", ":ClangdSwitchSourceHeader<CR>", { noremap = false })
 
--- disable netrw at the very start of your init.lua (strongly advised)
-vim.g.loaded = 1
-vim.g.loaded_netrwPlugin = 1
+-- -- Rainbow
+-- vim.cmd("let g:rainbow#max_level = 16")
+-- vim.cmd("let g:rainbow#pairs = [['(', ')'], ['[', ']'], ['{', '}']]")
+-- vim.cmd("autocmd FileType * RainbowParentheses")
 
--- empty setup using defaults
-require("nvim-tree").setup({
-    view = {
-        adaptive_size = true,
-        relativenumber = true,
-    }
-})
+-- -- Symbols outline
+-- require("symbols-outline").setup({ show_relative_numbers = true, width=40, keymaps = { close = { nil } } })
+-- vim.keymap.set("n", "<Leader>t", ":SymbolsOutline<CR>", { noremap = false })
 
-vim.keymap.set("n", "<Leader>m", "<Cmd>NvimTreeToggle<CR>", { noremap = false })
-vim.keymap.set("n", "<Leader>n", "<Cmd>NvimTreeFindFile<CR>", { noremap = false })
+-- -- Test
+-- vim.keymap.set("n", "<Leader>tf", ":TestFile<CR>", { noremap = false })
+-- vim.keymap.set("n", "<Leader>tn", ":TestNearest<CR>", { noremap = false })
+-- vim.keymap.set("n", "<Leader>tl", ":TestLast<CR>", { noremap = false })
 
--- Test
-vim.keymap.set("n", "<Leader>tf", ":TestFile<CR>", { noremap = false })
-vim.keymap.set("n", "<Leader>tn", ":TestNearest<CR>", { noremap = false })
-vim.keymap.set("n", "<Leader>tl", ":TestLast<CR>", { noremap = false })
+-- -- Debugger
+-- require('dap')
+-- require("dapui").setup()
+-- require('dap-python').setup('/home/miguel/Desktop/nvim_venv/bin/python')
+-- require('dap-python').test_runner = 'unittest'
 
--- Debugger
-require('dap')
-require("dapui").setup()
-require('dap-python').setup('/home/miguel/Desktop/nvim_venv/bin/python')
-require('dap-python').test_runner = 'unittest'
+-- vim.keymap.set("n", "<Leader>db", ":lua require('dap').toggle_breakpoint()<CR>", { noremap = false })
+-- vim.keymap.set("n", "<Leader>dc", ":lua require('dap').continue()<CR>", { noremap = false })
+-- vim.keymap.set("n", "<Leader>do", ":lua require('dap').step_over()<CR>", { noremap = false })
+-- vim.keymap.set("n", "<Leader>de", ":lua require('dap').step_into()<CR>", { noremap = false })
 
-vim.keymap.set("n", "<Leader>db", ":lua require('dap').toggle_breakpoint()<CR>", { noremap = false })
-vim.keymap.set("n", "<Leader>dc", ":lua require('dap').continue()<CR>", { noremap = false })
-vim.keymap.set("n", "<Leader>do", ":lua require('dap').step_over()<CR>", { noremap = false })
-vim.keymap.set("n", "<Leader>de", ":lua require('dap').step_into()<CR>", { noremap = false })
+-- vim.keymap.set("n", "<leader>dfu", ":lua require('dap-python').test_method()<CR>", { noremap = false })
+-- vim.keymap.set("n", "<leader>dca", ":lua require('dap-python').test_class()<CR>", { noremap = false })
+-- vim.keymap.set("n", "<leader>dse", ":lua require('dap-python').debug_selection()<CR>", { noremap = false })
 
-vim.keymap.set("n", "<leader>dfu", ":lua require('dap-python').test_method()<CR>", { noremap = false })
-vim.keymap.set("n", "<leader>dca", ":lua require('dap-python').test_class()<CR>", { noremap = false })
-vim.keymap.set("n", "<leader>dse", ":lua require('dap-python').debug_selection()<CR>", { noremap = false })
+-- vim.api.nvim_set_hl(0, 'DapBreakpoint', { fg='#993939', bg='#31353f' })
+-- vim.api.nvim_set_hl(0, 'DapLogPoint', { fg='#61afef', bg='#31353f' })
+-- vim.api.nvim_set_hl(0, 'DapStopped', { fg='#98c379', bg='#31353f' })
 
-vim.api.nvim_set_hl(0, 'DapBreakpoint', { fg='#993939', bg='#31353f' })
-vim.api.nvim_set_hl(0, 'DapLogPoint', { fg='#61afef', bg='#31353f' })
-vim.api.nvim_set_hl(0, 'DapStopped', { fg='#98c379', bg='#31353f' })
+-- vim.fn.sign_define('DapBreakpoint', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
+-- vim.fn.sign_define('DapBreakpointCondition', { text='ﳁ', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
+-- vim.fn.sign_define('DapBreakpointRejected', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl= 'DapBreakpoint' })
+-- vim.fn.sign_define('DapLogPoint', { text='', texthl='DapLogPoint', linehl='DapLogPoint', numhl= 'DapLogPoint' })
+-- vim.fn.sign_define('DapStopped', { text='', texthl='DapStopped', linehl='DapStopped', numhl= 'DapStopped' })
 
-vim.fn.sign_define('DapBreakpoint', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
-vim.fn.sign_define('DapBreakpointCondition', { text='ﳁ', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
-vim.fn.sign_define('DapBreakpointRejected', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl= 'DapBreakpoint' })
-vim.fn.sign_define('DapLogPoint', { text='', texthl='DapLogPoint', linehl='DapLogPoint', numhl= 'DapLogPoint' })
-vim.fn.sign_define('DapStopped', { text='', texthl='DapStopped', linehl='DapStopped', numhl= 'DapStopped' })
+-- vim.keymap.set("n", "<Leader>dd", ":lua require('dapui').toggle()<CR>", { noremap = false })
 
-vim.keymap.set("n", "<Leader>dd", ":lua require('dapui').toggle()<CR>", { noremap = false })
+-- -- Signify
+-- vim.g.signify_sign_add = ''
+-- vim.g.signify_sign_change = ''
+-- vim.g.signify_sign_delete = ''
 
+-- vim.api.nvim_set_hl(0, 'SignifySignAdd', { fg='#98c379' })
+-- vim.api.nvim_set_hl(0, 'SignifySignDelete', { fg='#B37130' })
+-- vim.api.nvim_set_hl(0, 'SignifySignChange', { fg='#B3AF43' })
 
--- Signify
-vim.g.signify_sign_add = ''
-vim.g.signify_sign_change = ''
-vim.g.signify_sign_delete = ''
+-- -- Diffview
+-- vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
+-- vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
 
-vim.api.nvim_set_hl(0, 'SignifySignAdd', { fg='#98c379' })
-vim.api.nvim_set_hl(0, 'SignifySignDelete', { fg='#B37130' })
-vim.api.nvim_set_hl(0, 'SignifySignChange', { fg='#B3AF43' })
-
--- Diffview
-vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
-vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
+--- -- Colorizer
+-- require 'colorizer'.setup(nil, { RRGGBBAA = true; })

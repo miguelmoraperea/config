@@ -1,0 +1,26 @@
+{
+    "workspace.library": [
+        "/Users/miguel/.config/nvim",
+        "/Users/miguel/.local/share/nvim/lazy/lazy.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/neodev.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/mason.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/nvim-cmp",
+        "/Users/miguel/.local/share/nvim/lazy/cmp-nvim-lsp",
+        "/Users/miguel/.local/share/nvim/lazy/nvim-lspconfig",
+        "/Users/miguel/.local/share/nvim/lazy/nerdcommenter",
+        "/Users/miguel/.local/share/nvim/lazy/which-key.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/nvim-treesitter",
+        "/Users/miguel/.local/share/nvim/lazy/telescope-fzy-native.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/telescope-fzf-native.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/plenary.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/telescope.nvim",
+        "/Users/miguel/.local/share/nvim/lazy/nightfox.nvim",
+        "/usr/local/Cellar/neovim/0.8.1/share/nvim/runtime",
+        "/usr/local/Cellar/neovim/0.8.1/share/nvim/runtime/pack/dist/opt/matchit",
+        "/usr/local/Cellar/neovim/0.8.1/lib/nvim",
+        "/Users/miguel/.local/state/nvim/lazy/readme",
+        "/Users/miguel/.local/share/nvim/lazy/cmp-nvim-lsp/after",
+        "${3rd}/luassert/library",
+        "${3rd}/luv/library"
+    ]
+}
