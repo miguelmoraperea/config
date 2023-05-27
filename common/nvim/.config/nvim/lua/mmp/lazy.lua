@@ -82,6 +82,13 @@ require("lazy").setup({
                     highlight_opened_files = "3",
                     group_empty = true,
                 },
+                actions = {
+                    change_dir = {
+                        enable = true,
+                        global = true,
+                        restrict_above_cwd = false,
+                    },
+                },
             })
         end,
     },

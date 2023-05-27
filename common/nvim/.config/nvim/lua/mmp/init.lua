@@ -25,6 +25,7 @@ vim.opt.wrapscan = false
 vim.opt.fillchars = { diff = ' ' }
 vim.opt.foldenable = false
 vim.opt.conceallevel = 3
+vim.opt.termguicolors = true
 
 require("mmp.lazy")
 
