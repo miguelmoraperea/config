@@ -90,3 +90,4 @@ fish_add_path ~/Downloads/apache-maven-3.9.2/bin
 set -x STOW_DIRS "alacritty,bash,compton,i3,nvim,tmux"
 set -x DOTFILES "$HOME/Desktop/git/config"
 set -x CONFIG_DIR "$HOME/Desktop/git/config"
+# set -x VIRTUAL_ENV "$HOME/Desktop/nvim_venv/"

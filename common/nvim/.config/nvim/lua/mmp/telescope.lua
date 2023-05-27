@@ -63,11 +63,6 @@ require('telescope').setup {
             order_by = "ascending",
             search_by = "title",
             sync_with_nvim_tree = false,
-            -- on_project_selected = function(prompt_bufnr)
-                -- Do anything you want in here. For example:
-                -- project_actions.change_working_directory(prompt_bufnr, false)
-                -- require("harpoon.ui").nav_file(1)
-            -- end,
         }
     }
 }
