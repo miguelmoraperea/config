@@ -34,7 +34,7 @@ require('telescope').setup {
             }
         },
         file_sorter = require 'telescope.sorters'.get_fzy_sorter,
-        file_ignore_patterns = {'%.git'},
+        file_ignore_patterns = { '%.git' },
         generic_sorter = require 'telescope.sorters'.get_generic_fuzzy_sorter,
         path_display = {},
         winblend = 0,
@@ -46,7 +46,6 @@ require('telescope').setup {
         file_previewer = require 'telescope.previewers'.vim_buffer_cat.new,
         grep_previewer = require 'telescope.previewers'.vim_buffer_vimgrep.new,
         qflist_previewer = require 'telescope.previewers'.vim_buffer_qflist.new,
-
         -- Developer configurations: Not meant for general override
         buffer_previewer_maker = require 'telescope.previewers'.buffer_previewer_maker
     },
@@ -54,12 +53,28 @@ require('telescope').setup {
         fzy_native = {
             override_generic_sorter = false,
             override_file_sorter = true,
+        },
+        project = {
+            base_dirs = {
+                '~/Desktop/git',
+            },
+            hidden_files = true,
+            theme = "dropdown",
+            order_by = "ascending",
+            search_by = "title",
+            sync_with_nvim_tree = false,
+            -- on_project_selected = function(prompt_bufnr)
+                -- Do anything you want in here. For example:
+                -- project_actions.change_working_directory(prompt_bufnr, false)
+                -- require("harpoon.ui").nav_file(1)
+            -- end,
         }
     }
 }
 
 require('telescope').load_extension('fzy_native')
-require("telescope").load_extension("ui-select")
+require('telescope').load_extension("ui-select")
+require('telescope').load_extension('project')
 
 local M = {}
 
@@ -157,7 +172,6 @@ M.buffers = function()
 end
 
 local function set_background(content)
-
     local os = vim.inspect(vim.fn.system('uname'))
     os = string.gsub(os, "\\n", "")
     os = string.gsub(os, '"', "")
@@ -185,7 +199,6 @@ local function delete_background(prompt_bufnr, map)
     map("i", "<C-d>", function()
         rm_background()
     end)
-
 end
 
 local function select_background(prompt_bufnr, map)
@@ -206,7 +219,6 @@ local function select_background(prompt_bufnr, map)
     map("i", "<CR>", function()
         set_the_background(true)
     end)
-
 end
 
 local function image_selector(prompt, cwd)
@@ -215,7 +227,6 @@ local function image_selector(prompt, cwd)
             prompt_title = prompt,
             cwd = cwd,
             previewer = false,
-
             attach_mappings = function(prompt_bufnr, map)
                 select_background(prompt_bufnr, map)
                 delete_background(propmt_bufnr, map)

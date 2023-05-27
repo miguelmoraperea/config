@@ -41,20 +41,11 @@ require("lazy").setup({
             'nvim-telescope/telescope-fzf-native.nvim',
             'nvim-telescope/telescope-fzy-native.nvim',
             'nvim-telescope/telescope-ui-select.nvim',
+            'nvim-telescope/telescope-project.nvim',
         },
         config = function()
             require("mmp.telescope")
         end
-    },
-
-    {
-        'preservim/nerdcommenter',
-        config = function()
-            vim.g.NERDSpaceDelims = 1
-            vim.g.NERDCompactSexyComs = 1
-            vim.g.NERDDefaultAlign = "left"
-            vim.cmd(" let g:NERDCustomDelimiters = { 'c': { 'left': '//' }, 'Jenkinsfile': { 'left': '//' } }")
-        end,
     },
 
     {
@@ -101,7 +92,7 @@ require("lazy").setup({
         cmd = 'TSUpdate',
         config = function()
             require 'nvim-treesitter.configs'.setup {
-                ensure_installed = { 'c', 'cpp', 'lua', 'python', 'norg', 'json', 'yaml', 'thrift', 'fish' },
+                ensure_installed = { 'c', 'cpp', 'lua', 'python', 'norg', 'json', 'yaml', 'thrift', 'fish', 'java' },
                 highlight = {
                     enable = true,
                 },
@@ -282,6 +273,22 @@ require("lazy").setup({
         config = function()
             vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
             vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
+        end,
+    },
+
+    {
+        'numToStr/Comment.nvim',
+        config = function()
+            require('Comment').setup({
+                toggler = {
+                    line = '<Leader>c<Space>',
+                    block = '<Leader>b<Space>',
+                },
+                opleader = {
+                    line = '<Leader>c<Space>',
+                    block = '<Leader>b<Space>',
+                },
+            })
         end,
     },
 

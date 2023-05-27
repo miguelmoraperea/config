@@ -28,7 +28,11 @@ vim.opt.conceallevel = 3
 
 require("mmp.lazy")
 
-vim.cmd("let g:python3_host_prog = '/home/miguel/Desktop/nvim_venv/bin/python'")
+-- Linux
+-- vim.cmd("let g:python3_host_prog = '/home/miguel/Desktop/nvim_venv/bin/python'")
+
+-- Mac
+vim.cmd("let g:python3_host_prog = '/Users/miguel/Desktop/nvim_venv/bin/python'")
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
@@ -84,6 +88,8 @@ vim.keymap.set("n", "<Leader>re", "<Cmd>lua require'telescope.builtin'.lsp_refer
 vim.keymap.set("n", "<Leader>di", "<Cmd>lua require'telescope.builtin'.diagnostics{}<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>co", "<Cmd>lua R('mmp.telescope').git_commits({})<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>gu", "<Cmd>lua R('mmp.telescope').grep_word_under_cursor()<cr>", { noremap = false })
+
+vim.keymap.set("n", "<Leader>fp", ":lua require('telescope').extensions.project.project()<CR>", { noremap = false })
 
 -- Precise Trim Whitespaces
 vim.cmd([[
@@ -189,7 +195,7 @@ vim.keymap.set("n", "go", ":ClangdSwitchSourceHeader<CR>", { noremap = false })
 -- vim.api.nvim_set_hl(0, 'SignifySignDelete', { fg='#B37130' })
 -- vim.api.nvim_set_hl(0, 'SignifySignChange', { fg='#B3AF43' })
 
--- -- Diffview
+-- Diffview
 -- vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
 -- vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
 
