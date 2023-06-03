@@ -96,6 +96,7 @@ require("lazy").setup({
     {
         "nvim-treesitter/nvim-treesitter",
         cmd = "TSUpdate",
+        lazy = false,
         config = function()
             require("nvim-treesitter.configs").setup({
                 ensure_installed = { "c", "cpp", "lua", "python", "norg", "json", "yaml", "thrift", "fish", "java" },

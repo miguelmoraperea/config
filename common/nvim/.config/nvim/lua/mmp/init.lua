@@ -128,9 +128,10 @@ augroup END
 -- Create a new autocmd to run the current buffer file if is a python file
 local run_python_file = function()
     -- Send to terminal 1 using harpoon
-    vim.cmd("lua require('harpoon.term').sendCommand(1, 'python3 " .. vim.fn.expand("%") .. "')")
+    vim.cmd("lua require('harpoon.tmux').sendCommand(1, 'i')")
+    vim.cmd("lua require('harpoon.tmux').sendCommand(1, 'python3 " .. vim.fn.expand("%") .. "')")
     -- Go to terminal 1 using harpoon
-    vim.cmd("lua require('harpoon.term').gotoTerminal(1)")
+    vim.cmd("lua require('harpoon.tmux').gotoTerminal(1)")
 end
 
 -- Create a user command to run run_python_file
