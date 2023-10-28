@@ -62,24 +62,32 @@ require("lazy").setup({
             -- empty setup using defaults
             require("nvim-tree").setup({
                 update_cwd = true,
+
                 update_focused_file = {
                     enable = true,
-                    update_cwd = true,
+                    update_cwd = false,
                     ignore_list = {},
                 },
-                git = {
-                    enable = true,
-                },
-                ew = {
-                    adaptive_size = false,
+                -- git = {
+                --     enable = true,
+                -- },
+                view = {
+                    adaptive_size = true,
                     relativenumber = true,
                 },
                 renderer = {
+                    icons = {
+                        show = {
+                            file = false,
+                            folder = false,
+                            git = false,
+                        },
+                    },
                     indent_markers = {
                         enable = true,
                     },
                     highlight_git = true,
-                    highlight_opened_files = "3",
+                    highlight_opened_files = "all",
                     group_empty = true,
                 },
                 actions = {
@@ -88,6 +96,20 @@ require("lazy").setup({
                         global = true,
                         restrict_above_cwd = false,
                     },
+                },
+                filters = {
+                    dotfiles = true,
+                    custom = { "__pycache__", "releases", } -- "build$" },
+                },
+                log = {
+                  enable = true,
+                  truncate = true,
+                  types = {
+                    diagnostics = true,
+                    git = true,
+                    profile = true,
+                    watcher = true,
+                  },
                 },
             })
         end,
@@ -160,7 +182,7 @@ require("lazy").setup({
                 },
                 menu = {
                     height = 20,
-                    width = 80,
+                    width = 120,
                 },
             })
 
@@ -327,6 +349,8 @@ require("lazy").setup({
                     null_ls.builtins.diagnostics.flake8,
                     null_ls.builtins.diagnostics.pycodestyle,
                     null_ls.builtins.formatting.blue,
+                    null_ls.builtins.formatting.jq,
+                    null_ls.builtins.formatting.usort,
                 },
             })
         end,
@@ -400,5 +424,119 @@ require("lazy").setup({
         config = function()
             require("colorizer").setup()
         end,
+    },
+    {
+        "jackMort/ChatGPT.nvim",
+        event = "VeryLazy",
+        config = function()
+            require("chatgpt").setup()
+        end,
+        dependencies = {
+            "MunifTanjim/nui.nvim",
+            "nvim-lua/plenary.nvim",
+            "nvim-telescope/telescope.nvim",
+        },
+    },
+    {
+        "stevearc/aerial.nvim",
+        opts = {
+            layout = {
+                max_width = { 80, 0.2 },
+                min_width = 50,
+                resize_to_content = true,
+            },
+        },
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+            "nvim-tree/nvim-web-devicons",
+        },
+        keys = {
+            { "<Leader>t", "<Cmd>AerialToggle<CR>" },
+        },
+    },
+
+    {
+        "rcarriga/nvim-notify",
+        lazy = false,
+        config = function()
+            -- vim.notify = require("notify")
+            vim.notify = require("notify").setup({
+                background_colour = "#000000",
+            })
+            -- vim.notify = require("notify").setup({
+            --     stages = "fade_in_slide_out",
+            --     timeout = 5000,
+            --     background_colour = "#1e222a",
+            --     icons = {
+            --         ERROR = "",
+            --         WARN = "",
+            --         INFO = "",
+            --         DEBUG = "",
+            --         TRACE = "✎",
+            --     },
+            -- })
+        end,
+    },
+
+    {
+        dir = "~/Desktop/git/perforce.nvim",
+        dependencies = { "rcarriga/nvim-notify", "nvim-lua/plenary.nvim" },
+        config = function()
+            require("perforce").setup({
+                -- client = "mmora_linux_tools",
+                client = "mmora_linux_gradle",
+            })
+        end,
+    },
+
+    { "junegunn/gv.vim", dependencies = { "tpope/vim-fugitive" } },
+    {
+        "iamcco/markdown-preview.nvim",
+        -- run = "cd app && yarn install",
+        -- run = function() vim.fn["mkdp#util#install"]() end,
+    },
+
+    {
+        url = "https://gitlab.com/schrieveslaach/sonarlint.nvim",
+        ft = { "python", "cpp", "java", "groovy" },
+        dependencies = {
+            "mfussenegger/nvim-jdtls",
+            "williamboman/mason.nvim",
+        },
+        config = function()
+            local sonar_language_server_path =
+                require("mason-registry").get_package("sonarlint-language-server"):get_install_path()
+            local analyzers_path = sonar_language_server_path .. "/extension/analyzers"
+            require("sonarlint").setup({
+                server = {
+                    cmd = {
+                        sonar_language_server_path .. "/sonarlint-language-server.cmd",
+                        "-stdio",
+                        "-analyzers",
+                        vim.fn.expand(analyzers_path .. "/sonarpython.jar"),
+                        vim.fn.expand(analyzers_path .. "/sonarcfamily.jar"),
+                        vim.fn.expand(analyzers_path .. "/sonarjava.jar"),
+                        vim.fn.expand(analyzers_path .. "/sonargroovy.jar"),
+                    },
+                },
+                filetypes = {
+                    "python",
+                    "cpp",
+                    "java",
+                    "groovy",
+                },
+            })
+        end,
+    },
+
+    {
+        "mfussenegger/nvim-jdtls",
+        -- dependencies = {
+        --     "nvim-lua/lsp-status.nvim"
+        -- },
+    },
+
+    {
+        "udalov/kotlin-vim",
     },
 })
