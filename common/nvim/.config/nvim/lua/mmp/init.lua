@@ -22,18 +22,20 @@ vim.opt.splitbelow = true
 vim.opt.autoread = true
 vim.opt.cmdheight = 1
 vim.opt.wrapscan = false
-vim.opt.fillchars = { diff = ' ' }
+vim.opt.fillchars = { diff = " " }
 vim.opt.foldenable = false
 vim.opt.conceallevel = 3
 vim.opt.termguicolors = true
 
 require("mmp.lazy")
 
+vim.g.copilot_filetypes = { yaml = true, gradle = true, python = true }
+
 -- Linux
--- vim.cmd("let g:python3_host_prog = '/home/miguel/Desktop/nvim_venv/bin/python'")
+vim.cmd("let g:python3_host_prog = '/home/mmora/Desktop/nvim_venv/bin/python'")
 
 -- Mac
-vim.cmd("let g:python3_host_prog = '/Users/miguel/Desktop/nvim_venv/bin/python'")
+-- vim.cmd("let g:python3_host_prog = '/Users/miguel/Desktop/nvim_venv/bin/python'")
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
@@ -66,10 +68,10 @@ vim.g.lsp_log_verbose = 1
 
 vim.keymap.set("n", "<leader>rn", "<Cmd>lua vim.lsp.buf.rename()", { noremap = false })
 
-vim.fn.sign_define('DiagnosticSignError', { text = '', texthl = 'DiagnosticSignError' })
-vim.fn.sign_define('DiagnosticSignWarn', { text = '', texthl = 'DiagnosticSignWarn' })
-vim.fn.sign_define('DiagnosticSignInfo', { text = '', texthl = 'DiagnosticSignInfo' })
-vim.fn.sign_define('DiagnosticSignHint', { text = '', texthl = 'DiagnosticSignHint' })
+vim.fn.sign_define("DiagnosticSignError", { text = "", texthl = "DiagnosticSignError" })
+vim.fn.sign_define("DiagnosticSignWarn", { text = "", texthl = "DiagnosticSignWarn" })
+vim.fn.sign_define("DiagnosticSignInfo", { text = "", texthl = "DiagnosticSignInfo" })
+vim.fn.sign_define("DiagnosticSignHint", { text = "", texthl = "DiagnosticSignHint" })
 
 -- -- Telescope
 require("mmp.globals")
@@ -144,8 +146,56 @@ au BufRead,BufNewFile *.thrift set filetype=thrift
 au! Syntax thrift source ~/.vim/thrift.vim
 ]])
 
+vim.cmd([[
+au BufRead,BufNewFile *.build set filetype=xml
+]])
+
 -- Keymay for switching between source and header files
 vim.keymap.set("n", "go", ":ClangdSwitchSourceHeader<CR>", { noremap = false })
+
+-- Remove trailing spaces
+--%s/\s\+$//e
+vim.api.nvim_create_user_command("RemoveTrailingSpaces", [[%s/\s\+$//e]], {})
+vim.api.nvim_create_user_command("RemoveTrailingSpacesConfirm", [[%s/\s\+$//gc]], {})
+
+-- Get file path
+local yank_file_path_full = function()
+    local path = vim.fn.expand("%:p")
+    vim.fn.setreg("+", path)
+    vim.cmd("echo 'Copied to clipboard: " .. path .. "'")
+end
+vim.api.nvim_create_user_command("YankFilePathFull", yank_file_path_full, {})
+
+local yank_file_path_relative = function()
+    local path = vim.fn.expand("%")
+    vim.fn.setreg("+", path)
+    vim.cmd("echo 'Copied to clipboard: " .. path .. "'")
+end
+vim.api.nvim_create_user_command("YankFilePathRelative", yank_file_path_relative, {})
+
+-- jdtls_lsp
+vim.cmd([[
+augroup jdtls_lsp
+    autocmd!
+    autocmd FileType java lua require('mmp.jdtls_setup').setup()
+augroup end
+]])
+
+
+-- -- Create an autocmd to run when the user saves a file
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+--     pattern = { "*" },
+--     callback = function()
+--         if vim.bo.readonly then
+--             vim.schedule(function()
+--                 print("This is a read only file")
+--             end)
+--
+--             -- Open file for add in perforce
+--             vim.cmd("silent !p4 edit " .. vim.fn.expand("%"))
+--         end
+--     end,
+-- })
 
 -- -- Rainbow
 -- vim.cmd("let g:rainbow#max_level = 16")
