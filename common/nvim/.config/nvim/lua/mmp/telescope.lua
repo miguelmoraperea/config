@@ -35,7 +35,7 @@ require('telescope').setup {
             }
         },
         file_sorter = require 'telescope.sorters'.get_fzy_sorter,
-        file_ignore_patterns = { '%.git' },
+        file_ignore_patterns = { '%.git', 'releases', '__pycache__', 'venv', '.null-ls*', 'build', 'main/conf', 'main/assembly' },
         generic_sorter = require 'telescope.sorters'.get_generic_fuzzy_sorter,
         path_display = {},
         winblend = 0,
@@ -52,7 +52,7 @@ require('telescope').setup {
     },
     extensions = {
         fzy_native = {
-            override_generic_sorter = false,
+            override_generic_sorter = true,
             override_file_sorter = true,
         },
         project = {
