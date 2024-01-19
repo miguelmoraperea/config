@@ -539,4 +539,12 @@ require("lazy").setup({
     {
         "udalov/kotlin-vim",
     },
+
+    {
+        "viniarck/telescope-tmuxdir.nvim",
+        keys = {
+            { "<Leader>fx", "<Cmd>Telescope tmuxdir sessions<CR>" },
+            { "<Leader>fi", "<Cmd>Telescope tmuxdir dirs<CR>" },
+        },
+    },
 })
