@@ -31,11 +31,15 @@ require("mmp.lazy")
 
 vim.g.copilot_filetypes = { yaml = true, gradle = true, python = true }
 
--- Linux
-vim.cmd("let g:python3_host_prog = '/home/mmora/Desktop/nvim_venv/bin/python'")
-
--- Mac
--- vim.cmd("let g:python3_host_prog = '/Users/miguel/Desktop/nvim_venv/bin/python'")
+if vim.fn.has("Linux") == 1 then
+    if vim.fn.expand("$USER") == "mmora" then
+        vim.g.python3_host_prog = "/home/mmora/Desktop/nvim_venv/bin/python"
+    else
+        vim.g.python3_host_prog = "/home/miguel/Desktop/nvim_venv/bin/python"
+    end
+else
+    vim.g.python3_host_prog = "/Users/miguel/Desktop/nvim_venv/bin/python"
+end
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
@@ -146,6 +150,7 @@ au BufRead,BufNewFile *.thrift set filetype=thrift
 au! Syntax thrift source ~/.vim/thrift.vim
 ]])
 
+-- Set syntax for build files
 vim.cmd([[
 au BufRead,BufNewFile *.build set filetype=xml
 ]])
@@ -174,13 +179,12 @@ end
 vim.api.nvim_create_user_command("YankFilePathRelative", yank_file_path_relative, {})
 
 -- jdtls_lsp
-vim.cmd([[
-augroup jdtls_lsp
-    autocmd!
-    autocmd FileType java lua require('mmp.jdtls_setup').setup()
-augroup end
-]])
-
+-- vim.cmd([[
+-- augroup jdtls_lsp
+--     autocmd!
+--     autocmd FileType java lua require('mmp.jdtls_setup').setup()
+-- augroup end
+-- ]])
 
 -- -- Create an autocmd to run when the user saves a file
 -- vim.api.nvim_create_autocmd("BufWritePre", {
@@ -237,19 +241,3 @@ augroup end
 -- vim.fn.sign_define('DapStopped', { text='', texthl='DapStopped', linehl='DapStopped', numhl= 'DapStopped' })
 
 -- vim.keymap.set("n", "<Leader>dd", ":lua require('dapui').toggle()<CR>", { noremap = false })
-
--- -- Signify
--- vim.g.signify_sign_add = ''
--- vim.g.signify_sign_change = ''
--- vim.g.signify_sign_delete = ''
-
--- vim.api.nvim_set_hl(0, 'SignifySignAdd', { fg='#98c379' })
--- vim.api.nvim_set_hl(0, 'SignifySignDelete', { fg='#B37130' })
--- vim.api.nvim_set_hl(0, 'SignifySignChange', { fg='#B3AF43' })
-
--- Diffview
--- vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
--- vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
-
---- -- Colorizer
--- require 'colorizer'.setup(nil, { RRGGBBAA = true; })
