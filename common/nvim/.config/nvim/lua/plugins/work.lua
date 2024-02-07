@@ -10,39 +10,39 @@ return {
         -- run = function() vim.fn["mkdp#util#install"]() end,
     },
 
-    -- {
-    --     "rcarriga/nvim-notify",
-    --     lazy = false,
-    --     config = function()
-    --         -- vim.notify = require("notify")
-    --         vim.notify = require("notify").setup({
-    --             background_colour = "#000000",
-    --         })
-    --         -- vim.notify = require("notify").setup({
-    --         --     stages = "fade_in_slide_out",
-    --         --     timeout = 5000,
-    --         --     background_colour = "#1e222a",
-    --         --     icons = {
-    --         --         ERROR = "",
-    --         --         WARN = "",
-    --         --         INFO = "",
-    --         --         DEBUG = "",
-    --         --         TRACE = "✎",
-    --         --     },
-    --         -- })
-    --     end,
-    -- },
+    {
+        "rcarriga/nvim-notify",
+        lazy = false,
+        config = function()
+            -- vim.notify = require("notify")
+            vim.notify = require("notify").setup({
+                background_colour = "#000000",
+            })
+            -- vim.notify = require("notify").setup({
+            --     stages = "fade_in_slide_out",
+            --     timeout = 5000,
+            --     background_colour = "#1e222a",
+            --     icons = {
+            --         ERROR = "",
+            --         WARN = "",
+            --         INFO = "",
+            --         DEBUG = "",
+            --         TRACE = "✎",
+            --     },
+            -- })
+        end,
+    },
 
-    -- {
-    --     dir = "~/Desktop/git/perforce.nvim",
-    --     dependencies = { "rcarriga/nvim-notify", "nvim-lua/plenary.nvim" },
-    --     config = function()
-    --         require("perforce").setup({
-    --             -- client = "mmora_linux_tools",
-    --             client = "mmora_linux_gradle",
-    --         })
-    --     end,
-    -- },
+    {
+        dir = "~/Desktop/git/perforce.nvim",
+        dependencies = { "rcarriga/nvim-notify", "nvim-lua/plenary.nvim" },
+        config = function()
+            require("perforce").setup({
+                -- client = "mmora_linux_tools",
+                -- client = "mmora_linux_gradle",
+            })
+        end,
+    },
 
     -- {
     --     url = "https://gitlab.com/schrieveslaach/sonarlint.nvim",
