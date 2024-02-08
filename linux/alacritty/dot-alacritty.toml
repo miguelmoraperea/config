@@ -58,7 +58,14 @@ x = -1
 y = 0
 
 [shell]
-program = "fish"
+program = "/usr/bin/tmux"
+args = [
+    "new-session",
+    "-A",
+    "-D",
+    "-s",
+    "main"
+]
 
 [window]
 dynamic_padding = true
