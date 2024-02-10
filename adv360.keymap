@@ -5,7 +5,7 @@
 #include <dt-bindings/zmk/backlight.h>
 
 #define MOD_MORPH(NAME, KEY, MOD_KEY) \
-  mm_##NAME: mm_##NAME { \
+  m_##NAME: m_##NAME { \
     compatible = "zmk,behavior-mod-morph"; \
     label = #NAME; \
     #binding-cells = <0>; \
@@ -13,80 +13,116 @@
     mods = <(MOD_LSFT|MOD_RSFT)>; \
   };
 
+#define MOD_MORPH_NONE(NAME, KEY) \
+  m_##NAME: m_##NAME { \
+    compatible = "zmk,behavior-mod-morph"; \
+    label = #NAME; \
+    #binding-cells = <0>; \
+    bindings = <&kp KEY>, <&none>; \
+    mods = <(MOD_LSFT|MOD_RSFT)>; \
+  };
+
+
 / {
 
     behaviors {
-        MOD_MORPH(M_4, N4, PLUS)
+
+        MOD_MORPH_NONE(UNDER, UNDER)
+        MOD_MORPH(1, N1, AT)
+        MOD_MORPH(2, N2, EXCL)
+        MOD_MORPH(3, N3, STAR)
+        MOD_MORPH(4, N4, PLUS)
+        MOD_MORPH_NONE(5, N5)
+
+        MOD_MORPH_NONE(6, N6)
+        MOD_MORPH(7, N7, EQUAL)
+        MOD_MORPH(8, N8, AMPS)
+        MOD_MORPH(9, N9, PIPE)
+        MOD_MORPH(0, N0, TILDE)
+        MOD_MORPH_NONE(MINUS, MINUS)
+
+        MOD_MORPH_NONE(TAB, TAB)
+        MOD_MORPH(SQT, SQT, DQT)
+        MOD_MORPH_NONE(COMMA, COMMA)
+        MOD_MORPH_NONE(DOT, DOT)
+
+        MOD_MORPH(SLASH, SLASH, QMARK)
+        MOD_MORPH_NONE(BSLH, BSLH)
+
+        MOD_MORPH(SEMI, SEMI, COLON)
+
+        MOD_MORPH(LT, LT, DOLLAR)
+        MOD_MORPH(LBKT, LBKT, HASH)
+        MOD_MORPH_NONE(LBRC, LBRC)
+        MOD_MORPH_NONE(LPAR, LPAR)
+
+        MOD_MORPH_NONE(RPAR, RPAR)
+        MOD_MORPH_NONE(RBRC, RBRC)
+        MOD_MORPH(RBKT, RBKT, CARET)
+        MOD_MORPH(GT, GT, PERCENT)
     };
+
+        //  ---------------------------------------------------------------------------------------
+        //    | _    |  1  |  2  |  3  |  4  |  5  |         | 6  |  7  |  8  |  9  |  0  |  -   |
+        //    | TAB  |  '  |  ,  |  .  |  p  |  y  |         | f  |  g  |  c  |  r  |  l  |  /   |
+        //    | CPS  |  a  |  o  |  e  |  u  |  i  |         | d  |  h  |  t  |  n  |  s  |  \   |
+        //    | SFT  |  ;  |  q  |  j  |  k  |  x  |         | b  |  m  |  w  |  v  |  z  |  SFT |
+        //           |  <  |  [  |  {  |  (  |                    |  )  |  }  |  ]  |  >  |
+        //  ---------------------------------------------------------------------------------------
+
+        //  ---------------------------------------------------------------------------------------
+        //                       | LCTRL | LALT    |         | RALT    | ESCAPE |
+        //              | BSPACE | DEL   | CMD     |         | CMD     | ENTER | SPACE |
+        //              |        |       | KPSHIFT |         | KPSHIFT |       |       |
+        //  ---------------------------------------------------------------------------------------
+
+        //  ---------------------------------------------------------------------------------------
+        //    |      |  @  |  !  |  *  |  +  |     |        |     |  =  |  &  |  |  |  ~  |     |
+        //    |      |  "  |     |     |     |     |        |     |     |     |     |     |  ?  |
+        //    |      |     |     |     |     |     |        |     |     |     |     |     |     |
+        //    |      |  :  |     |     |     |     |        |     |     |     |     |     |     |
+        //           |  $  | \#  |     |     |                    |     |     |  ^  |  %  |
+        //  ---------------------------------------------------------------------------------------
+
+        //  ---------------------------------------------------------------------------------------
+        //                       | LCTRL | LALT    |        | RALT    | ESCAPE |
+        //              | BSPACE | DEL   | CMD     |        | CMD     | ENTER | SPACE |
+        //              |        |       | KPSHIFT |        | KPSHIFT |       |       |
+        //  ---------------------------------------------------------------------------------------
+
 
   keymap {
     compatible = "zmk,keymap";
 
     default_layer {
-
-//  ---------------------------------------------------------------------------------------
-//    | _    |  1  |  2  |  3  |  4  |  5  |  | 6  |  7  |  8  |  9  |  0  |  -   |
-//    | TAB  |  '  |  ,  |  .  |  p  |  y  |  | f  |  g  |  c  |  r  |  l  |  /   |
-//    | CPS  |  a  |  o  |  e  |  u  |  i  |  | d  |  h  |  t  |  n  |  s  |  \   |
-//    | SFT  |  ;  |  q  |  j  |  k  |  x  |  | b  |  m  |  w  |  v  |  z  |  SFT |
-//           |  <  |  [  |  {  |  (  |             |  )  |  }  |  ]  |  >  |
-//  ---------------------------------------------------------------------------------------
-
-//  ---------------------------------------------------------------------------------------
-//                        | LCTRL | LALT    |        | RALT    | ESCAPE |
-//               | BSPACE | DEL   | CMD     |        | CMD     | ENTER | SPACE |
-//               |        |       | KPSHIFT |        | KPSHIFT |       |       |
-//  ---------------------------------------------------------------------------------------
-
       bindings = <
-        &kp UNDER   &kp N1    &kp N2     &kp N3     &kp N4       &kp N5    &tog 1                                                                                       &mo 3  &kp N6  &kp N7   &kp N8    &kp N9   &kp N0   &kp MINUS
-        &kp TAB     &kp SQT   &kp COMMA  &kp DOT    &kp P      &kp Y     &none                                                                                        &none  &kp F   &kp G    &kp C     &kp R    &kp L    &kp SLASH
-        &kp CAPS    &kp A     &kp O      &kp E      &kp U      &kp I     &none              &kp LCTRL &kp LALT                       &kp RALT    &kp ESC              &none  &kp D   &kp H    &kp T     &kp N    &kp S    &kp BSLH
-        &kp LSHFT   &kp SEMI  &kp Q      &kp J      &kp K      &kp X              &none     &none     &kp LCMD   &none     &none     &kp RCMD    &none      &none            &kp B   &kp M    &kp W     &kp V    &kp Z    &kp RSHFT
-        &mo 2       &kp LT    &kp LBKT   &kp LBRC   &kp LPAR                      &kp BSPC  &kp DEL   &tog 1                         &tog 1   &kp ENTER  &kp SPACE                &kp RPAR &kp RBRC  &kp RBKT &kp GT   &mo 2
+        &m_UNDER    &m_1      &m_2       &m_3       &m_4       &m_5      &tog 1                                                                                       &mo 1     &m_6    &m_7     &m_8      &m_9     &m_0     &m_MINUS
+        &m_TAB      &m_SQT    &m_COMMA   &m_DOT     &kp P      &kp Y     &none                                                                                        &none     &kp F   &kp G    &kp C     &kp R    &kp L    &m_SLASH
+        &kp CAPS    &kp A     &kp O      &kp E      &kp U      &kp I     &none              &kp LCTRL &kp LALT                       &kp RALT    &kp ESC              &none     &kp D   &kp H    &kp T     &kp N    &kp S    &m_BSLH
+        &kp LSHFT   &m_SEMI   &kp Q      &kp J      &kp K      &kp X                                  &kp LCMD                       &kp RCMD                                   &kp B   &kp M    &kp W     &kp V    &kp Z    &kp RSHFT
+        &mo 2       &m_LT     &m_LBKT    &m_LBRC    &m_LPAR                       &kp BSPC  &kp DEL   &mo 2                          &mo 2       &kp ENTER  &kp SPACE                   &m_RPAR  &m_RBRC   &m_RBKT  &m_GT    &mo 2
       >;
     };
-    keypad {
 
-//  ---------------------------------------------------------------------------------------
-//    |    |  @  |  !  |  *  |  +  |     |        |     |  =  |  &  |  |  |  ~  |     |
-//    |    |  "  |     |     |     |     |        |     |     |     |     |     |  ?  |
-//    |    |     |     |     |     |     |        |     |     |     |     |     |     |
-//    |    |  :  |     |     |     |     |        |     |     |     |     |     |     |
-//         |  $  |  #  |     |     |                    |     |     |  ^  |  %  |
-//  ---------------------------------------------------------------------------------------
-
-//  ---------------------------------------------------------------------------------------
-//                        | LCTRL | LALT    |        | RALT    | ESCAPE |
-//               | BSPACE | DEL   | CMD     |        | CMD     | ENTER | SPACE |
-//               |        |       | KPSHIFT |        | KPSHIFT |       |       |
-//  ---------------------------------------------------------------------------------------
-
-      bindings = <
-        &none &kp AT      &kp EXCL  &kp STAR  &kp PLUS     &none  &trans                                                                                 &mo 3  &none  &kp EQUAL  &kp AMPS  &kp PIPE   &kp TILDE    &none
-        &none &none       &none     &none     &none        &none  &none                                                                                  &none  &none  &none      &none     &none      &kp RIGHT    &kp QMARK
-        &none &none       &none     &none     &none        &none  &none              &kp LCTRL &kp LALT                &kp RALT    &kp ESC               &none  &none  &kp LEFT   &none     &none      &none        &none
-        &none &none       &none     &kp DOWN  &kp UP       &none            &none    &none     &kp LCMD &none    &none &kp RCMD    &none      &none             &none  &none      &none     &none      &none        &none
-        &mo 2 &kp DOLLAR  &kp HASH  &none     &none                         &kp BSPC &kp DEL   &tog 1                  &tog 1   &kp ENTER  &kp SPACE                   &none      &none     &kp CARET  &kp PERCENT  &mo 2
-      >;
-    };
-    fn {
-      bindings = <
-        &kp F1 &kp F2 &kp F3 &kp F4 &kp F5 &kp F6 &tog 1                                                       &mo 3 &kp F7 &kp F8 &kp F9 &kp F10 &kp F11 &kp F12
-        &trans &trans &trans &trans &trans &trans  &none                                                       &none &trans &trans &trans &trans  &trans  &trans
-        &trans &trans &trans &trans &trans &trans  &none        &trans &trans             &trans &trans        &none &trans &trans &trans &trans  &trans  &trans
-        &trans &trans &trans &trans &trans &trans        &none  &none  &trans &none &none &trans &none  &none        &trans &trans &trans &trans  &trans  &trans
-        &trans &trans &trans &trans &trans               &trans &trans &trans             &trans &trans &trans              &trans &trans &trans  &trans  &trans
-      >;
-    };
     mod {
       bindings = <
         &none &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &none                                                                                                          &trans                 &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &none
         &none &none        &none        &none        &none        &none        &bootloader                                                                                                    &bootloader            &none        &none        &none        &none        &none        &none
         &none &none        &none        &none        &none        &none        &rgb_ug RGB_MEFS_CMD 5                 &bt BT_CLR &bt BT_CLR             &bt BT_CLR &bt BT_CLR                 &rgb_ug RGB_MEFS_CMD 5 &none        &none        &none        &none        &none        &none
-        &none &none        &none        &none        &none        &none                               &none           &none      &none      &none &none &none      &none      &none                                  &none        &none        &none        &none        &none        &none
+        &none &none        &none        &none        &none        &none                                                          &none                  &none                                                        &none        &none        &none        &none        &none        &none
         &none &none        &none        &bl BL_INC   &bl BL_DEC                                       &rgb_ug RGB_TOG &bl BL_TOG &none                  &none      &bl BL_TOG &rgb_ug RGB_TOG                                     &bl BL_INC   &bl BL_DEC   &none        &none        &none
       >;
     };
+
+    fn {
+      bindings = <
+        &kp F1 &kp F2 &kp F3 &kp F4   &kp F5    &kp F6 &tog 1                                                       &trans &kp F7 &kp F8    &kp F9 &kp F10  &kp F11    &kp F12
+        &trans &trans &trans &trans   &trans    &trans  &none                                                       &none  &trans &trans    &trans &trans   &kp RIGHT  &trans
+        &trans &trans &trans &trans   &trans    &trans  &none        &trans &trans             &trans &trans        &none  &trans &kp LEFT  &trans &trans   &trans     &trans
+        &trans &trans &trans &kp DOWN &kp UP    &trans                      &trans             &trans                      &trans &trans    &trans &trans   &trans     &trans
+        &trans &trans &trans &trans   &trans               &trans &trans &trans             &trans &trans &trans                  &trans    &trans &trans   &trans     &trans
+      >;
+    };
+
   };
 };
