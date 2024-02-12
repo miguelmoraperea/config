@@ -134,6 +134,14 @@ augroup highlight_yank
 augroup END
 ]])
 
+-- Set autocmd to set textwidth to 120 for neorg files
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "norg" },
+    callback = function()
+        vim.opt.textwidth = 120
+    end,
+})
+
 -- Create a new autocmd to run the current buffer file if is a python file
 local run_python_file = function()
     -- Send to terminal 1 using harpoon
