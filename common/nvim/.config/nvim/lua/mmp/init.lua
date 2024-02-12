@@ -41,7 +41,7 @@ else
     vim.g.python3_host_prog = "/Users/miguel/Desktop/nvim_venv/bin/python"
 end
 
-vim.api.nvim_set_hl(0, "@neorg.markup.italic.norg", { fg = "gray", italic = true })
+vim.api.nvim_set_hl(0, "@neorg.markup.italic.norg", { fg = "#7196d6", italic = true })
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
