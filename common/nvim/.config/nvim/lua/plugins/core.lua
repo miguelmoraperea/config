@@ -327,7 +327,13 @@ return {
             require("mason").setup()
             require("mason-null-ls").setup({
                 ensure_installed = {
-                    'spell', 'flake8', 'pycodestyle', 'blue', 'jq', 'stylua', 'usort'
+                    "spell",
+                    "flake8",
+                    "pycodestyle",
+                    "blue",
+                    "jq",
+                    "stylua",
+                    "usort",
                 },
                 automatic_installation = false,
                 handlers = {},
