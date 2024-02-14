@@ -340,8 +340,7 @@ return {
                     ["core.dirman"] = {
                         config = {
                             workspaces = {
-                                home = "~/Desktop/git/notes/home",
-                                work = "~/Desktop/git/notes/work",
+                                notes = "~/Desktop/git/notes",
                             },
                             default_workspace = "home",
                         },
