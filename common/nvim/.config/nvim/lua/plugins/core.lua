@@ -312,19 +312,27 @@ return {
     {
         "jose-elias-alvarez/null-ls.nvim",
         config = function()
-            local null_ls = require("null-ls")
-            null_ls.setup({
-                sources = {
-                    null_ls.builtins.formatting.stylua,
-                    -- null_ls.builtins.diagnostics.eslint,
-                    null_ls.builtins.completion.spell,
-                    null_ls.builtins.diagnostics.flake8,
-                    null_ls.builtins.diagnostics.pycodestyle,
-                    null_ls.builtins.formatting.blue,
-                    null_ls.builtins.formatting.jq,
-                    null_ls.builtins.formatting.usort,
+            require("mmp.null-ls")
+        end,
+    },
+
+    {
+        "jay-babu/mason-null-ls.nvim",
+        lazy = false,
+        dependencies = {
+            "williamboman/mason.nvim",
+            "nvimtools/none-ls.nvim",
+        },
+        config = function()
+            require("mason").setup()
+            require("mason-null-ls").setup({
+                ensure_installed = {
+                    'spell', 'flake8', 'pycodestyle', 'blue', 'jq', 'stylua', 'usort'
                 },
+                automatic_installation = false,
+                handlers = {},
             })
+            require("mmp.null-ls")
         end,
     },
 
