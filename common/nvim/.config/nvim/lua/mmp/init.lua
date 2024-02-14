@@ -174,6 +174,14 @@ vim.keymap.set("n", "go", ":ClangdSwitchSourceHeader<CR>", { noremap = false })
 vim.api.nvim_create_user_command("RemoveTrailingSpaces", [[%s/\s\+$//e]], {})
 vim.api.nvim_create_user_command("RemoveTrailingSpacesConfirm", [[%s/\s\+$//gc]], {})
 
+-- Autocmd to remove trailing empty lines at the end of the file
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+--     pattern = { "*" },
+--     callback = function()
+--         vim.cmd([[%s#\($\n\s*\)\+\%$##]])
+--     end,
+-- })
+
 -- Get file path
 local yank_file_path_full = function()
     local path = vim.fn.expand("%:p")
