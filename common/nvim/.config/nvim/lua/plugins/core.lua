@@ -353,9 +353,7 @@ return {
                             default_workspace = "home",
                         },
                     },
-                    ["core.concealer"] = {
-                        folds = false,
-                    },
+                    ["core.concealer"] = {},
                 },
             })
         end,
