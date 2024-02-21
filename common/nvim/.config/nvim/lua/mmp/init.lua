@@ -43,6 +43,7 @@ end
 
 vim.api.nvim_set_hl(0, "@neorg.markup.italic.norg", { fg = "#7196d6", italic = true })
 vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { fg = "#c94f6d", undercurl = true })
+vim.api.nvim_command("highlight link NvimTreeExecFile NvimTreeSpecialFile")
 
 vim.cmd(":highlight ExtraWhitespace guibg=#c94f6d")
 vim.cmd([[:match ExtraWhitespace /\s\+$/]])
