@@ -54,6 +54,11 @@ return {
                             folder = false,
                             git = false,
                         },
+                        glyphs = {
+                            folder = {
+                                arrow_closed = "-",
+                            },
+                        },
                     },
                     indent_markers = {
                         enable = true,
