@@ -7,6 +7,10 @@ end
 local cmp = require("cmp")
 local luasnip = require("luasnip")
 
+local entry_filter = function(entry, ctx)
+    return require("cmp.types").lsp.CompletionItemKind[entry:get_kind()] ~= "Text"
+end
+
 cmp.setup({
     snippet = {
         -- REQUIRED - you must specify a snippet engine
@@ -42,16 +46,14 @@ cmp.setup({
     sources = cmp.config.sources({
         {
             name = "nvim_lsp",
-            entry_filter = function(entry, ctx)
-                return require("cmp.types").lsp.CompletionItemKind[entry:get_kind()] ~= "Text"
-            end,
+            entry_filter = entry_filter,
         },
-        { name = "vsnip" }, -- For vsnip users.
+        { name = "vsnip", entry_filter = entry_filter }, -- For vsnip users.
         -- { name = 'luasnip' }, -- For luasnip users.
         -- { name = 'ultisnips' }, -- For ultisnips users.
         -- { name = 'snippy' }, -- For snippy users.
     }, {
-        { name = "buffer" },
+        { name = "buffer", entry_filter = entry_filter },
     }),
     -- completion = {
     --     completeopt = 'menu,menuone,noinsert'
