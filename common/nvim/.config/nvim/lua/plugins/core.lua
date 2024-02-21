@@ -75,7 +75,7 @@ return {
                     },
                 },
                 filters = {
-                    dotfiles = true,
+                    dotfiles = false,
                     custom = { "__pycache__", "releases" }, -- "build$" },
                 },
                 log = {
