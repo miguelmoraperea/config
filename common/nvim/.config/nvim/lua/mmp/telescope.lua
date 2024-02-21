@@ -40,7 +40,7 @@ require("telescope").setup({
             "releases",
             "__pycache__",
             "venv",
-            ".null-ls*",
+            "^.null-ls*",
             "build",
             "main/conf",
             "main/assembly",
