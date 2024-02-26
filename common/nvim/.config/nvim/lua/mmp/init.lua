@@ -56,6 +56,7 @@ vim.cmd(":highlight StatusLine guibg=none")
 vim.cmd(":highlight NvimTreeNormal guibg=none")
 
 -- -- General remaps
+vim.keymap.set("n", "<C-z>", "<Cmd>cquit<CR>", { noremap = false })
 vim.keymap.set("n", "<Leader>my", "<Cmd>so $MYVIMRC<CR>", { noremap = false })
 vim.keymap.set("n", "<C-s>", "<Cmd>w<CR>", { noremap = false })
 vim.keymap.set("n", "<C-h>", "<C-W><C-H>", { noremap = false })
