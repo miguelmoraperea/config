@@ -49,9 +49,9 @@ return {
                     update_cwd = false,
                     ignore_list = {},
                 },
-                -- git = {
-                --     enable = true,
-                -- },
+                git = {
+                    enable = true,
+                },
                 view = {
                     adaptive_size = true,
                     relativenumber = true,
@@ -86,6 +86,7 @@ return {
                 filters = {
                     dotfiles = false,
                     custom = { "__pycache__", "releases" }, -- "build$" },
+                    git_ignore = true,
                 },
                 log = {
                     enable = true,
