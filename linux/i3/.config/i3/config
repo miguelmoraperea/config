@@ -1,6 +1,7 @@
 # Adjust the screen
-exec_always xrandr -s 1920x1080
+# exec_always xrandr -s 1920x1080
 # exec_always xrandr -s 2560x1440
+# exec_always xrandr -s 3840x2160
 
 exec always /usr/bin/vmtoolsd -n vmusr & > /dev/null 2>&1
 
@@ -19,8 +20,10 @@ exec always /usr/bin/vmtoolsd -n vmusr & > /dev/null 2>&1
 set $mod Mod1
 
 # Colours
-set $base00 #101218
-set $base01 #1f222d
+# set $base00 #101218
+# set $base01 #1f222d
+set $base00 #192330
+set $base01 #192330
 set $base02 #252936
 set $base03 #7780a1
 set $base04 #C0C5CE
@@ -157,6 +160,8 @@ bindsym $mod+Shift+0 move container to workspace $workspace10
 
 # Open default application in workspace
 assign [class="Firefox"] $workspace2
+assign [class="Slack"] $workspace4
+assign [class="Zoom"] $workspace5
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -219,7 +224,8 @@ bar {
 }
 
 # Adjust the screen
-#exec_always xrandr -s 3840x2160 --output HDMI-A-0 --scale 0.63x0.63
+# exec_always xrandr -s 3840x2160 --output HDMI-A-0 --scale 0.63x0.63
+exec_always xrandr -s 3840x2160 --output HDMI-A-0 --scale 0.9x0.9
 
 #exec_always feh --bg-fill /usr/share/backgrounds/warty-final-ubuntu.png
 # exec_always feh --bg-fill /home/miguel/Pictures/forest-wallpaper.jpeg
@@ -228,7 +234,7 @@ bar {
 exec --no-startup-id vmware-user
 
 # Start compton
-exec_always compton
+# exec_always compton
 
 # Start up applications
 exec firefox
@@ -241,11 +247,11 @@ bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 
 # Audio source control
-bindsym $mod+F6 exec pacmd set-default-sink alsa_output.pci-0000_2b_00.1.hdmi-stereo-extra2
-bindsym $mod+F7 exec pacmd set-default-sink alsa_output.usb-Logitech_Logi_H800_Headset_88C6268829BD-00.analog-stereo
-bindsym $mod+F8 exec pacmd set-default-sink alsa_output.pci-0000_2d_00.4.analog-stereo
+bindsym $mod+F8 exec pacmd set-default-sink alsa_output.pci-0000_2b_00.1.hdmi-stereo-extra2
+bindsym $mod+F9 exec pacmd set-default-sink alsa_output.usb-Logitech_Logi_H800_Headset_88C6268829BD-00.analog-stereo
+bindsym $mod+F0 exec pacmd set-default-sink alsa_output.pci-0000_2d_00.4.analog-stereo
 
 # Volume controls
-bindsym $mod+F1 exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym $mod+F2 exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-bindsym $mod+F3 exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym $mod+F2 exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym $mod+F3 exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym $mod+F4 exec pactl set-sink-mute @DEFAULT_SINK@ toggle

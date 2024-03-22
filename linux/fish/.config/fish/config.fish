@@ -119,7 +119,3 @@ set -x M2_HOME /home/mmora/apps/apache-maven-2.2.1
 # set -x JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 set -x JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 set -x M2_HOME /home/mmora/apps/apache-maven-3.9.3
-
-function im
-  . ~/Desktop/nvim_venv/bin/activate.fish && nvim $argv
-end

@@ -6,7 +6,6 @@ return {
         end,
     },
 
-    { "mcchrish/zenbones.nvim", dependencies = { "rktjmp/lush.nvim" } },
     {
         "folke/zen-mode.nvim",
         opts = {
@@ -342,13 +341,17 @@ return {
             require("mason").setup()
             require("mason-null-ls").setup({
                 ensure_installed = {
-                    "spell",
-                    "flake8",
-                    "pycodestyle",
                     "blue",
+                    "flake8",
+                    "grammarly-language-server",
                     "jq",
+                    -- "mypy",
+                    "pycodestyle",
+                    "pyright",
+                    "spell",
                     "stylua",
                     "usort",
+                    -- "vulture",
                 },
                 automatic_installation = false,
                 handlers = {},
