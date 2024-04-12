@@ -157,9 +157,9 @@ bindsym $mod+Shift+9 move container to workspace $workspace9
 bindsym $mod+Shift+0 move container to workspace $workspace10
 
 # Open default application in workspace
-assign [class="Firefox"] $workspace2
-assign [class="Slack"] $workspace4
-assign [class="Zoom"] $workspace5
+for_window [class="firefox"] move container to workspace $workspace2, focus
+for_window [class="Pavucontrol"] move container to workspace $workspace3, focus
+for_window [class="zoom"] move container to workspace $workspace4, focus
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
