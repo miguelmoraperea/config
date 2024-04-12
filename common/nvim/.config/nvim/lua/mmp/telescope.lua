@@ -74,6 +74,15 @@ require("telescope").setup({
             search_by = "title",
             sync_with_nvim_tree = false,
         },
+        tmuxdir = {
+         base_dirs = {
+             "~/Desktop",
+             "~/Desktop/git",
+             "~/Desktop/git/config/common",
+         },
+         find_cmd = {"find", "-mindepth", "1", "-maxdepth", "1", "-type", "d"},
+        -- selected=$(find ~/Desktop ~/Desktop/git ~/Desktop/p4 ~/Desktop/p4/ml/apps/services ~/Desktop/git/config/common -mindepth 1 -maxdepth 1 -type d | fzf)
+       },
     },
 })
 

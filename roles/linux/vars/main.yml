@@ -8,4 +8,14 @@ apt_packages:
   - ranger
   - firefox
   - docker
-  - 1password
+  # - nodejs
+  - curl
+  - fish
+ # - 1password
+  - fzf
+  - feh
+  - python3-poetry
+  - mailutils
+  - liblua5.1-0-dev
+  - pavucontrol
+  - pasystray

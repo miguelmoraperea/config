@@ -111,6 +111,9 @@ end
 
 # Add to path
 fish_add_path ~/Desktop/git/config/common/scripts
+fish_add_path ~/Desktop/git/alacritty/target/release
+fish_add_path ~/.cargo/bin
+
 # fish_add_path ~/apps/nvim-linux64/bin
 fish_add_path ~/apps/p4v-2023.2.2446649/bin
 fish_add_path ~/apps/pdiff
@@ -119,6 +122,7 @@ fish_add_path ~/apps/apache-maven-3.9.3/bin
 fish_add_path ~/apps/gradle-8.3/bin
 # fish_add_path ~/apps/zulu8.36.0.2-sa-jdk8.0.202-linux_x64/bin
 
+set -x TERMINAL alacritty
 
 # Enviroment variables
 # set -x JAVA_HOME /usr/lib/jvm/zulu-8-amd64

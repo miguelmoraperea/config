@@ -9,8 +9,6 @@
     - linux
     - dotfiles
 
-- name: nvim
-  import_tasks: nvim.yml
-  tags:
-    - linux
-    - nvim
+# TODO: Install nodejs/npm latest version 18
+#
+# TODO: Install oh-my-fish

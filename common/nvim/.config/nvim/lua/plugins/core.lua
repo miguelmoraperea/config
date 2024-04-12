@@ -16,6 +16,7 @@ return {
     },
     {
         "nvim-telescope/telescope.nvim",
+        lazy = false,
         dependencies = {
             "nvim-lua/plenary.nvim",
             "nvim-telescope/telescope-fzf-native.nvim",
@@ -85,7 +86,7 @@ return {
                 filters = {
                     dotfiles = false,
                     custom = { "__pycache__", "releases" }, -- "build$" },
-                    git_ignore = true,
+                    git_ignored = true,
                 },
                 log = {
                     enable = true,
@@ -346,7 +347,7 @@ return {
                     "grammarly-language-server",
                     "jq",
                     -- "mypy",
-                    "pycodestyle",
+                    -- "pycodestyle",
                     "pyright",
                     "spell",
                     "stylua",
@@ -360,11 +361,39 @@ return {
         end,
     },
 
+    { 'nvim-neorg/tree-sitter-norg' },
+
+    -- {
+    --     "nvim-neorg/neorg",
+    --     ft = "norg",
+    --     opts = {
+    --       load = {
+    --                 ["core.defaults"] = {},
+    --                 ["core.dirman"] = {
+    --                     config = {
+    --                         workspaces = {
+    --                             notes = "~/Desktop/git/notes",
+    --                         },
+    --                         default_workspace = "home",
+    --                     },
+    --                 },
+    --                 ["core.concealer"] = {},
+    --             },
+    --       },
+    -- },
+
+    {
+        "vhyrro/luarocks.nvim",
+        priority = 1000, -- We'd like this plugin to load first out of the rest
+        config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+    },
+
     {
         "nvim-neorg/neorg",
         ft = "norg",
         cmd = "Neorg",
-        priority = 30,
+        priority = 30, -- treesitter is on default priority of 50, neorg should load after it.
+        dependencies = { "luarocks.nvim" },
         config = function()
             require("neorg").setup({
                 load = {
@@ -378,6 +407,7 @@ return {
                         },
                     },
                     ["core.concealer"] = {},
+
                 },
             })
         end,
@@ -421,7 +451,9 @@ return {
     },
 
     {
-        "viniarck/telescope-tmuxdir.nvim",
+        -- "viniarck/telescope-tmuxdir.nvim",
+        "miguelmoraperea/telescope-tmuxdir.nvim",
+        -- dir = "~/Desktop/git/telescope-tmuxdir.nvim",
         keys = {
             { "<Leader>fx", "<Cmd>Telescope tmuxdir sessions<CR>" },
             { "<Leader>fi", "<Cmd>Telescope tmuxdir dirs<CR>" },

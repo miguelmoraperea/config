@@ -1,3 +1,6 @@
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrw = 1
+
 vim.opt.swapfile = false
 vim.g.mapleader = " "
 vim.opt.clipboard = "unnamedplus"
@@ -148,14 +151,23 @@ vim.api.nvim_create_autocmd("FileType", {
 local run_python_file = function()
     -- Send to terminal 1 using harpoon
     vim.cmd("lua require('harpoon.tmux').sendCommand(1, 'i')")
-    vim.cmd("lua require('harpoon.tmux').sendCommand(1, 'python3 " .. vim.fn.expand("%") .. "')")
+    vim.cmd("lua require('harpoon.tmux').sendCommand(1, 'python3w " .. vim.fn.expand("%") .. "')")
     -- Go to terminal 1 using harpoon
     vim.cmd("lua require('harpoon.tmux').gotoTerminal(1)")
 end
 
--- Create a user command to run run_python_file
-vim.api.nvim_create_user_command("RunPythonFile", run_python_file, {})
-vim.keymap.set("n", "<Leader>ru", ":RunPythonFile<CR>", { noremap = false })
+local init_python_project = function()
+    local cwd = vim.fn.expand("%:p:h")
+    vim.cmd("silent !init_python_project " .. cwd)
+end
+
+-- Python commands
+vim.api.nvim_create_user_command("PythonRunFile", run_python_file, {})
+vim.keymap.set("n", "<Leader>ru", ":PythonRunFile<CR>", { noremap = false })
+
+-- Create a user command to run init_python_project and passing the cwd path
+vim.api.nvim_create_user_command("PythonInitProject", init_python_project, {})
+
 
 -- Set syntax for thrift files
 vim.cmd([[

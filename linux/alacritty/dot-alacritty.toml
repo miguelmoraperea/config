@@ -30,31 +30,39 @@ yellow = "0xdbc074"
 background = "0x192330"
 foreground = "0xcdcecf"
 
-[font]
-size = 12
-
 [font.bold]
 family = "FantasqueSansM Nerd Font Mono"
-style = "Bold"
+# style = "Bold"
+# family = "Comic Code"
+style = "Medium"
 
 [font.bold_italic]
 family = "FantasqueSansM Nerd Font Mono"
+# family = "Comic Code"
 style = "Bold Italic"
-
-[font.glyph_offset]
-x = 0
-y = 0
 
 [font.italic]
 family = "FantasqueSansM Nerd Font Mono"
+# family = "Comic Code"
 style = "Italic"
 
 [font.normal]
 family = "FantasqueSansM Nerd Font Mono"
+# family = "Comic Code"
 style = "Regular"
+
+[font]
+size = 14
+# size = 12.5
 
 [font.offset]
 x = -1
+y = 0
+# x = -2
+# y = 0
+
+[font.glyph_offset]
+x = 0
 y = 0
 
 [shell]
