@@ -242,6 +242,9 @@ exec firefox
 # Lock screen
 bindsym $mod+F12 exec i3lock -i /usr/share/backgrounds/warty-final-ubuntu.png
 
+# Pasystray
+exec --no-startup-id pasystray
+
 # Key indicators for use with i3blocks
 bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
