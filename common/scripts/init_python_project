@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# If parameter is not provided use the current directory
+# as the project root
+
+if [ -z "$1" ]; then
+    PROJECT_ROOT=$(pwd)
+else
+    PROJECT_ROOT=$1
+fi
+
+cd $PROJECT_ROOT
+
+# Create a new virtualenv
+python3 -m venv venv
+
+# Create a pyproject.toml file
+echo "[tool.pyright]
+exclude = [ \"venv\" ]
+venvPath = \".\"
+venv = \"venv\"" > pyproject.toml
+
+# Create a new main.py file
+echo "def main():
+    print('Hello World')
+
+
+if __name__ == '__main__':
+    main()" > main.py
+
+
+# Create a new test_main.py file with a unittest tetstcase
+echo "import unittest
+
+
+class TestMain(unittest.TestCase):
+    def test_main(self):
+        self.assertEqual(1, 1)
+
+
+if __name__ == '__main__':
+    unittest.main()" > test_main.py
