@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Script to disconnect and reconnect my airpods to using bluetoothctl
+
+# Get the first argument from the command line
+# This is the name of the airpods
+device_keyword=$1
+
+# Get the MAC address of the airpods
+mac_address=$(bluetoothctl devices | grep -i $device_keyword | awk '{print $2}')
+
+# Disconnect the airpods
+bluetoothctl disconnect $mac_address
+
+# Reconnect the airpods
+bluetoothctl connect $mac_address
