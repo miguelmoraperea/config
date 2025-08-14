@@ -85,8 +85,8 @@ return {
                 },
                 filters = {
                     dotfiles = false,
-                    custom = { "__pycache__", "releases" }, -- "build$" },
-                    git_ignored = true,
+                    custom = { "__pycache__", "releases" }, -- "build$"
+                    git_ignored = false,
                 },
                 log = {
                     enable = true,
@@ -108,7 +108,20 @@ return {
         lazy = false,
         config = function()
             require("nvim-treesitter.configs").setup({
-                ensure_installed = { "c", "cpp", "lua", "python", "norg", "json", "yaml", "thrift", "fish", "java" },
+                ensure_installed = {
+                    "c",
+                    "cpp",
+                    "lua",
+                    "python",
+                    "norg",
+                    "json",
+                    "yaml",
+                    "thrift",
+                    "fish",
+                    "java",
+                    "kotlin",
+                    "go",
+                },
                 highlight = {
                     enable = true,
                 },
@@ -324,12 +337,12 @@ return {
         end,
     },
 
-    {
-        "jose-elias-alvarez/null-ls.nvim",
-        config = function()
-            require("mmp.null-ls")
-        end,
-    },
+    -- {
+    --     "jose-elias-alvarez/null-ls.nvim",
+    --     config = function()
+    --         require("mmp.null-ls")
+    --     end,
+    -- },
 
     {
         "jay-babu/mason-null-ls.nvim",
@@ -343,15 +356,15 @@ return {
             require("mason-null-ls").setup({
                 ensure_installed = {
                     "blue",
-                    "flake8",
                     "grammarly-language-server",
                     "jq",
                     -- "mypy",
                     -- "pycodestyle",
-                    "pyright",
+                    -- "pyright",
                     "spell",
                     "stylua",
-                    "usort",
+                    -- "usort",
+                    "kotlin-language-server",
                     -- "vulture",
                 },
                 automatic_installation = false,
@@ -361,7 +374,7 @@ return {
         end,
     },
 
-    { 'nvim-neorg/tree-sitter-norg' },
+    { "nvim-neorg/tree-sitter-norg" },
 
     -- {
     --     "nvim-neorg/neorg",
@@ -385,7 +398,7 @@ return {
     {
         "vhyrro/luarocks.nvim",
         priority = 1000, -- We'd like this plugin to load first out of the rest
-        config = true, -- This automatically runs `require("luarocks-nvim").setup()`
+        config = true,   -- This automatically runs `require("luarocks-nvim").setup()`
     },
 
     {
@@ -407,22 +420,8 @@ return {
                         },
                     },
                     ["core.concealer"] = {},
-
                 },
             })
-        end,
-    },
-
-    {
-        "mhinz/vim-signify",
-        config = function()
-            vim.g.signify_sign_add = ""
-            vim.g.signify_sign_change = ""
-            vim.g.signify_sign_delete = ""
-
-            vim.api.nvim_set_hl(0, "SignifySignAdd", { fg = "#98c379" })
-            vim.api.nvim_set_hl(0, "SignifySignDelete", { fg = "#B37130" })
-            vim.api.nvim_set_hl(0, "SignifySignChange", { fg = "#B3AF43" })
         end,
     },
 
@@ -460,13 +459,146 @@ return {
         },
     },
 
-    { "junegunn/gv.vim", dependencies = { "tpope/vim-fugitive" } },
+    { "junegunn/gv.vim",            dependencies = { "tpope/vim-fugitive" } },
 
     {
         "sindrets/diffview.nvim",
         config = function()
             vim.keymap.set("n", "<Leader>dn", "]czz", { noremap = false })
             vim.keymap.set("n", "<Leader>dp", "[czz", { noremap = false })
+
+            require("diffview").setup({
+                file_panel = {
+                    win_config = {
+                        position = "left",
+                        -- height = 20,
+                        width = 50,
+                    },
+                },
+            })
+        end,
+    },
+
+    {
+        "MunifTanjim/nui.nvim",
+    },
+
+    {
+        "lewis6991/gitsigns.nvim",
+        config = function()
+            require('gitsigns').setup({
+                -- signs                        = {
+                --     add          = { text = '┃' },
+                --     change       = { text = '┃' },
+                --     delete       = { text = '_' },
+                --     topdelete    = { text = '‾' },
+                --     changedelete = { text = '~' },
+                --     untracked    = { text = '┆' },
+                -- },
+                signs_staged                 = {
+                    add          = { text = '┃' },
+                    change       = { text = '┃' },
+                    delete       = { text = '_' },
+                    topdelete    = { text = '‾' },
+                    changedelete = { text = '~' },
+                    untracked    = { text = '┆' },
+                },
+                signs_staged_enable          = true,
+                signcolumn                   = true,  -- Toggle with `:Gitsigns toggle_signs`
+                numhl                        = false, -- Toggle with `:Gitsigns toggle_numhl`
+                linehl                       = false, -- Toggle with `:Gitsigns toggle_linehl`
+                word_diff                    = false, -- Toggle with `:Gitsigns toggle_word_diff`
+                watch_gitdir                 = {
+                    follow_files = true
+                },
+                auto_attach                  = true,
+                attach_to_untracked          = false,
+                current_line_blame           = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
+                current_line_blame_opts      = {
+                    virt_text = true,
+                    virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
+                    delay = 1000,
+                    ignore_whitespace = false,
+                    virt_text_priority = 100,
+                    use_focus = true,
+                },
+                current_line_blame_formatter = '<author>, <author_time:%R> - <summary>',
+                sign_priority                = 6,
+                update_debounce              = 100,
+                status_formatter             = nil,   -- Use default
+                max_file_length              = 40000, -- Disable if file is longer than this (in lines)
+                preview_config               = {
+                    -- Options passed to nvim_open_win
+                    border = 'single',
+                    style = 'minimal',
+                    relative = 'cursor',
+                    row = 0,
+                    col = 1
+                },
+                on_attach                    = function(bufnr)
+                    local gitsigns = require('gitsigns')
+
+                    local function map(mode, l, r, opts)
+                        opts = opts or {}
+                        opts.buffer = bufnr
+                        vim.keymap.set(mode, l, r, opts)
+                    end
+
+                    -- Navigation
+                    map('n', '{c', function()
+                        if vim.wo.diff then
+                            vim.cmd.normal({ '{c', bang = true })
+                        else
+                            gitsigns.nav_hunk('next')
+                        end
+                    end)
+
+                    map('n', '(c', function()
+                        if vim.wo.diff then
+                            vim.cmd.normal({ '(c', bang = true })
+                        else
+                            gitsigns.nav_hunk('prev')
+                        end
+                    end)
+
+                    -- Actions
+                    map('n', '<leader>hs', gitsigns.stage_hunk)
+                    map('n', '<leader>hr', gitsigns.reset_hunk)
+
+                    map('v', '<leader>hs', function()
+                        gitsigns.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+                    end)
+
+                    map('v', '<leader>hr', function()
+                        gitsigns.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+                    end)
+
+                    map('n', '<leader>hS', gitsigns.stage_buffer)
+                    map('n', '<leader>hR', gitsigns.reset_buffer)
+                    map('n', '<leader>hp', gitsigns.preview_hunk)
+                    map('n', '<leader>hi', gitsigns.preview_hunk_inline)
+
+                    map('n', '<leader>hb', function()
+                        gitsigns.blame_line({ full = true })
+                    end)
+
+                    map('n', '<leader>hd', gitsigns.diffthis)
+
+                    map('n', '<leader>hD', function()
+                        gitsigns.diffthis('~')
+                    end)
+
+                    map('n', '<leader>hQ', function() gitsigns.setqflist('all') end)
+                    map('n', '<leader>hq', gitsigns.setqflist)
+
+                    -- Toggles
+                    map('n', '<leader>tb', gitsigns.toggle_current_line_blame)
+                    map('n', '<leader>tw', gitsigns.toggle_word_diff)
+
+                    -- Text object
+                    map({ 'o', 'x' }, 'ih', gitsigns.select_hunk)
+                end
+            })
         end,
     },
 }

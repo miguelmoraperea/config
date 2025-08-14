@@ -31,33 +31,39 @@ background = "0x192330"
 foreground = "0xcdcecf"
 
 [font.bold]
-family = "FantasqueSansM Nerd Font Mono"
+family = "JetBrainsMono Nerd Font Mono"
+# family = "FantasqueSansM Nerd Font Mono"
 # style = "Bold"
 # family = "Comic Code"
-style = "Medium"
+style = "ExtraLight"
 
 [font.bold_italic]
-family = "FantasqueSansM Nerd Font Mono"
+family = "JetBrainsMono Nerd Font Mono"
+# family = "FantasqueSansM Nerd Font Mono"
 # family = "Comic Code"
-style = "Bold Italic"
+style = "Light Italic"
 
 [font.italic]
-family = "FantasqueSansM Nerd Font Mono"
+family = "JetBrainsMono Nerd Font Mono"
+# family = "FantasqueSansM Nerd Font Mono"
 # family = "Comic Code"
 style = "Italic"
 
 [font.normal]
-family = "FantasqueSansM Nerd Font Mono"
+family = "JetBrainsMono Nerd Font Mono"
+# family = "FantasqueSansM Nerd Font Mono"
 # family = "Comic Code"
-style = "Regular"
+style = "ExtraLight"
 
 [font]
-size = 14
+size = 16
+# size = 15
+# size = 14
 # size = 12.5
 
 [font.offset]
-x = -1
-y = 0
+x = -2
+y = 4
 # x = -2
 # y = 0
 
@@ -65,8 +71,8 @@ y = 0
 x = 0
 y = 0
 
-[shell]
-program = "/usr/bin/tmux"
+# [shell]
+# program = "/opt/homebrew/bin/tmux"
 
 [window]
 dynamic_padding = true

@@ -32,7 +32,8 @@ local on_attach = function(client, bufnr)
     buf_set_keymap("n", "[d", "<Cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", opts)
     buf_set_keymap("n", "]d", "<Cmd>lua vim.lsp.diagnostic.goto_next()<CR>", opts)
     buf_set_keymap("n", "<space>q", "<Cmd>lua vim.lsp.diagnostic.set_loclist()<CR>", opts)
-    buf_set_keymap("n", "<space>f", "<Cmd>lua vim.lsp.buf.format({async = true})<CR>", opts)
+    -- Custom formatting that uses project's ruff configuration
+    buf_set_keymap("n", "<space>f", "<Cmd>lua require('mmp.format').format_file()<CR>", opts)
 end
 
 local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
@@ -67,15 +68,63 @@ require("lspconfig").lua_ls.setup({
 require("lspconfig").pyright.setup({
     on_attach = on_attach,
     capabilities = capabilities,
+    settings = {
+        pyright = {
+            -- Using Ruff's import organizer
+            disableOrganizeImports = true,
+        },
+        python = {
+            pythonPath = "/Users/miguel/src/github.com/Shopify/merchant-analytics-etl/data-quality/lib/reportify-dq/.venv/bin/python",
+            analysis = {
+                extraPaths = {
+                    "/Users/miguel/src/github.com/Shopify/merchant-analytics-etl/data-quality/lib/reportify-dq/src",
+                    "/Users/miguel/src/github.com/Shopify/merchant-analytics-etl/data-quality/lib/reportify-dq/.venv/lib/python3.11/site-packages"
+                },
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+                diagnosticMode = "workspace",
+            },
+        },
+    },
 })
 
--- require('lspconfig').clangd.setup {
---     on_attach = on_attach,
--- }
+require('lspconfig').ruff_lsp.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+    init_options = {
+        settings = {
+            -- Set line length to 100 characters to match project configuration
+            ["line-length"] = 100,
+            ["target-version"] = "py311",  -- Updated to match project requirements
+            -- Enable comprehensive linting
+            select = {"E", "F", "W", "I"},
+            -- Allow all fixes except for aggressive ones
+            fixable = {"E", "F", "W", "I"},
+            ["dummy-variable-rgx"] = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$",
+            mccabe = {
+                ["max-complexity"] = 10
+            },
+            -- Use ruff for import sorting
+            isort = {
+                ["skip"] = false
+            }
+        }
+    }
+})
+
+require("lspconfig").gopls.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+})
 
 require("lspconfig").jsonls.setup({
     on_attach = on_attach,
     capabilities = capabilities,
+    settings = {
+        json = {
+            validate = { enable = true },
+        },
+    },
 })
 
 require("lspconfig").grammarly.setup({
@@ -83,50 +132,3 @@ require("lspconfig").grammarly.setup({
     capabilities = capabilities,
     filetypes = { "markdown", "txt", "norg" },
 })
-
--- require'lspconfig'.java_language_server.setup{
---     on_attach = on_attach,
---     capabilities = capabilities,
---     cmd = { "java-language-server" },
--- }
---
-require("lspconfig").groovyls.setup({
-    on_attach = on_attach,
-    capabilities = capabilities,
-    -- cmd = { "groovy-language-server" },
-    cmd = { "java", "-jar", "/home/mmora/.local/share/nvim/mason/packages/groovy-language-server/build/libs/groovy-language-server-all.jar" },
-    root_dir = function(fname)
-        return require("lspconfig").util.root_pattern("build.gradle", "settings.gradle", "gradlew")(fname)
-            or require("lspconfig").util.path.dirname(fname)
-    end,
-    filetypes = { "groovy", "gradle" },
-    settings = {
-        groovy = {
-            classpath = {
-                -- "/home/mmora/.gradle/caches/modules-2/files-2.1",
-                "/home/mmora/apps/gradle-8.3/lib",
-                "/home/mmora/apps/gradle-8.3/lib/plugins",
-                "/home/mmora/apps/apache-maven-3.9.3/lib",
-            },
-        },
-    },
-})
-
--- require'lspconfig'.kotlin_language_server.setup({
---     on_attach = on_attach,
---     capabilities = capabilities,
---     root_dir = function(fname)
---         return require'lspconfig'.util.root_pattern("settings.gradle.kts")(fname) or
---         require'lspconfig'.util.path.dirname(fname)
---     end,
--- })
-
--- require'lspconfig'.gradle_ls.setup{
---     on_attach = on_attach,
---     capabilities = capabilities,
---     cmd = { "gradle-language-server" },
---     root_dir = function(fname)
---         return require'lspconfig'.util.root_pattern("build.gradle", "settings.gradle", "gradlew")(fname) or
---         require'lspconfig'.util.path.dirname(fname)
---     end,
--- }

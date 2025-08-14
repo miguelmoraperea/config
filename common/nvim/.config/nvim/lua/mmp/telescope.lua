@@ -337,4 +337,424 @@ M.git_commits = function(opts)
         :find()
 end
 
+M.git_file_commits = function(opts)
+    opts = opts or {}
+    local current_file = vim.fn.expand('%')
+    if current_file == '' then
+        vim.notify('No file is currently open', vim.log.levels.ERROR)
+        return
+    end
+
+    -- Get the git root directory
+    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+    if not git_root then
+        vim.notify('Not in a git repository', vim.log.levels.ERROR)
+        return
+    end
+
+    local output = utils.get_os_command_output({
+        "git",
+        "log",
+        "--pretty=format:%h/%s/%an/%ad",
+        "--date=format:%Y-%m-%d %H:%M",
+        "--abbrev-commit",
+        "--",
+        current_file
+    })
+
+    if vim.tbl_isempty(output) then
+        vim.notify('No git history found for this file', vim.log.levels.WARN)
+        return
+    end
+
+    local results = {}
+    local parse_line = function(line)
+        local fields = vim.split(line, "/", true)
+        local entry = {
+            hash = fields[1],
+            subject = fields[2],
+            author = fields[3],
+            date = fields[4]
+        }
+        table.insert(results, entry)
+    end
+
+    for _, line in ipairs(output) do
+        parse_line(line)
+    end
+
+    local displayer = entry_display.create({
+        separator = " ",
+        items = {
+            { width = 10 },  -- hash
+            { width = 50 },  -- subject
+            { width = 20 },  -- author
+            { width = 20 },  -- date
+        },
+    })
+
+    local make_display = function(entry)
+        return displayer({
+            { entry.hash, "TelescopeResultsIdentifier" },
+            { entry.subject },
+            { entry.author, "TelescopeResultsComment" },
+            { entry.date, "TelescopeResultsComment" },
+        })
+    end
+
+    pickers.new(opts, {
+        prompt_title = "Git File History: " .. current_file,
+        finder = finders.new_table({
+            results = results,
+            entry_maker = function(entry)
+                entry.value = entry.hash
+                entry.ordinal = entry.subject .. entry.author .. entry.date .. entry.hash
+                entry.display = make_display
+                return entry
+            end,
+        }),
+        previewer = previewers.git_commit_message.new(opts),
+        sorter = conf.file_sorter(opts),
+        attach_mappings = function(_, map)
+            actions.select_default:replace(actions.git_checkout)
+            map("i", "<c-d>", diff_commit)
+            map("n", "<c-d>", diff_commit)
+            return true
+        end,
+    }):find()
+end
+
+-- GitHub API helpers
+local function get_github_token()
+    local token = os.getenv("GITHUB_TOKEN")
+    if not token then
+        vim.notify("Please set GITHUB_TOKEN environment variable", vim.log.levels.ERROR)
+        return nil
+    end
+    return token
+end
+
+local function github_api_request(endpoint)
+    local token = get_github_token()
+    if not token then
+        return nil
+    end
+    
+    local curl_cmd = string.format(
+        'curl -s -H "Authorization: token %s" -H "Accept: application/vnd.github.v3+json" "https://api.github.com%s"',
+        token, endpoint
+    )
+    
+    local handle = io.popen(curl_cmd)
+    local response = handle:read("*a")
+    handle:close()
+    
+    return vim.fn.json_decode(response)
+end
+
+local function get_team_members()
+    local response = github_api_request("/orgs/Shopify/teams/core-analytics-data-team/members")
+    if not response then
+        return {}
+    end
+    
+    local members = {}
+    for _, member in ipairs(response) do
+        table.insert(members, {
+            login = member.login,
+            name = member.name or member.login,
+            avatar_url = member.avatar_url,
+            html_url = member.html_url
+        })
+    end
+    
+    return members
+end
+
+local function get_current_repo()
+    -- Get the current repository name from git remote
+    local remote_url = vim.fn.system("git config --get remote.origin.url 2>/dev/null"):gsub("%s+", "")
+    if remote_url == "" then
+        return nil
+    end
+    
+    -- Extract repo name from various URL formats
+    local repo_name = remote_url:match("github%.com[:/]Shopify/([^/%.]+)")
+    return repo_name
+end
+
+local function get_user_prs(username)
+    local current_repo = get_current_repo()
+    if not current_repo then
+        vim.notify("Not in a git repository or no GitHub remote found", vim.log.levels.ERROR)
+        return {}
+    end
+    
+    -- Search for open PRs only (including drafts) in the current repository
+    local repo_query = string.format("repo:Shopify/%s", current_repo)
+    local all_prs_response = github_api_request(string.format("/search/issues?q=author:%s+is:pr+state:open+%s", username, repo_query))
+    
+    local prs = {}
+    local seen_numbers = {}
+    
+    if all_prs_response and all_prs_response.items then
+        for _, pr in ipairs(all_prs_response.items) do
+            -- Avoid duplicates by checking if we've seen this PR number before
+            if not seen_numbers[pr.number] then
+                seen_numbers[pr.number] = true
+                
+                -- Determine state based on PR properties (all results are open, but may be draft)
+                local state = pr.draft and "draft" or "open"
+                
+                table.insert(prs, {
+                    number = pr.number,
+                    title = pr.title,
+                    state = state,
+                    html_url = pr.html_url,
+                    created_at = pr.created_at,
+                    updated_at = pr.updated_at,
+                    repo_name = current_repo,
+                    labels = pr.labels or {}
+                })
+            end
+        end
+    end
+    
+    -- Sort by updated_at (most recent first)
+    table.sort(prs, function(a, b) return a.updated_at > b.updated_at end)
+    
+    return prs
+end
+
+local function open_pr_with_diffview(pr_number)
+    local git_clean_and_reset = function()
+        -- First, close any existing DiffView
+        vim.cmd("DiffviewClose")
+        
+        -- Reset any working directory changes
+        vim.fn.system("git reset --hard HEAD")
+        
+        -- Clean untracked files
+        vim.fn.system("git clean -fd")
+        
+        -- Checkout main/master to ensure clean state
+        local main_branch = vim.fn.system("git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'"):gsub("%s+", "")
+        if main_branch == "" then
+            main_branch = "main"  -- fallback to main
+        end
+        vim.fn.system("git checkout " .. main_branch)
+        
+        -- Pull latest changes
+        vim.fn.system("git pull origin " .. main_branch)
+        
+        -- Delete the PR branch if it exists
+        vim.fn.system("git branch -D pr-" .. pr_number .. " 2>/dev/null")
+    end
+
+    local fetch_pr = function(pr_num)
+        local cmd = "git fetch origin pull/" .. pr_num .. "/head:pr-" .. pr_num
+        vim.fn.system(cmd)
+        local cmd2 = "git checkout pr-" .. pr_num
+        vim.fn.system(cmd2)
+    end
+
+    local open_with_diffview = function()
+        -- Get the main branch name
+        local main_branch = vim.fn.system("git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'"):gsub("%s+", "")
+        if main_branch == "" then
+            main_branch = "main"  -- fallback to main
+        end
+        
+        -- Find the merge base (parent commit where PR branch was created)
+        local merge_base = vim.fn.system("git merge-base HEAD origin/" .. main_branch):gsub("%s+", "")
+        
+        -- Open DiffView with commit range from merge base to HEAD (only PR changes)
+        local cmd = "DiffviewOpen " .. merge_base .. "..HEAD"
+        vim.cmd(cmd)
+    end
+
+    git_clean_and_reset()
+    fetch_pr(pr_number)
+    open_with_diffview()
+end
+
+M.team_members_picker = function()
+    local members = get_team_members()
+    
+    if vim.tbl_isempty(members) then
+        vim.notify("No team members found or API error", vim.log.levels.ERROR)
+        return
+    end
+    
+    local displayer = entry_display.create({
+        separator = " ",
+        items = {
+            { width = 20 },  -- login
+            { width = 30 },  -- name
+        },
+    })
+    
+    local make_display = function(entry)
+        return displayer({
+            { entry.login, "TelescopeResultsIdentifier" },
+            { entry.name, "TelescopeResultsComment" },
+        })
+    end
+    
+    pickers.new({}, {
+        prompt_title = "Team Members - Core Analytics Data Team",
+        finder = finders.new_table({
+            results = members,
+            entry_maker = function(entry)
+                entry.value = entry.login
+                entry.ordinal = entry.login .. " " .. entry.name
+                entry.display = make_display
+                return entry
+            end,
+        }),
+        sorter = conf.file_sorter({}),
+        attach_mappings = function(_, map)
+            actions.select_default:replace(function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                M.user_prs_picker(selection.value)
+            end)
+            return true
+        end,
+    }):find()
+end
+
+M.user_prs_picker = function(username)
+    local prs = get_user_prs(username)
+    local current_repo = get_current_repo()
+    
+    if vim.tbl_isempty(prs) then
+        vim.notify("No PRs found for " .. username .. " in " .. (current_repo or "current repo"), vim.log.levels.WARN)
+        return
+    end
+    
+    local displayer = entry_display.create({
+        separator = " ",
+        items = {
+            { width = 6 },   -- number
+            { width = 8 },   -- state
+            { width = 50 },  -- title
+            { width = 20 },  -- repo
+            { width = 12 },  -- updated
+        },
+    })
+    
+    local make_display = function(entry)
+        local state_color = entry.state == "open" and "TelescopeResultsIdentifier" or "TelescopeResultsComment"
+        local date = entry.updated_at:match("(%d%d%d%d%-%d%d%-%d%d)")
+        
+        return displayer({
+            { "#" .. entry.number, "TelescopeResultsNumber" },
+            { entry.state, state_color },
+            { entry.title },
+            { entry.repo_name, "TelescopeResultsComment" },
+            { date, "TelescopeResultsComment" },
+        })
+    end
+    
+    pickers.new({}, {
+        prompt_title = "PRs by " .. username .. " in " .. (current_repo or "current repo"),
+        finder = finders.new_table({
+            results = prs,
+            entry_maker = function(entry)
+                entry.value = entry.number
+                entry.ordinal = entry.title .. " " .. entry.repo_name .. " " .. entry.number
+                entry.display = make_display
+                return entry
+            end,
+        }),
+        sorter = conf.file_sorter({}),
+        attach_mappings = function(_, map)
+            actions.select_default:replace(function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                open_pr_with_diffview(selection.value)
+            end)
+            
+            -- Add shortcut to open PR with diffview (similar to git_file_commits)
+            map("i", "<c-d>", function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                open_pr_with_diffview(selection.value)
+            end)
+            
+            map("n", "<c-d>", function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                open_pr_with_diffview(selection.value)
+            end)
+            
+            -- Add shortcut to open PR in browser
+            map("i", "<c-o>", function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                local pr_data = nil
+                for _, pr in ipairs(prs) do
+                    if pr.number == selection.value then
+                        pr_data = pr
+                        break
+                    end
+                end
+                if pr_data then
+                    local cmd = "silent ! open -a 'Google Chrome' -n --args " .. pr_data.html_url
+                    vim.cmd(cmd)
+                end
+            end)
+            
+            return true
+        end,
+    }):find()
+end
+
+-- Create a command to start the team PR workflow
+M.team_pr_workflow = function()
+    M.team_members_picker()
+end
+
+-- Alternative: Manual username input for PR workflow
+M.manual_user_pr_workflow = function()
+    local Input = require("nui.input")
+    local event = require("nui.utils.autocmd").event
+
+    local input = Input({
+        position = "50%",
+        size = {
+            width = 30,
+        },
+        border = {
+            style = "single",
+            text = {
+                top = "GitHub Username",
+                top_align = "center",
+            },
+        },
+        win_options = {
+            winhighlight = "Normal:Normal,FloatBorder:Normal",
+        },
+    }, {
+        prompt = "> ",
+        default_value = "",
+        on_close = function()
+            print("Input Closed!")
+        end,
+        on_submit = function(value)
+            if value and value ~= "" then
+                M.user_prs_picker(value)
+            end
+        end,
+    })
+
+    -- mount/open the component
+    input:mount()
+
+    -- unmount component when cursor leaves buffer
+    input:on(event.BufLeave, function()
+        input:unmount()
+    end)
+end
+
 return M

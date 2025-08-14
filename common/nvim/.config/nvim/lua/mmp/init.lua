@@ -27,8 +27,11 @@ vim.opt.cmdheight = 1
 vim.opt.wrapscan = false
 vim.opt.fillchars = { diff = " " }
 vim.opt.foldenable = false
+vim.opt.foldopen = "all"
 vim.opt.conceallevel = 3
 vim.opt.termguicolors = true
+vim.opt.colorcolumn = "100"
+vim.opt.wrap = false
 
 require("mmp.lazy")
 
@@ -102,7 +105,14 @@ vim.keymap.set("n", "<leader>bo", "<Cmd>lua R('mmp.telescope').background_select
 vim.keymap.set("n", "<Leader>re", "<Cmd>lua require'telescope.builtin'.lsp_references{}<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>di", "<Cmd>lua require'telescope.builtin'.diagnostics{}<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>co", "<Cmd>lua R('mmp.telescope').git_commits({})<cr>", { noremap = false })
+vim.keymap.set("n", "<Leader>cf", "<Cmd>lua R('mmp.telescope').git_file_commits({})<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>gu", "<Cmd>lua R('mmp.telescope').grep_word_under_cursor()<cr>", { noremap = false })
+vim.keymap.set("n", "<Leader>te", "<Cmd>Telescope resume<cr>", { noremap = false })
+vim.keymap.set("n", "<Leader>tp", "<Cmd>lua R('mmp.telescope').team_pr_workflow()<cr>", { noremap = false })
+vim.keymap.set("n", "<Leader>tu", "<Cmd>lua R('mmp.telescope').manual_user_pr_workflow()<cr>", { noremap = false })
+
+-- DiffView shortcuts
+vim.keymap.set("n", "<Leader>do", "<Cmd>DiffviewClose<cr>", { noremap = false })
 
 vim.keymap.set("n", "<Leader>fp", ":lua require('telescope').extensions.project.project()<CR>", { noremap = false })
 
@@ -144,6 +154,16 @@ vim.api.nvim_create_autocmd("FileType", {
     pattern = { "norg" },
     callback = function()
         vim.opt.textwidth = 120
+        vim.opt.tabstop = 3
+        vim.opt.shiftwidth = 3
+    end,
+})
+
+-- Set autocmd to set textwidth to 99 for go files
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "go" },
+    callback = function()
+        vim.opt.textwidth = 99
     end,
 })
 
@@ -168,7 +188,6 @@ vim.keymap.set("n", "<Leader>ru", ":PythonRunFile<CR>", { noremap = false })
 -- Create a user command to run init_python_project and passing the cwd path
 vim.api.nvim_create_user_command("PythonInitProject", init_python_project, {})
 
-
 -- Set syntax for thrift files
 vim.cmd([[
 au BufRead,BufNewFile *.thrift set filetype=thrift
@@ -183,18 +202,13 @@ au BufRead,BufNewFile *.build set filetype=xml
 -- Keymay for switching between source and header files
 vim.keymap.set("n", "go", ":ClangdSwitchSourceHeader<CR>", { noremap = false })
 
+-- Remap Ctrl + l to Ctrl + ^
+vim.keymap.set("n", "<C-g>", "<C-^>", { noremap = false })
+
 -- Remove trailing spaces
 --%s/\s\+$//e
 vim.api.nvim_create_user_command("RemoveTrailingSpaces", [[%s/\s\+$//e]], {})
 vim.api.nvim_create_user_command("RemoveTrailingSpacesConfirm", [[%s/\s\+$//gc]], {})
-
--- Autocmd to remove trailing empty lines at the end of the file
--- vim.api.nvim_create_autocmd("BufWritePre", {
---     pattern = { "*" },
---     callback = function()
---         vim.cmd([[%s#\($\n\s*\)\+\%$##]])
---     end,
--- })
 
 -- Get file path
 local yank_file_path_full = function()
@@ -211,66 +225,171 @@ local yank_file_path_relative = function()
 end
 vim.api.nvim_create_user_command("YankFilePathRelative", yank_file_path_relative, {})
 
--- jdtls_lsp
--- vim.cmd([[
--- augroup jdtls_lsp
---     autocmd!
---     autocmd FileType java lua require('mmp.jdtls_setup').setup()
--- augroup end
--- ]])
+local yank_file_name = function()
+    local path = vim.fn.expand("%:t")
+    vim.fn.setreg("+", path)
+    vim.cmd("echo 'Copied to clipboard: " .. path .. "'")
+end
+vim.api.nvim_create_user_command("YankFileName", yank_file_name, {})
 
--- -- Create an autocmd to run when the user saves a file
--- vim.api.nvim_create_autocmd("BufWritePre", {
---     pattern = { "*" },
---     callback = function()
---         if vim.bo.readonly then
---             vim.schedule(function()
---                 print("This is a read only file")
---             end)
---
---             -- Open file for add in perforce
---             vim.cmd("silent !p4 edit " .. vim.fn.expand("%"))
---         end
---     end,
--- })
+local get_commit_under_cursor = function()
+    return vim.fn.expand("<cword>")
+end
 
--- -- Rainbow
--- vim.cmd("let g:rainbow#max_level = 16")
--- vim.cmd("let g:rainbow#pairs = [['(', ')'], ['[', ']'], ['{', '}']]")
--- vim.cmd("autocmd FileType * RainbowParentheses")
+-- Go to commit on github
+local open_commit_under_cursor_in_github = function()
+    local commit_hash = get_commit_under_cursor()
+    local get_repo_url_cmd = "git config --get remote.origin.url | tr -d '\n'"
+    -- Remove .git from the url
+    get_repo_url_cmd = get_repo_url_cmd .. " | sed 's/\\.git$//'"
+    local repo_url = vim.fn.system(get_repo_url_cmd)
+    local url = repo_url .. "/commit/" .. commit_hash
 
--- -- Symbols outline
--- require("symbols-outline").setup({ show_relative_numbers = true, width=40, keymaps = { close = { nil } } })
--- vim.keymap.set("n", "<Leader>t", ":SymbolsOutline<CR>", { noremap = false })
+    -- local cmd = "silent ! open -a Google\\ Chrome -n --args --new-window " .. url
+    local cmd = "silent ! open -a 'Google Chrome' -n --args " .. url
+    P(cmd)
+    vim.cmd(cmd)
+end
+vim.api.nvim_create_user_command("GithubCommitOpen", open_commit_under_cursor_in_github, {})
 
--- -- Test
--- vim.keymap.set("n", "<Leader>tf", ":TestFile<CR>", { noremap = false })
--- vim.keymap.set("n", "<Leader>tn", ":TestNearest<CR>", { noremap = false })
--- vim.keymap.set("n", "<Leader>tl", ":TestLast<CR>", { noremap = false })
+-- https://github.com/search?q=org%3AShopify%20otel-collector.shopify-map-etl-stg.shopifysdp.com%3A8125&type=code
+-- Search on Github
+local search_on_github = function()
+    -- Get the selected yanked text
+    local raw_search_term = vim.fn.getreg('"')
+    local raw_url = "https://github.com/search?q=org%3AShopify%20" .. raw_search_term .. "&type=code"
+    local url = vim.fn.escape(raw_url, " \\/?=%")
 
--- -- Debugger
--- require('dap')
--- require("dapui").setup()
--- require('dap-python').setup('/home/miguel/Desktop/nvim_venv/bin/python')
--- require('dap-python').test_runner = 'unittest'
+    local cmd = "silent ! open -a 'Google Chrome' -n --args " .. url
+    P(cmd)
+    vim.cmd(cmd)
+end
+vim.api.nvim_create_user_command("GithubSearch", search_on_github, {})
 
--- vim.keymap.set("n", "<Leader>db", ":lua require('dap').toggle_breakpoint()<CR>", { noremap = false })
--- vim.keymap.set("n", "<Leader>dc", ":lua require('dap').continue()<CR>", { noremap = false })
--- vim.keymap.set("n", "<Leader>do", ":lua require('dap').step_over()<CR>", { noremap = false })
--- vim.keymap.set("n", "<Leader>de", ":lua require('dap').step_into()<CR>", { noremap = false })
+local diffview_introduced_by_commit_under_cursor = function()
+    local commit_hash = get_commit_under_cursor()
+    local cmd = "DiffviewOpen " .. commit_hash .. "^!"
+    vim.cmd(cmd)
+end
+vim.api.nvim_create_user_command(
+    "DiffviewOpenIntroducedByCommitUnderCursor",
+    diffview_introduced_by_commit_under_cursor,
+    {}
+)
 
--- vim.keymap.set("n", "<leader>dfu", ":lua require('dap-python').test_method()<CR>", { noremap = false })
--- vim.keymap.set("n", "<leader>dca", ":lua require('dap-python').test_class()<CR>", { noremap = false })
--- vim.keymap.set("n", "<leader>dse", ":lua require('dap-python').debug_selection()<CR>", { noremap = false })
+local git_clean = function()
+    local cmd = "git clean -fd"
+    vim.fn.system(cmd)
+end
 
--- vim.api.nvim_set_hl(0, 'DapBreakpoint', { fg='#993939', bg='#31353f' })
--- vim.api.nvim_set_hl(0, 'DapLogPoint', { fg='#61afef', bg='#31353f' })
--- vim.api.nvim_set_hl(0, 'DapStopped', { fg='#98c379', bg='#31353f' })
+local fetch_pr = function(pr_number)
+    local cmd = "git fetch origin pull/" .. pr_number .. "/head:pr-" .. pr_number
+    vim.fn.system(cmd)
+    local cmd = "git checkout pr-" .. pr_number
+    vim.fn.system(cmd)
+end
 
--- vim.fn.sign_define('DapBreakpoint', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
--- vim.fn.sign_define('DapBreakpointCondition', { text='ﳁ', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl='DapBreakpoint' })
--- vim.fn.sign_define('DapBreakpointRejected', { text='', texthl='DapBreakpoint', linehl='DapBreakpoint', numhl= 'DapBreakpoint' })
--- vim.fn.sign_define('DapLogPoint', { text='', texthl='DapLogPoint', linehl='DapLogPoint', numhl= 'DapLogPoint' })
--- vim.fn.sign_define('DapStopped', { text='', texthl='DapStopped', linehl='DapStopped', numhl= 'DapStopped' })
+local reset_pr = function(pr_number)
+    local cmd = "git reset --soft $(git merge-base HEAD origin/main)"
+    vim.fn.system(cmd)
+end
 
--- vim.keymap.set("n", "<Leader>dd", ":lua require('dapui').toggle()<CR>", { noremap = false })
+local open_with_diffview = function()
+    local cmd = "DiffviewOpen"
+    vim.cmd(cmd)
+end
+
+-- Create a text input with nui.nvim
+local get_pr_number = function()
+    local Input = require("nui.input")
+    local event = require("nui.utils.autocmd").event
+
+    local input = Input({
+        position = "50%",
+        size = {
+            width = 20,
+        },
+        border = {
+            style = "single",
+            text = {
+                top = "PR Number",
+                top_align = "center",
+            },
+        },
+        win_options = {
+            winhighlight = "Normal:Normal,FloatBorder:Normal",
+        },
+    }, {
+        prompt = "> ",
+        default_value = "",
+        on_close = function()
+            print("Input Closed!")
+        end,
+        on_submit = function(value)
+            print("Input Submitted: " .. value)
+            git_clean()
+            fetch_pr(value)
+            reset_pr(value)
+            open_with_diffview()
+        end,
+    })
+
+    -- mount/open the component
+    input:mount()
+
+    -- unmount component when cursor leaves buffer
+    input:on(event.BufLeave, function()
+        input:unmount()
+    end)
+end
+vim.api.nvim_create_user_command("PR", get_pr_number, {})
+
+-- Team PR workflow command
+vim.api.nvim_create_user_command("TeamPR", function()
+    require('mmp.telescope').team_pr_workflow()
+end, {})
+
+-- Manual user PR workflow command
+vim.api.nvim_create_user_command("UserPR", function()
+    require('mmp.telescope').manual_user_pr_workflow()
+end, {})
+
+vim.api.nvim_create_user_command('DiffLatest', 'DiffviewOpen HEAD~1..HEAD', {})
+
+vim.api.nvim_create_user_command('DiffPR', function(opts)
+  local branch = opts.args ~= "" and opts.args or "HEAD"
+  -- Get the last merge commit using git log
+  local cmd = "git log --merges --format=%H " .. branch .. " | head -n 1"
+  local last_merge = vim.fn.system(cmd):gsub("%s+$", "")
+  vim.cmd("DiffviewOpen " .. last_merge .. "..." .. branch)
+end, { nargs = '?' })
+
+vim.api.nvim_create_user_command('DiffviewCloseKeepFile', function()
+  local bufname = vim.fn.bufname('%')
+  if bufname and bufname ~= '' then
+    local clean_path = bufname:gsub("^diffview://", ""):gsub("%.git/%w+/", "")
+    vim.cmd("DiffviewClose")
+    vim.cmd("edit " .. clean_path)
+    return
+  end
+
+  print("No valid entry found; closing Diffview without opening file.")
+  vim.cmd("DiffviewClose")
+end, {})
+
+-- Remap jump to alternate file
+vim.keymap.set("n", "<C-g>", "<C-6>", { noremap = false })
+
+-- Remap { to }
+vim.keymap.set("n", "{", "}", { noremap = false })
+
+-- Remap } to (
+vim.keymap.set("n", "(", "{", { noremap = false })
+
+-- Set no wrap for .log files
+vim.api.nvim_create_autocmd("BufRead", {
+    pattern = { "*.log" },
+    callback = function()
+        vim.opt.wrap = false
+    end,
+})
