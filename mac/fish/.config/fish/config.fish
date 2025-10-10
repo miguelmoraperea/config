@@ -91,3 +91,6 @@ set -x STOW_DIRS "alacritty,bash,compton,i3,nvim,tmux"
 set -x DOTFILES "$HOME/Desktop/git/config"
 set -x CONFIG_DIR "$HOME/Desktop/git/config"
 # set -x VIRTUAL_ENV "$HOME/Desktop/nvim_venv/"
+
+# Added by tec agent
+test -x /Users/miguel/.local/state/tec/profiles/base/current/global/init && /Users/miguel/.local/state/tec/profiles/base/current/global/init fish | source

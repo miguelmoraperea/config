@@ -29,9 +29,9 @@ local on_attach = function(client, bufnr)
     buf_set_keymap("n", "<space>ca", "<Cmd>lua vim.lsp.buf.code_action()<CR>", opts)
     buf_set_keymap("n", "gr", "<Cmd>lua vim.lsp.buf.references()<CR>", opts)
     buf_set_keymap("n", "<space>e", '<Cmd>lua vim.diagnostic.open_float({scope="line"})<CR>', opts)
-    buf_set_keymap("n", "[d", "<Cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", opts)
-    buf_set_keymap("n", "]d", "<Cmd>lua vim.lsp.diagnostic.goto_next()<CR>", opts)
-    buf_set_keymap("n", "<space>q", "<Cmd>lua vim.lsp.diagnostic.set_loclist()<CR>", opts)
+    buf_set_keymap("n", "[d", "<Cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+    buf_set_keymap("n", "]d", "<Cmd>lua vim.diagnostic.goto_next()<CR>", opts)
+    buf_set_keymap("n", "<space>q", "<Cmd>lua vim.diagnostic.setloclist()<CR>", opts)
     -- Custom formatting that uses project's ruff configuration
     buf_set_keymap("n", "<space>f", "<Cmd>lua require('mmp.format').format_file()<CR>", opts)
 end
@@ -131,4 +131,53 @@ require("lspconfig").grammarly.setup({
     on_attach = on_attach,
     capabilities = capabilities,
     filetypes = { "markdown", "txt", "norg" },
+})
+
+-- Clangd LSP for C++ development
+require("lspconfig").clangd.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+    cmd = {
+        "clangd",
+        "--background-index",
+        "--clang-tidy",
+        "--header-insertion=iwyu",
+        "--completion-style=detailed",
+        "--function-arg-placeholders",
+        "--fallback-style=llvm",
+        "--pch-storage=memory",
+        "--all-scopes-completion",
+        "--cross-file-rename",
+        "--log=verbose",
+        "--pretty",
+        "--enable-config",
+    },
+    init_options = {
+        usePlaceholders = true,
+        completeUnimported = true,
+        clangdFileStatus = true,
+        fallbackFlags = { "-std=c++20" },
+    },
+    root_dir = function(fname)
+        local util = require("lspconfig.util")
+        -- First try to find compile_commands.json or .clangd
+        local root = util.root_pattern("compile_commands.json", ".clangd")(fname)
+        if root then
+            return root
+        end
+        -- Fall back to CMakeLists.txt or Makefile
+        return util.root_pattern("CMakeLists.txt", "Makefile")(fname)
+            or util.find_git_ancestor(fname)
+            or util.path.dirname(fname)
+    end,
+    settings = {
+        clangd = {
+            -- Enable compile_commands.json detection
+            compilationDatabasePath = "build",
+            -- Improve indexing
+            index = {
+                threads = 0, -- Use all available threads
+            },
+        },
+    },
 })

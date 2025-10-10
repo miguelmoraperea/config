@@ -244,7 +244,7 @@ local function image_selector(prompt, cwd)
             previewer = false,
             attach_mappings = function(prompt_bufnr, map)
                 select_background(prompt_bufnr, map)
-                delete_background(propmt_bufnr, map)
+                delete_background(prompt_bufnr, map)
 
                 -- Please continue mapping (attaching additional key maps):
                 -- Ctrl+n/p to move up and down the list.
@@ -426,9 +426,9 @@ end
 
 -- GitHub API helpers
 local function get_github_token()
-    local token = os.getenv("GITHUB_TOKEN")
+    local token = os.getenv("NVIM_GITHUB_TOKEN")
     if not token then
-        vim.notify("Please set GITHUB_TOKEN environment variable", vim.log.levels.ERROR)
+        vim.notify("Please set NVIM_GITHUB_TOKEN environment variable", vim.log.levels.ERROR)
         return nil
     end
     return token
@@ -439,25 +439,26 @@ local function github_api_request(endpoint)
     if not token then
         return nil
     end
-    
+
     local curl_cmd = string.format(
         'curl -s -H "Authorization: token %s" -H "Accept: application/vnd.github.v3+json" "https://api.github.com%s"',
         token, endpoint
     )
-    
+    P(curl_cmd)
+
     local handle = io.popen(curl_cmd)
     local response = handle:read("*a")
     handle:close()
-    
+
     return vim.fn.json_decode(response)
 end
 
 local function get_team_members()
-    local response = github_api_request("/orgs/Shopify/teams/core-analytics-data-team/members")
+    local response = github_api_request("/orgs/Shopify/teams/foundations-analytics-data-team/members")
     if not response then
         return {}
     end
-    
+
     local members = {}
     for _, member in ipairs(response) do
         table.insert(members, {
@@ -467,7 +468,7 @@ local function get_team_members()
             html_url = member.html_url
         })
     end
-    
+
     return members
 end
 
@@ -477,7 +478,7 @@ local function get_current_repo()
     if remote_url == "" then
         return nil
     end
-    
+
     -- Extract repo name from various URL formats
     local repo_name = remote_url:match("github%.com[:/]Shopify/([^/%.]+)")
     return repo_name
@@ -489,23 +490,23 @@ local function get_user_prs(username)
         vim.notify("Not in a git repository or no GitHub remote found", vim.log.levels.ERROR)
         return {}
     end
-    
+
     -- Search for open PRs only (including drafts) in the current repository
     local repo_query = string.format("repo:Shopify/%s", current_repo)
     local all_prs_response = github_api_request(string.format("/search/issues?q=author:%s+is:pr+state:open+%s", username, repo_query))
-    
+
     local prs = {}
     local seen_numbers = {}
-    
+
     if all_prs_response and all_prs_response.items then
         for _, pr in ipairs(all_prs_response.items) do
             -- Avoid duplicates by checking if we've seen this PR number before
             if not seen_numbers[pr.number] then
                 seen_numbers[pr.number] = true
-                
+
                 -- Determine state based on PR properties (all results are open, but may be draft)
                 local state = pr.draft and "draft" or "open"
-                
+
                 table.insert(prs, {
                     number = pr.number,
                     title = pr.title,
@@ -519,10 +520,10 @@ local function get_user_prs(username)
             end
         end
     end
-    
+
     -- Sort by updated_at (most recent first)
     table.sort(prs, function(a, b) return a.updated_at > b.updated_at end)
-    
+
     return prs
 end
 
@@ -530,23 +531,23 @@ local function open_pr_with_diffview(pr_number)
     local git_clean_and_reset = function()
         -- First, close any existing DiffView
         vim.cmd("DiffviewClose")
-        
+
         -- Reset any working directory changes
         vim.fn.system("git reset --hard HEAD")
-        
+
         -- Clean untracked files
         vim.fn.system("git clean -fd")
-        
+
         -- Checkout main/master to ensure clean state
         local main_branch = vim.fn.system("git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'"):gsub("%s+", "")
         if main_branch == "" then
             main_branch = "main"  -- fallback to main
         end
         vim.fn.system("git checkout " .. main_branch)
-        
+
         -- Pull latest changes
         vim.fn.system("git pull origin " .. main_branch)
-        
+
         -- Delete the PR branch if it exists
         vim.fn.system("git branch -D pr-" .. pr_number .. " 2>/dev/null")
     end
@@ -564,10 +565,10 @@ local function open_pr_with_diffview(pr_number)
         if main_branch == "" then
             main_branch = "main"  -- fallback to main
         end
-        
+
         -- Find the merge base (parent commit where PR branch was created)
         local merge_base = vim.fn.system("git merge-base HEAD origin/" .. main_branch):gsub("%s+", "")
-        
+
         -- Open DiffView with commit range from merge base to HEAD (only PR changes)
         local cmd = "DiffviewOpen " .. merge_base .. "..HEAD"
         vim.cmd(cmd)
@@ -580,7 +581,7 @@ end
 
 M.team_members_picker = function()
     local members = get_team_members()
-    
+
     if vim.tbl_isempty(members) then
         vim.notify("No team members found or API error", vim.log.levels.ERROR)
         return
@@ -755,6 +756,89 @@ M.manual_user_pr_workflow = function()
     input:on(event.BufLeave, function()
         input:unmount()
     end)
+end
+
+-- Function to get current branch name
+local function get_current_branch()
+    local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null"):gsub("%s+", "")
+    if vim.v.shell_error ~= 0 or branch == "" then
+        return nil
+    end
+    return branch
+end
+
+-- Function to find PR for current branch
+local function get_pr_for_current_branch()
+    local current_repo = get_current_repo()
+    local current_branch = get_current_branch()
+    
+    if not current_repo then
+        vim.notify("Not in a git repository or no GitHub remote found", vim.log.levels.ERROR)
+        return nil
+    end
+    
+    if not current_branch then
+        vim.notify("Could not determine current branch", vim.log.levels.ERROR)
+        return nil
+    end
+    
+    if current_branch == "main" or current_branch == "master" then
+        vim.notify("Currently on main/master branch - no PR expected", vim.log.levels.WARN)
+        return nil
+    end
+    
+    -- First, try to search for PRs with the current branch as head
+    local repo_query = string.format("repo:Shopify/%s", current_repo)
+    local branch_query = string.format("head:%s", current_branch)
+    local search_query = string.format("is:pr+state:open+%s+%s", repo_query, branch_query)
+    
+    local response = github_api_request(string.format("/search/issues?q=%s", search_query))
+    
+    -- If we found a PR, return it
+    if response and response.items and #response.items > 0 then
+        local pr = response.items[1]
+        return {
+            number = pr.number,
+            title = pr.title,
+            html_url = pr.html_url,
+            state = pr.draft and "draft" or "open",
+            branch = current_branch,
+            repo = current_repo
+        }
+    end
+    
+    -- If no PR found and branch looks like "pr-XXXX", try to get PR by number
+    local pr_number = current_branch:match("^pr%-(%d+)$")
+    if pr_number then
+        local pr_response = github_api_request(string.format("/repos/Shopify/%s/pulls/%s", current_repo, pr_number))
+        if pr_response and pr_response.number then
+            return {
+                number = pr_response.number,
+                title = pr_response.title,
+                html_url = pr_response.html_url,
+                state = pr_response.draft and "draft" or "open",
+                branch = current_branch,
+                repo = current_repo
+            }
+        end
+    end
+    
+    vim.notify("No open PR found for branch: " .. current_branch, vim.log.levels.WARN)
+    return nil
+end
+
+-- Function to open PR in browser
+M.open_current_branch_pr = function()
+    local pr = get_pr_for_current_branch()
+    
+    if not pr then
+        return
+    end
+    
+    vim.notify(string.format("Opening PR #%d: %s", pr.number, pr.title), vim.log.levels.INFO)
+    
+    local cmd = "silent ! open -a 'Google Chrome' -n --args " .. pr.html_url
+    vim.cmd(cmd)
 end
 
 return M

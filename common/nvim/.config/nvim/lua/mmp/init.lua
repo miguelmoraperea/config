@@ -78,8 +78,14 @@ vim.keymap.set("v", "<", "<gv", { noremap = false })
 
 -- -- LSP
 require("mmp.lsp")
-vim.lsp.set_log_level = "warn"
+vim.lsp.set_log_level("warn")
 vim.g.lsp_log_verbose = 1
+
+-- Rust development setup
+require("mmp.rust").setup()
+
+-- C++ development setup
+require("mmp.cpp").setup()
 
 vim.keymap.set("n", "<leader>rn", "<Cmd>lua vim.lsp.buf.rename()", { noremap = false })
 
@@ -110,6 +116,7 @@ vim.keymap.set("n", "<Leader>gu", "<Cmd>lua R('mmp.telescope').grep_word_under_c
 vim.keymap.set("n", "<Leader>te", "<Cmd>Telescope resume<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>tp", "<Cmd>lua R('mmp.telescope').team_pr_workflow()<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>tu", "<Cmd>lua R('mmp.telescope').manual_user_pr_workflow()<cr>", { noremap = false })
+vim.keymap.set("n", "<Leader>pr", "<Cmd>lua R('mmp.telescope').open_current_branch_pr()<cr>", { noremap = false })
 
 -- DiffView shortcuts
 vim.keymap.set("n", "<Leader>do", "<Cmd>DiffviewClose<cr>", { noremap = false })
@@ -213,13 +220,33 @@ vim.api.nvim_create_user_command("RemoveTrailingSpacesConfirm", [[%s/\s\+$//gc]]
 -- Get file path
 local yank_file_path_full = function()
     local path = vim.fn.expand("%:p")
+    if path == "" then
+        vim.cmd("echo 'No file in current buffer'")
+        return
+    end
     vim.fn.setreg("+", path)
     vim.cmd("echo 'Copied to clipboard: " .. path .. "'")
 end
 vim.api.nvim_create_user_command("YankFilePathFull", yank_file_path_full, {})
 
 local yank_file_path_relative = function()
-    local path = vim.fn.expand("%")
+    local full_path = vim.fn.expand("%:p")
+    local cwd = vim.fn.getcwd()
+    local path
+    
+    -- Check if the file is within the current working directory
+    if full_path:sub(1, #cwd) == cwd then
+        -- Remove the cwd prefix and leading slash to get relative path
+        path = full_path:sub(#cwd + 2)
+    else
+        -- If file is outside cwd, try to get a relative path using vim's built-in function
+        path = vim.fn.fnamemodify(full_path, ":~:.")
+        -- If it's still absolute (starts with /), fall back to just the filename
+        if path:sub(1, 1) == "/" then
+            path = vim.fn.expand("%:t")
+        end
+    end
+    
     vim.fn.setreg("+", path)
     vim.cmd("echo 'Copied to clipboard: " .. path .. "'")
 end
@@ -227,10 +254,51 @@ vim.api.nvim_create_user_command("YankFilePathRelative", yank_file_path_relative
 
 local yank_file_name = function()
     local path = vim.fn.expand("%:t")
+    if path == "" then
+        vim.cmd("echo 'No file in current buffer'")
+        return
+    end
     vim.fn.setreg("+", path)
     vim.cmd("echo 'Copied to clipboard: " .. path .. "'")
 end
 vim.api.nvim_create_user_command("YankFileName", yank_file_name, {})
+
+-- Yank file path relative to git root
+local yank_file_path_git_relative = function()
+    local full_path = vim.fn.expand("%:p")
+    if full_path == "" then
+        vim.cmd("echo 'No file in current buffer'")
+        return
+    end
+    
+    -- Try to get git root
+    local git_root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("%s+$", "")
+    
+    if vim.v.shell_error ~= 0 or git_root == "" then
+        -- Not in a git repo, fall back to relative path
+        local cwd = vim.fn.getcwd()
+        local path
+        if full_path:sub(1, #cwd) == cwd then
+            path = full_path:sub(#cwd + 2)
+        else
+            path = vim.fn.fnamemodify(full_path, ":~:.")
+        end
+        vim.fn.setreg("+", path)
+        vim.cmd("echo 'Copied to clipboard (not in git repo): " .. path .. "'")
+    else
+        -- Get path relative to git root
+        if full_path:sub(1, #git_root) == git_root then
+            local path = full_path:sub(#git_root + 2)
+            vim.fn.setreg("+", path)
+            vim.cmd("echo 'Copied to clipboard (git relative): " .. path .. "'")
+        else
+            -- File is outside git repo
+            vim.fn.setreg("+", full_path)
+            vim.cmd("echo 'Copied to clipboard (outside git repo): " .. full_path .. "'")
+        end
+    end
+end
+vim.api.nvim_create_user_command("YankFilePathGitRelative", yank_file_path_git_relative, {})
 
 local get_commit_under_cursor = function()
     return vim.fn.expand("<cword>")
@@ -354,7 +422,34 @@ vim.api.nvim_create_user_command("UserPR", function()
     require('mmp.telescope').manual_user_pr_workflow()
 end, {})
 
+-- Open PR for current branch command
+vim.api.nvim_create_user_command("OpenPR", function()
+    require('mmp.telescope').open_current_branch_pr()
+end, {})
+
 vim.api.nvim_create_user_command('DiffLatest', 'DiffviewOpen HEAD~1..HEAD', {})
+
+-- Git command aliases for fugitive
+-- Create uppercase commands (required by Neovim)
+vim.api.nvim_create_user_command('Gc', 'Git commit', {})
+vim.api.nvim_create_user_command('Gca', 'Git commit --amend', {})
+vim.api.nvim_create_user_command('Gcane', 'Git commit --amend --no-edit', {})
+vim.api.nvim_create_user_command('Grim', 'Git rebase -i main', {})
+vim.api.nvim_create_user_command('Grc', 'Git rebase --continue', {})
+vim.api.nvim_create_user_command('Gra', 'Git rebase --abort', {})
+vim.api.nvim_create_user_command('Gp', 'Git push', {})
+vim.api.nvim_create_user_command('Gpf', 'Git push -f', {})
+
+-- Create command-line abbreviations for lowercase typing
+vim.cmd('cnoreabbrev gc Gc')
+vim.cmd('cnoreabbrev gca Gca')
+vim.cmd('cnoreabbrev gcane Gcane')
+vim.cmd('cnoreabbrev grim Grim')
+vim.cmd('cnoreabbrev grc Grc')
+vim.cmd('cnoreabbrev gra Gra')
+vim.cmd('cnoreabbrev gp Gp')
+vim.cmd('cnoreabbrev gpf Gpf')
+vim.cmd('cnoreabbrev openpr OpenCurrentPR')
 
 vim.api.nvim_create_user_command('DiffPR', function(opts)
   local branch = opts.args ~= "" and opts.args or "HEAD"
@@ -393,3 +488,53 @@ vim.api.nvim_create_autocmd("BufRead", {
         vim.opt.wrap = false
     end,
 })
+
+-- Auto-format Rust files on save (only in reportify-rs project)
+vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = "*.rs",
+    callback = function()
+        local bufname = vim.api.nvim_buf_get_name(0)
+        if string.match(bufname, "reportify%-rs") then
+            vim.lsp.buf.format({ async = false })
+        end
+    end,
+})
+
+-- Set Rust-specific settings for reportify-rs project
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "rust",
+    callback = function()
+        local bufname = vim.api.nvim_buf_get_name(0)
+        if string.match(bufname, "reportify%-rs") then
+            vim.opt_local.textwidth = 100
+            vim.opt_local.colorcolumn = "100"
+        end
+    end,
+})
+
+-- Merchant Analytics ETL specific commands
+local merchant_etl_path = "/Users/miguel/src/github.com/Shopify/merchant-analytics-etl"
+
+-- Command to find pipeline config files (yml files under config/pipelines/)
+vim.api.nvim_create_user_command("FindPipelineConfigFiles", function()
+    require('telescope.builtin').find_files({
+        cwd = merchant_etl_path .. "/config/pipelines",
+        find_command = { "find", ".", "-name", "*.yml", "-type", "f" }
+    })
+end, {})
+
+-- Command to find DBT config files (yml files under pipeline/dbt/dbt)
+vim.api.nvim_create_user_command("FindDbtConfigFiles", function()
+    require('telescope.builtin').find_files({
+        cwd = merchant_etl_path .. "/pipeline/dbt/dbt",
+        find_command = { "find", ".", "-name", "*.yml", "-type", "f" }
+    })
+end, {})
+
+-- Command to find model config files (sql files under pipeline/dbt/dbt)
+vim.api.nvim_create_user_command("FindModelConfigFiles", function()
+    require('telescope.builtin').find_files({
+        cwd = merchant_etl_path .. "/pipeline/dbt/dbt",
+        find_command = { "find", ".", "-name", "*.sql", "-type", "f" }
+    })
+end, {})

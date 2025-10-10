@@ -366,6 +366,9 @@ return {
                     -- "usort",
                     "kotlin-language-server",
                     -- "vulture",
+                    -- C++ tools
+                    "clangd",
+                    "clang-format",
                 },
                 automatic_installation = false,
                 handlers = {},
@@ -474,6 +477,28 @@ return {
                         -- height = 20,
                         width = 50,
                     },
+                },
+                view = {
+                    default = {
+                        layout = "diff2_horizontal",
+                        winbar_info = false,
+                    },
+                    merge_tool = {
+                        layout = "diff3_horizontal",
+                        disable_diagnostics = true,
+                        winbar_info = true,
+                    },
+                    file_history = {
+                        layout = "diff2_horizontal",
+                        winbar_info = false,
+                    },
+                },
+                hooks = {
+                    diff_buf_read = function(bufnr)
+                        -- Disable automatic fold opening in diffview buffers
+                        vim.api.nvim_buf_set_option(bufnr, 'foldopen', '')
+                        vim.api.nvim_buf_set_option(bufnr, 'foldenable', true)
+                    end,
                 },
             })
         end,
