@@ -97,6 +97,15 @@ vim.fn.sign_define("DiagnosticSignHint", { text = "", texthl = "DiagnosticSig
 -- -- Telescope
 require("mmp.globals")
 require("mmp.telescope")
+
+-- PR GitSigns setup - delay to ensure gitsigns is loaded
+vim.api.nvim_create_autocmd("VimEnter", {
+    callback = function()
+        vim.defer_fn(function()
+            require("mmp.pr_gitsigns").setup()
+        end, 1000)
+    end,
+})
 vim.keymap.set("n", "<leader>ff", "<Cmd>Telescope find_files hidden=True<cr>", { noremap = false })
 vim.keymap.set("n", "<leader>fd", "<Cmd>lua R('mmp.telescope').find_files_under<CR>", { noremap = false })
 vim.keymap.set("n", "<leader>fg", "<Cmd>Telescope live_grep<cr>", { noremap = false })
@@ -120,6 +129,10 @@ vim.keymap.set("n", "<Leader>pr", "<Cmd>lua R('mmp.telescope').open_current_bran
 
 -- DiffView shortcuts
 vim.keymap.set("n", "<Leader>do", "<Cmd>DiffviewClose<cr>", { noremap = false })
+
+-- PR GitSigns shortcuts
+vim.keymap.set("n", "<Leader>pd", "<Cmd>PRDiffToggle<cr>", { noremap = false })
+vim.keymap.set("n", "<Leader>ps", "<Cmd>PRDiffStatus<cr>", { noremap = false })
 
 vim.keymap.set("n", "<Leader>fp", ":lua require('telescope').extensions.project.project()<CR>", { noremap = false })
 
@@ -465,11 +478,15 @@ vim.api.nvim_create_user_command('DiffviewCloseKeepFile', function()
     local clean_path = bufname:gsub("^diffview://", ""):gsub("%.git/%w+/", "")
     vim.cmd("DiffviewClose")
     vim.cmd("edit " .. clean_path)
+    -- Auto-enable PR diff mode after closing diffview
+    require('mmp.pr_gitsigns').on_diffview_close()
     return
   end
 
   print("No valid entry found; closing Diffview without opening file.")
   vim.cmd("DiffviewClose")
+  -- Auto-enable PR diff mode after closing diffview
+  require('mmp.pr_gitsigns').on_diffview_close()
 end, {})
 
 -- Remap jump to alternate file

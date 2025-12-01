@@ -499,6 +499,10 @@ return {
                         vim.api.nvim_buf_set_option(bufnr, 'foldopen', '')
                         vim.api.nvim_buf_set_option(bufnr, 'foldenable', true)
                     end,
+                    view_closed = function()
+                        -- Auto-enable PR diff mode when diffview closes
+                        require('mmp.pr_gitsigns').on_diffview_close()
+                    end,
                 },
             })
         end,
