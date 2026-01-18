@@ -41,7 +41,7 @@ end
 
 -- Set up window filters and hotkeys for each application
 local apps = {
-    { name = "Alacritty", key = "1" },
+    { name = "Wezterm", key = "1" },
     { name = "Google Chrome", key = "2" },
     { name = "Slack", key = "3" },
     { name = "Cursor", key = "4" },

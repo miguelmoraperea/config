@@ -454,7 +454,7 @@ local function github_api_request(endpoint)
 end
 
 local function get_team_members()
-    local response = github_api_request("/orgs/Shopify/teams/foundations-analytics-data-team/members")
+    local response = github_api_request("/orgs/Shopify/teams/data-ingestion/members")
     if not response then
         return {}
     end
@@ -586,7 +586,7 @@ M.team_members_picker = function()
         vim.notify("No team members found or API error", vim.log.levels.ERROR)
         return
     end
-    
+
     local displayer = entry_display.create({
         separator = " ",
         items = {
@@ -594,14 +594,14 @@ M.team_members_picker = function()
             { width = 30 },  -- name
         },
     })
-    
+
     local make_display = function(entry)
         return displayer({
             { entry.login, "TelescopeResultsIdentifier" },
             { entry.name, "TelescopeResultsComment" },
         })
     end
-    
+
     pickers.new({}, {
         prompt_title = "Team Members - Core Analytics Data Team",
         finder = finders.new_table({
@@ -628,12 +628,12 @@ end
 M.user_prs_picker = function(username)
     local prs = get_user_prs(username)
     local current_repo = get_current_repo()
-    
+
     if vim.tbl_isempty(prs) then
         vim.notify("No PRs found for " .. username .. " in " .. (current_repo or "current repo"), vim.log.levels.WARN)
         return
     end
-    
+
     local displayer = entry_display.create({
         separator = " ",
         items = {
@@ -644,11 +644,11 @@ M.user_prs_picker = function(username)
             { width = 12 },  -- updated
         },
     })
-    
+
     local make_display = function(entry)
         local state_color = entry.state == "open" and "TelescopeResultsIdentifier" or "TelescopeResultsComment"
         local date = entry.updated_at:match("(%d%d%d%d%-%d%d%-%d%d)")
-        
+
         return displayer({
             { "#" .. entry.number, "TelescopeResultsNumber" },
             { entry.state, state_color },
@@ -657,7 +657,7 @@ M.user_prs_picker = function(username)
             { date, "TelescopeResultsComment" },
         })
     end
-    
+
     pickers.new({}, {
         prompt_title = "PRs by " .. username .. " in " .. (current_repo or "current repo"),
         finder = finders.new_table({
@@ -676,20 +676,20 @@ M.user_prs_picker = function(username)
                 actions.close(prompt_bufnr)
                 open_pr_with_diffview(selection.value)
             end)
-            
+
             -- Add shortcut to open PR with diffview (similar to git_file_commits)
             map("i", "<c-d>", function(prompt_bufnr)
                 local selection = action_state.get_selected_entry()
                 actions.close(prompt_bufnr)
                 open_pr_with_diffview(selection.value)
             end)
-            
+
             map("n", "<c-d>", function(prompt_bufnr)
                 local selection = action_state.get_selected_entry()
                 actions.close(prompt_bufnr)
                 open_pr_with_diffview(selection.value)
             end)
-            
+
             -- Add shortcut to open PR in browser
             map("i", "<c-o>", function(prompt_bufnr)
                 local selection = action_state.get_selected_entry()
@@ -705,7 +705,7 @@ M.user_prs_picker = function(username)
                     vim.cmd(cmd)
                 end
             end)
-            
+
             return true
         end,
     }):find()
@@ -771,29 +771,29 @@ end
 local function get_pr_for_current_branch()
     local current_repo = get_current_repo()
     local current_branch = get_current_branch()
-    
+
     if not current_repo then
         vim.notify("Not in a git repository or no GitHub remote found", vim.log.levels.ERROR)
         return nil
     end
-    
+
     if not current_branch then
         vim.notify("Could not determine current branch", vim.log.levels.ERROR)
         return nil
     end
-    
+
     if current_branch == "main" or current_branch == "master" then
         vim.notify("Currently on main/master branch - no PR expected", vim.log.levels.WARN)
         return nil
     end
-    
+
     -- First, try to search for PRs with the current branch as head
     local repo_query = string.format("repo:Shopify/%s", current_repo)
     local branch_query = string.format("head:%s", current_branch)
     local search_query = string.format("is:pr+state:open+%s+%s", repo_query, branch_query)
-    
+
     local response = github_api_request(string.format("/search/issues?q=%s", search_query))
-    
+
     -- If we found a PR, return it
     if response and response.items and #response.items > 0 then
         local pr = response.items[1]
@@ -806,7 +806,7 @@ local function get_pr_for_current_branch()
             repo = current_repo
         }
     end
-    
+
     -- If no PR found and branch looks like "pr-XXXX", try to get PR by number
     local pr_number = current_branch:match("^pr%-(%d+)$")
     if pr_number then
@@ -822,7 +822,7 @@ local function get_pr_for_current_branch()
             }
         end
     end
-    
+
     vim.notify("No open PR found for branch: " .. current_branch, vim.log.levels.WARN)
     return nil
 end
@@ -830,13 +830,13 @@ end
 -- Function to open PR in browser
 M.open_current_branch_pr = function()
     local pr = get_pr_for_current_branch()
-    
+
     if not pr then
         return
     end
-    
+
     vim.notify(string.format("Opening PR #%d: %s", pr.number, pr.title), vim.log.levels.INFO)
-    
+
     local cmd = "silent ! open -a 'Google Chrome' -n --args " .. pr.html_url
     vim.cmd(cmd)
 end
