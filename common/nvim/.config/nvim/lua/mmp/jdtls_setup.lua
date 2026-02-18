@@ -49,6 +49,11 @@ function M.setup()
     }
 
     local workspace_folder = home .. "/.workspace/" .. vim.fn.fnamemodify(root_dir, ":p:h:t")
+
+    -- Use Mason-managed jdtls
+    local mason_registry = require("mason-registry")
+    local jdtls_path = mason_registry.get_package("jdtls"):get_install_path()
+
     local config = {
         flags = {
           allow_incremental_sync = true,
@@ -88,14 +93,38 @@ function M.setup()
           configuration = {
             runtimes = {
               {
-                name = "JavaSE-19",
-                path = "/usr/lib/jvm/java-19-openjdk-amd64/",
+                name = "JavaSE-21",
+                path = "/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home",
+              },
+              {
+                name = "JavaSE-17",
+                path = "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home",
               },
             }
           };
         };
     }
-    config.cmd = {'java-lsp', workspace_folder}
+
+    -- Build jdtls command using Mason-managed installation with Homebrew Java
+    local launcher_jar = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
+    local os_config = jdtls_path .. "/config_mac_arm"
+
+    config.cmd = {
+        "/opt/homebrew/opt/openjdk@21/bin/java",
+        "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+        "-Dosgi.bundles.defaultStartLevel=4",
+        "-Declipse.product=org.eclipse.jdt.ls.core.product",
+        "-Dlog.protocol=true",
+        "-Dlog.level=ALL",
+        "-Xmx1g",
+        "--add-modules=ALL-SYSTEM",
+        "--add-opens", "java.base/java.util=ALL-UNNAMED",
+        "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+        "-jar", launcher_jar,
+        "-configuration", os_config,
+        "-data", workspace_folder,
+    }
+
     config.on_attach = on_attach
     config.on_init = function(client, _)
         client.notify('workspace/didChangeConfiguration', { settings = config.settings })

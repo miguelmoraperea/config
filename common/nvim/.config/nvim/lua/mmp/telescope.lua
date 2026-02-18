@@ -42,6 +42,8 @@ require("telescope").setup({
             "venv",
             "^.null-ls*",
             "build",
+            "bin/main/",
+            "bin/test/",
             "main/conf",
             "main/assembly",
         },

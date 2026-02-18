@@ -115,12 +115,10 @@ return {
     --     end,
     -- },
     --
-    -- {
-    --     "mfussenegger/nvim-jdtls",
-    --     -- dependencies = {
-    --     --     "nvim-lua/lsp-status.nvim"
-    --     -- },
-    -- },
+    {
+        "mfussenegger/nvim-jdtls",
+        ft = "java",
+    },
     --
     -- {
     --     "udalov/kotlin-vim",
