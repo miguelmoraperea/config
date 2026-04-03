@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Converts Claude Code agent panes into separate named tmux windows.
+# Run this from the window containing the agent splits.
+
+if [[ -z "$TMUX" ]]; then
+  echo "Not in a tmux session"
+  exit 1
+fi
+
+target="${1:-.}"
+main_pane=$(tmux display-message -t "$target" -p '#{pane_id}')
+moved=0
+
+for pane_id in $(tmux list-panes -t "$target" -F '#{pane_id}'); do
+  [[ "$pane_id" == "$main_pane" ]] && continue
+
+  title=$(tmux display-message -t "$pane_id" -p '#{pane_title}')
+  # Strip spinner/status characters and trim whitespace
+  name=$(echo "$title" | sed 's/^[^A-Za-z]*//' | xargs)
+
+  # Simplify common agent role names
+  lc=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+  case "$lc" in
+    *review*)    name="reviewer" ;;
+    *frontend*)  name="frontend" ;;
+    *backend*)   name="backend" ;;
+    *architect*) name="architect" ;;
+    *lead*)      name="lead" ;;
+    *devops*)    name="devops" ;;
+    *test*)      name="tester" ;;
+    *explore*)   name="explorer" ;;
+    *research*)  name="researcher" ;;
+    *plan*)      name="planner" ;;
+  esac
+
+  name="${name:-agent}"
+
+  tmux break-pane -d -s "$pane_id" -n "$name"
+  ((moved++))
+done
+
+echo "Moved $moved pane(s) to windows"
