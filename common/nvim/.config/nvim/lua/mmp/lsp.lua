@@ -266,12 +266,6 @@ require("lspconfig").jsonls.setup({
     },
 })
 
-require("lspconfig").grammarly.setup({
-    on_attach = on_attach,
-    capabilities = capabilities,
-    filetypes = { "markdown", "txt", "norg" },
-})
-
 -- Clangd LSP for C++ development
 require("lspconfig").clangd.setup({
     on_attach = on_attach,

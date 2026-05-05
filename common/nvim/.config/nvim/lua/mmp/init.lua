@@ -482,6 +482,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
     callback = function()
         vim.defer_fn(function()
             require("mmp.pr_gitsigns").setup()
+            require("mmp.pr_review").setup()
         end, 1000)
     end,
 })
@@ -493,12 +494,13 @@ vim.keymap.set("n", "<leader>fh", "<Cmd>Telescope help_tags<cr>", { noremap = fa
 vim.keymap.set("n", "<leader>ft", "<Cmd>Telescope git_files<cr>", { noremap = false })
 vim.keymap.set("n", "<leader>fr", "<Cmd>lua R('mmp.telescope').search_dotfiles()<cr>", { noremap = false })
 vim.keymap.set("n", "<leader>fa", "<Cmd>lua require'mmp.telescope'.git_branches()<cr>", { noremap = false })
+vim.keymap.set("n", "<leader>fc", "<Cmd>lua R('mmp.telescope').branch_changed_files()<cr>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>st", "<Cmd>SpellCheck <bar> lua R('mmp.telescope').spellcheck()<cr>", { noremap = false })
 vim.keymap.set("n", "<leader>ma", "<Cmd>lua R('mmp.telescope').mappings()<cr>", { noremap = false })
 vim.keymap.set("n", "<leader>bo", "<Cmd>lua R('mmp.telescope').background_selector()<CR>", { noremap = false })
 vim.keymap.set("n", "<Leader>re", "<Cmd>lua require'telescope.builtin'.lsp_references{}<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>di", "<Cmd>lua require'telescope.builtin'.diagnostics{}<cr>", { noremap = false })
-vim.keymap.set("n", "<Leader>co", "<Cmd>lua R('mmp.telescope').git_commits({})<cr>", { noremap = false })
+vim.keymap.set("n", "<Leader>co", "<Cmd>lua R('mmp.telescope').pr_commits({})<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>cf", "<Cmd>lua R('mmp.telescope').git_file_commits({})<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>gu", "<Cmd>lua R('mmp.telescope').grep_word_under_cursor()<cr>", { noremap = false })
 vim.keymap.set("n", "<Leader>te", "<Cmd>Telescope resume<cr>", { noremap = false })
@@ -852,19 +854,37 @@ vim.api.nvim_create_user_command('DiffPR', function(opts)
 end, { nargs = '?' })
 
 vim.api.nvim_create_user_command('DiffviewCloseKeepFile', function()
+  -- Tell pr_review to keep the worktree when diffview's view_closed hook fires
+  require('mmp.pr_review').keep_worktree()
+
   local bufname = vim.fn.bufname('%')
   if bufname and bufname ~= '' then
-    local clean_path = bufname:gsub("^diffview://", ""):gsub("%.git/%w+/", "")
+    -- Strip the diffview:// prefix
+    local raw_path = bufname:gsub("^diffview://", "")
+
+    -- Extract the relative file path from diffview's git object path.
+    -- Diffview buffers encode paths like:
+    --   /repo/.git/<hash>/path/to/file
+    --   /repo/.git/worktrees/name/<hash>/path/to/file
+    --   /bare-repo/git/worktrees/name/<hash>/path/to/file (World)
+    -- Match a hex hash (7+ chars) followed by / and take the rest as relative path.
+    local rel_path = raw_path:match("/%x%x%x%x%x%x%x+/(.+)$")
+    local clean_path
+    if rel_path then
+      clean_path = vim.fn.getcwd() .. "/" .. rel_path
+    else
+      -- Fallback: try the old simple strip
+      clean_path = raw_path:gsub("%.git/%w+/", "")
+    end
+
     vim.cmd("DiffviewClose")
-    vim.cmd("edit " .. clean_path)
-    -- Auto-enable PR diff mode after closing diffview
+    vim.cmd("edit " .. vim.fn.fnameescape(clean_path))
     require('mmp.pr_gitsigns').on_diffview_close()
     return
   end
 
   print("No valid entry found; closing Diffview without opening file.")
   vim.cmd("DiffviewClose")
-  -- Auto-enable PR diff mode after closing diffview
   require('mmp.pr_gitsigns').on_diffview_close()
 end, {})
 

@@ -32,6 +32,7 @@ require("telescope").setup({
             },
             vertical = {
                 width = 0.7,
+                preview_cutoff = 0,
             },
         },
         file_sorter = require("telescope.sorters").get_fzy_sorter,
@@ -446,8 +447,6 @@ local function github_api_request(endpoint)
         'curl -s -H "Authorization: token %s" -H "Accept: application/vnd.github.v3+json" "https://api.github.com%s"',
         token, endpoint
     )
-    P(curl_cmd)
-
     local handle = io.popen(curl_cmd)
     local response = handle:read("*a")
     handle:close()
@@ -481,20 +480,23 @@ local function get_current_repo()
         return nil
     end
 
-    -- Extract repo name from various URL formats
-    local repo_name = remote_url:match("github%.com[:/]Shopify/([^/%.]+)")
-    return repo_name
+    -- Extract org and repo name from various URL formats (Shopify/ or shop/)
+    local org, repo_name = remote_url:match("github%.com[:/]([^/]+)/([^/%.]+)")
+    if not repo_name then
+        return nil, nil
+    end
+    return repo_name, org
 end
 
 local function get_user_prs(username)
-    local current_repo = get_current_repo()
+    local current_repo, org = get_current_repo()
     if not current_repo then
         vim.notify("Not in a git repository or no GitHub remote found", vim.log.levels.ERROR)
         return {}
     end
 
     -- Search for open PRs only (including drafts) in the current repository
-    local repo_query = string.format("repo:Shopify/%s", current_repo)
+    local repo_query = string.format("repo:%s/%s", org, current_repo)
     local all_prs_response = github_api_request(string.format("/search/issues?q=author:%s+is:pr+state:open+%s", username, repo_query))
 
     local prs = {}
@@ -530,55 +532,7 @@ local function get_user_prs(username)
 end
 
 local function open_pr_with_diffview(pr_number)
-    local git_clean_and_reset = function()
-        -- First, close any existing DiffView
-        vim.cmd("DiffviewClose")
-
-        -- Reset any working directory changes
-        vim.fn.system("git reset --hard HEAD")
-
-        -- Clean untracked files
-        vim.fn.system("git clean -fd")
-
-        -- Checkout main/master to ensure clean state
-        local main_branch = vim.fn.system("git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'"):gsub("%s+", "")
-        if main_branch == "" then
-            main_branch = "main"  -- fallback to main
-        end
-        vim.fn.system("git checkout " .. main_branch)
-
-        -- Pull latest changes
-        vim.fn.system("git pull origin " .. main_branch)
-
-        -- Delete the PR branch if it exists
-        vim.fn.system("git branch -D pr-" .. pr_number .. " 2>/dev/null")
-    end
-
-    local fetch_pr = function(pr_num)
-        local cmd = "git fetch origin pull/" .. pr_num .. "/head:pr-" .. pr_num
-        vim.fn.system(cmd)
-        local cmd2 = "git checkout pr-" .. pr_num
-        vim.fn.system(cmd2)
-    end
-
-    local open_with_diffview = function()
-        -- Get the main branch name
-        local main_branch = vim.fn.system("git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'"):gsub("%s+", "")
-        if main_branch == "" then
-            main_branch = "main"  -- fallback to main
-        end
-
-        -- Find the merge base (parent commit where PR branch was created)
-        local merge_base = vim.fn.system("git merge-base HEAD origin/" .. main_branch):gsub("%s+", "")
-
-        -- Open DiffView with commit range from merge base to HEAD (only PR changes)
-        local cmd = "DiffviewOpen " .. merge_base .. "..HEAD"
-        vim.cmd(cmd)
-    end
-
-    git_clean_and_reset()
-    fetch_pr(pr_number)
-    open_with_diffview()
+    require("mmp.pr_review").start_review(pr_number)
 end
 
 M.team_members_picker = function()
@@ -629,7 +583,7 @@ end
 
 M.user_prs_picker = function(username)
     local prs = get_user_prs(username)
-    local current_repo = get_current_repo()
+    local current_repo = get_current_repo()  -- org not needed here, just for display
 
     if vim.tbl_isempty(prs) then
         vim.notify("No PRs found for " .. username .. " in " .. (current_repo or "current repo"), vim.log.levels.WARN)
@@ -771,7 +725,7 @@ end
 
 -- Function to find PR for current branch
 local function get_pr_for_current_branch()
-    local current_repo = get_current_repo()
+    local current_repo, org = get_current_repo()
     local current_branch = get_current_branch()
 
     if not current_repo then
@@ -790,7 +744,7 @@ local function get_pr_for_current_branch()
     end
 
     -- First, try to search for PRs with the current branch as head
-    local repo_query = string.format("repo:Shopify/%s", current_repo)
+    local repo_query = string.format("repo:%s/%s", org, current_repo)
     local branch_query = string.format("head:%s", current_branch)
     local search_query = string.format("is:pr+state:open+%s+%s", repo_query, branch_query)
 
@@ -812,7 +766,7 @@ local function get_pr_for_current_branch()
     -- If no PR found and branch looks like "pr-XXXX", try to get PR by number
     local pr_number = current_branch:match("^pr%-(%d+)$")
     if pr_number then
-        local pr_response = github_api_request(string.format("/repos/Shopify/%s/pulls/%s", current_repo, pr_number))
+        local pr_response = github_api_request(string.format("/repos/%s/%s/pulls/%s", org, current_repo, pr_number))
         if pr_response and pr_response.number then
             return {
                 number = pr_response.number,
@@ -841,6 +795,310 @@ M.open_current_branch_pr = function()
 
     local cmd = "silent ! open -a 'Google Chrome' -n --args " .. pr.html_url
     vim.cmd(cmd)
+end
+
+local function get_pr_merge_base()
+    local base_ref_oid = vim.fn.system("gh pr view --json baseRefOid -q .baseRefOid 2>/dev/null"):gsub("%s+", "")
+    if vim.v.shell_error ~= 0 or base_ref_oid == "" or base_ref_oid == "null" then
+        return nil
+    end
+
+    local merge_base = vim.fn.system("git merge-base HEAD " .. vim.fn.shellescape(base_ref_oid) .. " 2>/dev/null"):gsub("%s+", "")
+    if vim.v.shell_error ~= 0 or merge_base == "" then
+        return nil
+    end
+    return merge_base
+end
+
+M.pr_commits = function(opts)
+    opts = opts or {}
+
+    local merge_base = get_pr_merge_base() or require("mmp.pr_gitsigns").get_merge_base()
+    if not merge_base then
+        vim.notify("Could not determine PR base or merge base", vim.log.levels.ERROR)
+        return
+    end
+
+    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    if not git_root or git_root == "" then
+        vim.notify("Not in a git repository", vim.log.levels.ERROR)
+        return
+    end
+
+    local output = utils.get_os_command_output({
+        "git", "-C", git_root, "log",
+        "--no-merges",
+        "--pretty=format:%h/%s/%an/%ad",
+        "--date=format:%Y-%m-%d %H:%M",
+        "--abbrev-commit",
+        merge_base .. "..HEAD",
+    })
+
+    if vim.tbl_isempty(output) then
+        vim.notify("No commits in this branch vs " .. merge_base:sub(1, 8), vim.log.levels.INFO)
+        return
+    end
+
+    local results = {}
+    for _, line in ipairs(output) do
+        local fields = vim.split(line, "/", true)
+        table.insert(results, {
+            hash = fields[1],
+            subject = fields[2],
+            author = fields[3],
+            date = fields[4],
+        })
+    end
+
+    local displayer = entry_display.create({
+        separator = " ",
+        items = {
+            { width = 10 },
+            { width = 60 },
+            { width = 20 },
+            { width = 18 },
+        },
+    })
+
+    local make_display = function(entry)
+        return displayer({
+            { entry.hash, "TelescopeResultsIdentifier" },
+            { entry.subject },
+            { entry.author, "TelescopeResultsComment" },
+            { entry.date, "TelescopeResultsComment" },
+        })
+    end
+
+    local commit_previewer = previewers.new_buffer_previewer({
+        title = "Commit",
+        define_preview = function(self, entry)
+            local cmd = string.format(
+                "git -C %s show --color=never %s",
+                vim.fn.shellescape(git_root),
+                vim.fn.shellescape(entry.value)
+            )
+            local lines = vim.fn.systemlist(cmd)
+            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+            vim.bo[self.state.bufnr].filetype = "git"
+        end,
+    })
+
+    pickers.new(opts, {
+        prompt_title = "PR Commits (vs " .. merge_base:sub(1, 8) .. ")",
+        finder = finders.new_table({
+            results = results,
+            entry_maker = function(entry)
+                entry.value = entry.hash
+                entry.ordinal = entry.subject .. " " .. entry.author .. " " .. entry.hash
+                entry.display = make_display
+                return entry
+            end,
+        }),
+        previewer = commit_previewer,
+        sorter = conf.file_sorter(opts),
+        attach_mappings = function(_, map)
+            actions.select_default:replace(function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                M.commit_changed_files(selection.value, opts)
+            end)
+            map("i", "<c-d>", function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                vim.cmd("DiffviewOpen " .. selection.value .. "^!")
+            end)
+            map("n", "<c-d>", function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                vim.cmd("DiffviewOpen " .. selection.value .. "^!")
+            end)
+            return true
+        end,
+    }):find()
+end
+
+M.commit_changed_files = function(sha, opts)
+    opts = opts or {}
+
+    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    if not git_root or git_root == "" then
+        vim.notify("Not in a git repository", vim.log.levels.ERROR)
+        return
+    end
+
+    local raw = vim.fn.systemlist(string.format(
+        "git -C %s diff-tree --no-commit-id --name-only -r %s",
+        vim.fn.shellescape(git_root),
+        vim.fn.shellescape(sha)
+    ))
+
+    local files = {}
+    for _, f in ipairs(raw) do
+        if f ~= "" then
+            table.insert(files, f)
+        end
+    end
+
+    if vim.tbl_isempty(files) then
+        vim.notify("No files changed in commit " .. sha:sub(1, 8), vim.log.levels.INFO)
+        return
+    end
+
+    local diff_previewer = previewers.new_buffer_previewer({
+        title = "Changes in " .. sha:sub(1, 8),
+        define_preview = function(self, entry)
+            local cmd = string.format(
+                "git -C %s show --color=never %s -- %s",
+                vim.fn.shellescape(git_root),
+                vim.fn.shellescape(sha),
+                vim.fn.shellescape(entry.value)
+            )
+            local lines = vim.fn.systemlist(cmd)
+            if vim.tbl_isempty(lines) then
+                lines = { "(no diff available)" }
+            end
+            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+            vim.bo[self.state.bufnr].filetype = "diff"
+        end,
+    })
+
+    pickers.new(opts, {
+        prompt_title = "Files in " .. sha:sub(1, 8),
+        finder = finders.new_table({
+            results = files,
+            entry_maker = function(file)
+                return {
+                    value = file,
+                    display = file,
+                    ordinal = file,
+                    path = git_root .. "/" .. file,
+                }
+            end,
+        }),
+        previewer = diff_previewer,
+        sorter = conf.file_sorter(opts),
+        attach_mappings = function(_, map)
+            actions.select_default:replace(function(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                actions.close(prompt_bufnr)
+                M.open_file_at_commit(sha, selection.value)
+            end)
+            return true
+        end,
+    }):find()
+end
+
+M.open_file_at_commit = function(sha, file)
+    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    if not git_root or git_root == "" then
+        vim.notify("Not in a git repository", vim.log.levels.ERROR)
+        return
+    end
+
+    local fullpath = git_root .. "/" .. file
+    if vim.fn.filereadable(fullpath) == 1 then
+        vim.cmd("edit " .. vim.fn.fnameescape(fullpath))
+    else
+        vim.notify("File not in working tree (deleted or renamed); showing historical view only", vim.log.levels.INFO)
+        vim.cmd("enew")
+        vim.api.nvim_buf_set_name(0, fullpath)
+    end
+
+    vim.cmd("Gitsigns show " .. sha)
+
+    vim.defer_fn(function()
+        local ok, gs = pcall(require, "gitsigns")
+        if not ok then
+            vim.notify("Gitsigns not available", vim.log.levels.ERROR)
+            return
+        end
+        local success, err = pcall(gs.change_base, sha .. "^", false)
+        if not success then
+            vim.notify("Failed to set buffer-local base: " .. tostring(err), vim.log.levels.ERROR)
+            return
+        end
+        vim.notify(string.format("Showing %s @ %s (vs %s^). <Leader>gh to toggle.", file, sha:sub(1, 8), sha:sub(1, 8)), vim.log.levels.INFO)
+    end, 150)
+end
+
+M.branch_changed_files = function(opts)
+    opts = opts or {}
+
+    local merge_base = get_pr_merge_base() or require("mmp.pr_gitsigns").get_merge_base()
+    if not merge_base then
+        vim.notify("Could not determine PR base or merge base (need gh PR context or a remote 'origin' and a branch)", vim.log.levels.ERROR)
+        return
+    end
+
+    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
+    if not git_root or git_root == "" then
+        vim.notify("Not in a git repository", vim.log.levels.ERROR)
+        return
+    end
+
+    local committed = vim.fn.systemlist(
+        string.format("git diff --name-only %s..HEAD", vim.fn.shellescape(merge_base))
+    )
+    local uncommitted = vim.fn.systemlist("git diff --name-only HEAD")
+    local untracked = vim.fn.systemlist("git ls-files --others --exclude-standard")
+
+    local seen, files = {}, {}
+    for _, list in ipairs({ committed, uncommitted, untracked }) do
+        for _, f in ipairs(list) do
+            if f ~= "" and not seen[f] then
+                seen[f] = true
+                table.insert(files, f)
+            end
+        end
+    end
+
+    if #files == 0 then
+        vim.notify("No changed files in this branch", vim.log.levels.INFO)
+        return
+    end
+
+    local diff_previewer = previewers.new_buffer_previewer({
+        title = "Diff vs " .. merge_base:sub(1, 8),
+        define_preview = function(self, entry)
+            local file = entry.value
+            local diff_cmd = string.format(
+                "git -C %s diff %s -- %s",
+                vim.fn.shellescape(git_root),
+                vim.fn.shellescape(merge_base),
+                vim.fn.shellescape(file)
+            )
+            local lines = vim.fn.systemlist(diff_cmd)
+            local ft = "diff"
+            if vim.tbl_isempty(lines) then
+                local fullpath = git_root .. "/" .. file
+                if vim.fn.filereadable(fullpath) == 1 then
+                    lines = vim.fn.readfile(fullpath)
+                    ft = vim.filetype.match({ filename = file }) or ""
+                else
+                    lines = { "(no diff available; file may be deleted)" }
+                end
+            end
+            vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+            vim.bo[self.state.bufnr].filetype = ft
+        end,
+    })
+
+    pickers.new(opts, {
+        prompt_title = "Branch Changed Files (vs " .. merge_base:sub(1, 8) .. ")",
+        finder = finders.new_table({
+            results = files,
+            entry_maker = function(file)
+                return {
+                    value = file,
+                    display = file,
+                    ordinal = file,
+                    path = git_root .. "/" .. file,
+                }
+            end,
+        }),
+        previewer = diff_previewer,
+        sorter = conf.file_sorter(opts),
+    }):find()
 end
 
 return M

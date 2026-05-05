@@ -358,7 +358,6 @@ return {
             require("mason-null-ls").setup({
                 ensure_installed = {
                     "blue",
-                    "grammarly-language-server",
                     "jq",
                     -- "mypy",
                     -- "pycodestyle",
@@ -502,8 +501,12 @@ return {
                         vim.api.nvim_buf_set_option(bufnr, "foldenable", true)
                     end,
                     view_closed = function()
-                        -- Auto-enable PR diff mode when diffview closes
-                        require("mmp.pr_gitsigns").on_diffview_close()
+                        local pr_review = require("mmp.pr_review")
+                        if pr_review.is_active() then
+                            pr_review.end_review()
+                        else
+                            require("mmp.pr_gitsigns").on_diffview_close()
+                        end
                     end,
                 },
             })
@@ -658,11 +661,20 @@ return {
                     -- Toggles
                     map("n", "<leader>tb", gitsigns.toggle_current_line_blame)
                     map("n", "<leader>tw", gitsigns.toggle_word_diff)
+                    map("n", "<leader>gh", "<cmd>GitsignsToggleAll<CR>")
 
                     -- Text object
                     map({ "o", "x" }, "ih", gitsigns.select_hunk)
                 end,
             })
+
+            local show_all_changes = false
+            vim.api.nvim_create_user_command("GitsignsToggleAll", function()
+                show_all_changes = not show_all_changes
+                local gs = require("gitsigns")
+                gs.toggle_linehl(show_all_changes)
+                gs.toggle_deleted(show_all_changes)
+            end, { desc = "Toggle linehl + deleted together" })
         end,
     },
 }
