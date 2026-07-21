@@ -1036,11 +1036,47 @@ M.branch_changed_files = function(opts)
         return
     end
 
+    -- "True PR base": parent of the first first-parent commit since merge_base.
+    -- When the PR has main merged in, merge_base sits before those merges and
+    -- the per-file diff would include main's lines; this base sits right before
+    -- the first PR commit instead. For a clean (no-merge) PR they're equal.
+    local diff_base = merge_base
+    local first_pr_commit = vim.fn.system(
+        string.format(
+            "git -C %s log --first-parent --reverse --pretty=format:%%H %s..HEAD 2>/dev/null | head -n1",
+            vim.fn.shellescape(git_root),
+            vim.fn.shellescape(merge_base)
+        )
+    ):gsub("%s+", "")
+    if first_pr_commit ~= "" then
+        local parent = vim.fn.system(
+            string.format(
+                "git -C %s rev-parse %s^ 2>/dev/null",
+                vim.fn.shellescape(git_root),
+                vim.fn.shellescape(first_pr_commit)
+            )
+        ):gsub("%s+", "")
+        if parent ~= "" then
+            diff_base = parent
+        end
+    end
+
+    -- --first-parent skips main commits brought in by merges; --no-merges drops
+    -- the merge commits themselves. Together they give "files the PR author
+    -- actually touched", excluding files only changed by merged-in main.
     local committed = vim.fn.systemlist(
-        string.format("git diff --name-only %s..HEAD", vim.fn.shellescape(merge_base))
+        string.format(
+            "git -C %s log --first-parent --no-merges --name-only --pretty=format: %s..HEAD",
+            vim.fn.shellescape(git_root),
+            vim.fn.shellescape(diff_base)
+        )
     )
-    local uncommitted = vim.fn.systemlist("git diff --name-only HEAD")
-    local untracked = vim.fn.systemlist("git ls-files --others --exclude-standard")
+    local uncommitted = vim.fn.systemlist(
+        string.format("git -C %s diff --name-only HEAD", vim.fn.shellescape(git_root))
+    )
+    local untracked = vim.fn.systemlist(
+        string.format("git -C %s ls-files --others --exclude-standard", vim.fn.shellescape(git_root))
+    )
 
     local seen, files = {}, {}
     for _, list in ipairs({ committed, uncommitted, untracked }) do
@@ -1058,13 +1094,13 @@ M.branch_changed_files = function(opts)
     end
 
     local diff_previewer = previewers.new_buffer_previewer({
-        title = "Diff vs " .. merge_base:sub(1, 8),
+        title = "Diff vs " .. diff_base:sub(1, 8),
         define_preview = function(self, entry)
             local file = entry.value
             local diff_cmd = string.format(
                 "git -C %s diff %s -- %s",
                 vim.fn.shellescape(git_root),
-                vim.fn.shellescape(merge_base),
+                vim.fn.shellescape(diff_base),
                 vim.fn.shellescape(file)
             )
             local lines = vim.fn.systemlist(diff_cmd)

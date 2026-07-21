@@ -118,6 +118,7 @@ return {
                     "norg",
                     "json",
                     "yaml",
+                    "toml",
                     "thrift",
                     "fish",
                     "java",

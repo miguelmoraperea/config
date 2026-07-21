@@ -93,6 +93,10 @@ function M.setup()
           configuration = {
             runtimes = {
               {
+                name = "JavaSE-25",
+                path = "/opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk/Contents/Home",
+              },
+              {
                 name = "JavaSE-21",
                 path = "/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home",
               },
@@ -110,7 +114,7 @@ function M.setup()
     local os_config = jdtls_path .. "/config_mac_arm"
 
     config.cmd = {
-        "/opt/homebrew/opt/openjdk@21/bin/java",
+        "/opt/homebrew/opt/openjdk@25/bin/java",
         "-Declipse.application=org.eclipse.jdt.ls.core.id1",
         "-Dosgi.bundles.defaultStartLevel=4",
         "-Declipse.product=org.eclipse.jdt.ls.core.product",
