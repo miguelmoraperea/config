@@ -20,6 +20,7 @@ return {
         keys = {
             { "<leader>oo", "<cmd>Octo<cr>", desc = "Octo actions" },
             { "<leader>op", "<cmd>Octo pr list<cr>", desc = "Octo pull requests" },
+            { "<leader>om", "<cmd>Octo pr search author=@me is=open<cr>", desc = "Octo my open pull requests" },
             { "<leader>oi", "<cmd>Octo issue list<cr>", desc = "Octo issues" },
             { "<leader>on", "<cmd>Octo notification list<cr>", desc = "Octo notifications" },
             {

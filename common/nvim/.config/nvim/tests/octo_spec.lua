@@ -18,10 +18,16 @@ local function run()
         "first plugin is not pwntester/octo.nvim, got: " .. tostring(octo_spec and octo_spec[1])
     )
 
-    -- Exactly these six mappings, matched one spec entry per expectation.
+    -- Exactly these seven mappings, matched one spec entry per expectation.
+    -- When rhs is set, the spec entry's RHS must match it exactly.
     local expected = {
         { lhs = "<leader>oo", desc = "Octo actions" },
         { lhs = "<leader>op", desc = "Octo pull requests" },
+        {
+            lhs = "<leader>om",
+            rhs = "<cmd>Octo pr search author=@me is=open<cr>",
+            desc = "Octo my open pull requests",
+        },
         { lhs = "<leader>oi", desc = "Octo issues" },
         { lhs = "<leader>on", desc = "Octo notifications" },
         { lhs = "<leader>os", desc = "Octo search current repository" },
@@ -38,7 +44,12 @@ local function run()
     for _, want in ipairs(expected) do
         local matched_index = nil
         for i, key in pairs(remaining) do
-            if matched_index == nil and key[1] == want.lhs and key.desc == want.desc then
+            if
+                matched_index == nil
+                and key[1] == want.lhs
+                and key.desc == want.desc
+                and (want.rhs == nil or key[2] == want.rhs)
+            then
                 matched_index = i
             end
         end
@@ -65,7 +76,7 @@ local function run()
     check(conf.reviews.auto_show_threads == true, "reviews.auto_show_threads is not true")
     check(conf.reviews.focus == "right", "reviews.focus is not right, got: " .. tostring(conf.reviews.focus))
 
-    -- All six normal-mode mappings must be active.
+    -- All seven normal-mode mappings must be active.
     for _, want in ipairs(expected) do
         local map = vim.fn.maparg(want.lhs, "n", false, true)
         check(
@@ -76,6 +87,12 @@ local function run()
             map.desc == want.desc,
             string.format("mapping %s has desc %q, want %q", want.lhs, tostring(map.desc), want.desc)
         )
+        if want.rhs then
+            check(
+                type(map.rhs) == "string" and map.rhs:lower() == want.rhs:lower(),
+                string.format("mapping %s has rhs %q, want %q", want.lhs, tostring(map.rhs), want.rhs)
+            )
+        end
     end
 
     -- The existing team PR workflow must remain untouched.
