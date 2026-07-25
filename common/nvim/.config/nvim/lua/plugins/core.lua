@@ -106,30 +106,33 @@ return {
 
     {
         "nvim-treesitter/nvim-treesitter",
-        cmd = "TSUpdate",
+        branch = "main",
+        build = ":TSUpdate",
         lazy = false,
         config = function()
-            require("nvim-treesitter.configs").setup({
-                ensure_installed = {
-                    "c",
-                    "cpp",
-                    "lua",
-                    "python",
-                    "norg",
-                    "json",
-                    "yaml",
-                    "toml",
-                    "thrift",
-                    "fish",
-                    "java",
-                    "kotlin",
-                    "go",
-                    "markdown",
-                    "markdown_inline",
-                },
-                highlight = {
-                    enable = true,
-                },
+            -- norg is intentionally absent: neorg installs its own parser via luarocks
+            require("nvim-treesitter").install({
+                "c",
+                "cpp",
+                "lua",
+                "python",
+                "rust",
+                "json",
+                "yaml",
+                "toml",
+                "thrift",
+                "fish",
+                "java",
+                "kotlin",
+                "go",
+                "markdown",
+                "markdown_inline",
+            })
+            vim.api.nvim_create_autocmd("FileType", {
+                group = vim.api.nvim_create_augroup("mmp-treesitter-start", {}),
+                callback = function(ev)
+                    pcall(vim.treesitter.start, ev.buf)
+                end,
             })
         end,
     },
