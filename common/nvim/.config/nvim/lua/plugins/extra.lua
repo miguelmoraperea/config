@@ -4,6 +4,30 @@ return {
     },
 
     {
+        "Fildo7525/pretty_hover",
+        event = "LspAttach",
+        config = function(_, opts)
+            require("pretty_hover").setup(opts)
+
+            -- jdtls emits jdt:// links whose unbalanced parens break markdown
+            -- link parsing (no conceal); render just the label as inline code.
+            local util = require("pretty_hover.core.util")
+            local orig_open_float = util.open_float
+            local function strip_jdt_links(line)
+                return (line:gsub("%[([^%]]-)%]%(jdt://[^%s]*%)", "`%1`"))
+            end
+            util.open_float = function(hover_text, format, config)
+                if type(hover_text) == "string" then
+                    hover_text = strip_jdt_links(hover_text)
+                elseif type(hover_text) == "table" then
+                    hover_text = vim.tbl_map(strip_jdt_links, hover_text)
+                end
+                return orig_open_float(hover_text, format, config)
+            end
+        end,
+    },
+
+    {
         "folke/neodev.nvim",
         config = function()
             require("neodev").setup({})
