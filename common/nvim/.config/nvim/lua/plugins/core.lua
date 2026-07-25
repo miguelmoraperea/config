@@ -124,6 +124,8 @@ return {
                     "java",
                     "kotlin",
                     "go",
+                    "markdown",
+                    "markdown_inline",
                 },
                 highlight = {
                     enable = true,
