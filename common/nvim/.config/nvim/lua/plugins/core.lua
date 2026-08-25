@@ -680,6 +680,7 @@ return {
                 local gs = require("gitsigns")
                 gs.toggle_linehl(show_all_changes)
                 gs.toggle_deleted(show_all_changes)
+                require("mmp.aerial_git").set_enabled(show_all_changes)
             end, { desc = "Toggle linehl + deleted together" })
         end,
     },

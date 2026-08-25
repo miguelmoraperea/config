@@ -44,6 +44,10 @@ return {
                 default_direction = "right",
             },
         },
+        config = function(_, opts)
+            require("aerial").setup(opts)
+            require("mmp.aerial_git").attach()
+        end,
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
             "nvim-tree/nvim-web-devicons",
