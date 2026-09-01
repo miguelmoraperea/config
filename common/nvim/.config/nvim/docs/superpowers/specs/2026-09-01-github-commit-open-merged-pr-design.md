@@ -8,15 +8,16 @@ Make `:GithubCommitOpen` useful from `git blame` and commit-oriented buffers. Gi
 
 Move the behavior into a focused `mmp.github_commit` module and keep the existing user command as a thin entry point.
 
-Resolve repository coordinates from configured remotes in this order:
+Discover GitHub and Gitstream repository identities independently from configured remotes:
 
-1. The `github` remote.
-2. Another GitHub-hosted remote, preferring `upstream` and then `origin`.
-3. A Gitstream remote when no GitHub-hosted remote exists.
+- For GitHub, prefer the `github` remote, then another GitHub-hosted remote named `upstream` or `origin`, then any remaining GitHub-hosted remote.
+- For Gitstream, use a Gitstream-hosted remote whenever one exists, regardless of which remote supplied the GitHub identity.
 
-This local metadata identifies the remote repository only. It must never determine which pull request owns the commit.
+A checkout such as `shop/world`, with Gitstream `origin` and GitHub `github`, therefore enables both review lookups. Each provider receives the `owner/repo` coordinates parsed from its own remote. If only a Gitstream remote exists, its coordinates also supply the GitHub repository commit fallback because Gitstream mirrors the GitHub repository namespace.
 
-Accept a hexadecimal hash between 7 and 40 characters from the cursor. Resolve it to its canonical 40-character SHA through the remote commit API. For a Gitstream repository, prefer `gs api`; otherwise use `gh api`. Do not use local `git rev-parse` for canonicalization.
+This local metadata identifies remote repositories only. It must never determine which pull request owns the commit.
+
+Accept a hexadecimal hash between 7 and 40 characters from the cursor. Resolve it to its canonical 40-character SHA through the remote commit API. Prefer `gs api` when a Gitstream identity exists, with `gh api` as the GitHub-only path. Do not use local `git rev-parse` for canonicalization.
 
 ## Merged pull request discovery
 
@@ -24,7 +25,7 @@ Query every applicable remote review system using the canonical SHA.
 
 ### GitHub
 
-Use GitHub's remote pull request search for the full SHA, limited to merged pull requests in the resolved repository. Treat search results as candidates rather than proof because a SHA can appear in pull request text.
+Use `gh search prs {sha} --repo {owner}/{repo} --merged` for the full SHA. Treat search results as candidates rather than proof because a SHA can appear in pull request text.
 
 Validate each candidate with remote pull request details. A GitHub candidate is valid only when the SHA is either:
 
@@ -33,7 +34,7 @@ Validate each candidate with remote pull request details. A GitHub candidate is 
 
 ### Meteorite
 
-For a Gitstream repository, request `GET /repos/{owner}/{repo}/commits/{sha}/pulls` with pagination and retain merged candidates.
+Whenever a Gitstream identity exists, request `GET /repos/{owner}/{repo}/commits/{sha}/pulls` with `gs api --paginate` and retain only candidates whose `merged` field is true.
 
 Gitstream's association endpoint includes broad historical snapshot and ancestry matches. Validate each candidate by requesting its remote commit list. A Meteorite candidate is valid only when the SHA is either:
 
@@ -41,6 +42,17 @@ Gitstream's association endpoint includes broad historical snapshot and ancestry
 - equal to its merge commit SHA.
 
 This exact-membership check rejects unrelated pull requests whose snapshots merely contain the commit through base ancestry.
+
+## Verified remote contracts
+
+The following authenticated calls were verified against `shop/world` on 2026-09-01:
+
+- `gs api repos/shop/world/commits/{sha}/pulls?per_page=100 --paginate` returns one combined JSON array. Candidate fields are `number`, `merged`, `merged_at`, `merge_commit_sha`, and `title`.
+- `gs api repos/shop/world/pulls/{number}/commits?per_page=100 --paginate` returns commit objects whose canonical hash is in `sha`.
+- `gh search prs {sha} --repo shop/world --merged --json number,title,state,closedAt,url` returned merged GitHub PR `1006544` for `5ef9def9bb4c7212edfa90db368b255db4d686d0`.
+- `gh pr view 1006544 --repo shop/world --json mergedAt,mergeCommit,commits` returned the merge hash as `mergeCommit.oid`, the merge timestamp as `mergedAt`, and member hashes as `commits[].oid`.
+
+For the same commit, Gitstream returned many later snapshot associations that did not include PR `1006544`. Exact remote commit-list validation is therefore required rather than relying on association ordering.
 
 ## Selection and navigation
 
@@ -75,9 +87,11 @@ A failed lookup is not equivalent to a confirmed absence. The repository commit 
 
 Add a focused headless Lua spec with injected command, Telescope selection, browser, and notification adapters. Cover:
 
-- Gitstream `origin` plus GitHub `github` resolves to `shop/world`, never a Gitstream browser URL.
+- Gitstream `origin` plus GitHub `github` enables both provider lookups for `shop/world`, never a Gitstream browser URL.
 - An abbreviated cursor hash is canonicalized remotely.
 - Gitstream's broad association result is rejected when the exact commit is absent from that pull request.
+- An open association is excluded even when its remote commit list contains the SHA.
+- With both remotes configured, GitHub's true merged PR wins when Gitstream returns only unrelated or open associations for the same SHA.
 - A valid Meteorite pull request opens its PR-scoped commit route.
 - A valid GitHub pull request opens its PR-scoped commit route.
 - A commit equal to a pull request's merge commit is accepted.
