@@ -428,6 +428,12 @@ local function test_failures()
 	end
 
 	do
+		local routes = base_routes({ "origin\tgit@gitstream.shopify.io:shop/world.git (fetch)" })
+		route(routes, { "gs", "api", "repos/shop/world/commits/5ef9def" }, failed("lookup failed"))
+		assert_failure("5ef9def", routes, "Commit lookup failed")
+	end
+
+	do
 		local routes = base_routes({ "origin\thttps://github.com/shop/world.git (fetch)" })
 		route(routes, { "gh", "api", "repos/shop/world/commits/5ef9def", "--jq", ".sha" }, ok("short\n"))
 		assert_failure("5ef9def", routes, "Invalid canonical commit SHA")
@@ -494,6 +500,35 @@ local function test_failures()
 			ok(json({
 				number = 100,
 				merged = true,
+				title = "Missing merged timestamp",
+				merge_commit_sha = TARGET,
+			}))
+		)
+		assert_failure("5ef9def", routes, "Invalid GitHub PR details")
+	end
+
+	do
+		local routes = base_routes({ "origin\thttps://github.com/shop/world.git (fetch)" })
+		route(routes, { "gh", "api", "repos/shop/world/commits/5ef9def", "--jq", ".sha" }, ok(TARGET .. "\n"))
+		route(routes, {
+			"gh",
+			"search",
+			"prs",
+			TARGET,
+			"--repo",
+			"shop/world",
+			"--merged",
+			"--limit",
+			"1000",
+			"--json",
+			"number,title,state,closedAt,url",
+		}, ok(json({ { number = 100 } })))
+		route(
+			routes,
+			{ "gh", "api", "repos/shop/world/pulls/100" },
+			ok(json({
+				number = 100,
+				merged = true,
 				title = "Needs commits",
 				merged_at = "2026-08-31T12:00:00Z",
 				merge_commit_sha = MERGE,
@@ -516,6 +551,17 @@ local function test_failures()
 			failed("association failed")
 		)
 		assert_failure("5ef9def", routes, "Meteorite PR search failed")
+	end
+
+	do
+		local routes = base_routes({ "origin\tgit@gitstream.shopify.io:shop/world.git (fetch)" })
+		route(routes, { "gs", "api", "repos/shop/world/commits/5ef9def" }, ok(json({ sha = TARGET })))
+		route(
+			routes,
+			{ "gs", "api", "repos/shop/world/commits/" .. TARGET .. "/pulls?per_page=100", "--paginate" },
+			ok(json({ number = 101 }))
+		)
+		assert_failure("5ef9def", routes, "Invalid Meteorite PR search response")
 	end
 
 	do
