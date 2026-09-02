@@ -27,7 +27,7 @@ Query every applicable remote review system using the canonical SHA.
 
 Use `gh search prs {sha} --repo {owner}/{repo} --merged` for the full SHA. Treat search results as candidates rather than proof because a SHA can appear in pull request text.
 
-Validate each candidate with remote pull request details. A GitHub candidate is valid only when the SHA is either:
+Validate each candidate with remote pull request details and its paginated REST commit list. A GitHub candidate is valid only when the SHA is either:
 
 - present in the pull request's remote commit list, or
 - equal to its merge commit SHA.
@@ -50,7 +50,8 @@ The following authenticated calls were verified against `shop/world` on 2026-09-
 - `gs api repos/shop/world/commits/{sha}/pulls?per_page=100 --paginate` returns one combined JSON array. Candidate fields are `number`, `merged`, `merged_at`, `merge_commit_sha`, and `title`.
 - `gs api repos/shop/world/pulls/{number}/commits?per_page=100 --paginate` returns commit objects whose canonical hash is in `sha`.
 - `gh search prs {sha} --repo shop/world --merged --json number,title,state,closedAt,url` returned merged GitHub PR `1006544` for `5ef9def9bb4c7212edfa90db368b255db4d686d0`.
-- `gh pr view 1006544 --repo shop/world --json mergedAt,mergeCommit,commits` returned the merge hash as `mergeCommit.oid`, the merge timestamp as `mergedAt`, and member hashes as `commits[].oid`.
+- `gh api repos/shop/world/pulls/1006544` returned `merged`, `merged_at`, `merge_commit_sha`, `number`, `title`, and `html_url`.
+- `gh api --paginate repos/shop/world/pulls/1006544/commits?per_page=100` returned member hashes as `sha` on each paginated commit object.
 
 For the same commit, Gitstream returned many later snapshot associations that did not include PR `1006544`. Exact remote commit-list validation is therefore required rather than relying on association ordering.
 
