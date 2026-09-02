@@ -51,7 +51,7 @@ The following authenticated calls were verified against `shop/world` on 2026-09-
 - `gs api repos/shop/world/pulls/{number}/commits?per_page=100 --paginate` returns commit objects whose canonical hash is in `sha`.
 - `gh search prs {sha} --repo shop/world --merged --json number,title,state,closedAt,url` returned merged GitHub PR `1006544` for `5ef9def9bb4c7212edfa90db368b255db4d686d0`.
 - `gh api repos/shop/world/pulls/1006544` returned `merged`, `merged_at`, `merge_commit_sha`, `number`, `title`, and `html_url`.
-- `gh api --paginate repos/shop/world/pulls/1006544/commits?per_page=100` returned member hashes as `sha` on each paginated commit object.
+- `gh api --paginate --slurp repos/shop/world/pulls/1006544/commits?per_page=100` returned an array of page arrays with commit objects containing `sha`.
 
 For the same commit, Gitstream returned many later snapshot associations that did not include PR `1006544`. Exact remote commit-list validation is therefore required rather than relying on association ordering.
 

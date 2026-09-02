@@ -627,7 +627,7 @@ run_case("invalid hashes and unsupported remotes fail locally", function()
     check(#remote_state.notifications == 1, "unsupported remote should notify")
 end)
 
-print("GitHub commit merged PR resolver: ok")
+print("github commit resolver: ok")
 end
 
 local success, err = xpcall(main, debug.traceback)
@@ -1208,7 +1208,7 @@ Run:
 nvim --headless -u NONE "+set runtimepath^=$PWD" "+luafile tests/github_commit_spec.lua"
 ```
 
-Expected: PASS with `GitHub commit merged PR resolver: ok`.
+Expected: PASS with `github commit resolver: ok`.
 
 - [ ] **Step 5: Check formatting and commit Task 1**
 
@@ -1351,7 +1351,7 @@ replacement(41)
 check(closed == 41, "selection did not close Telescope")
 check(chosen == candidates[2], "selection returned the wrong candidate")
 
-print("GitHub commit Telescope picker: ok")
+print("github commit picker: ok")
 end
 
 local success, err = xpcall(main, debug.traceback)
@@ -1401,7 +1401,7 @@ check(
     "mmp.init does not delegate GithubCommitOpen registration to the command adapter"
 )
 
-print("GithubCommitOpen command wiring: ok")
+print("github commit command: ok")
 end
 
 local success, err = xpcall(main, debug.traceback)
@@ -1556,9 +1556,9 @@ nvim --headless -u NONE "+set runtimepath^=$PWD" "+luafile tests/github_commit_c
 
 Expected:
 
-- `GitHub commit merged PR resolver: ok`
-- `GitHub commit Telescope picker: ok`
-- `GithubCommitOpen command wiring: ok`
+- `github commit resolver: ok`
+- `github commit picker: ok`
+- `github commit command: ok`
 
 - [ ] **Step 8: Check syntax without starting the plugin manager**
 
@@ -1634,7 +1634,11 @@ nvim --headless -u NONE "+set runtimepath^=$PWD" \
   "+luafile tests/github_commit_command_spec.lua"
 ```
 
-Expected: all three specs pass.
+Expected:
+
+- `github commit resolver: ok`
+- `github commit picker: ok`
+- `github commit command: ok`
 
 - [ ] **Step 2: Verify the real example without opening a browser**
 
@@ -1648,9 +1652,7 @@ gh search prs 5ef9def9bb4c7212edfa90db368b255db4d686d0 \
 gh api repos/shop/world/pulls/1006544 \
   --jq '{number, merged, merged_at, merge_commit_sha, title, html_url}'
 
-gh api --paginate \
-  'repos/shop/world/pulls/1006544/commits?per_page=100' \
-  --jq '.[].sha' | grep '^5ef9def9bb4c7212edfa90db368b255db4d686d0$'
+gh api --paginate --slurp 'repos/shop/world/pulls/1006544/commits?per_page=100' | jq -r '.[][].sha' | grep '^5ef9def9bb4c7212edfa90db368b255db4d686d0$'
 ```
 
 Expected:
