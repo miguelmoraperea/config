@@ -797,23 +797,10 @@ M.open_current_branch_pr = function()
     vim.cmd(cmd)
 end
 
-local function get_pr_merge_base()
-    local base_ref_oid = vim.fn.system("gh pr view --json baseRefOid -q .baseRefOid 2>/dev/null"):gsub("%s+", "")
-    if vim.v.shell_error ~= 0 or base_ref_oid == "" or base_ref_oid == "null" then
-        return nil
-    end
-
-    local merge_base = vim.fn.system("git merge-base HEAD " .. vim.fn.shellescape(base_ref_oid) .. " 2>/dev/null"):gsub("%s+", "")
-    if vim.v.shell_error ~= 0 or merge_base == "" then
-        return nil
-    end
-    return merge_base
-end
-
 M.pr_commits = function(opts)
     opts = opts or {}
 
-    local merge_base = get_pr_merge_base() or require("mmp.pr_gitsigns").get_merge_base()
+    local merge_base = require("mmp.pr_gitsigns").get_merge_base()
     if not merge_base then
         vim.notify("Could not determine PR base or merge base", vim.log.levels.ERROR)
         return
@@ -1024,9 +1011,9 @@ end
 M.branch_changed_files = function(opts)
     opts = opts or {}
 
-    local merge_base = get_pr_merge_base() or require("mmp.pr_gitsigns").get_merge_base()
+    local merge_base = require("mmp.pr_gitsigns").get_merge_base()
     if not merge_base then
-        vim.notify("Could not determine PR base or merge base (need gh PR context or a remote 'origin' and a branch)", vim.log.levels.ERROR)
+        vim.notify("Could not determine PR or branch base (need gs/gh PR context or an origin remote)", vim.log.levels.ERROR)
         return
     end
 

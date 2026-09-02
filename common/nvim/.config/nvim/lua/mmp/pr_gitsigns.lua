@@ -33,26 +33,12 @@ local function is_pr_branch()
     return current_branch ~= main_branch and current_branch ~= "master" and current_branch ~= "HEAD"
 end
 
--- Function to get merge base with main branch.
--- Uses `git cherry` to find commits unique to HEAD by patch-id, so that
--- merge-queue trunks (e.g. Shopify World) where commits land on main with
--- rewritten SHAs don't pollute the diff. Falls back to plain merge-base
--- when no commits are unique to HEAD.
-local function get_pr_merge_base()
-    local base_ref_oid = vim.fn.system("gh pr view --json baseRefOid -q .baseRefOid 2>/dev/null"):gsub("%s+", "")
-    if vim.v.shell_error ~= 0 or base_ref_oid == "" or base_ref_oid == "null" then
-        return nil
-    end
-
-    local merge_base = vim.fn.system("git merge-base HEAD " .. vim.fn.shellescape(base_ref_oid) .. " 2>/dev/null"):gsub("%s+", "")
-    if vim.v.shell_error ~= 0 or merge_base == "" then
-        return nil
-    end
-    return merge_base
-end
-
+-- Prefers provider PR metadata, then uses `git cherry` against trunk to find
+-- commits unique to HEAD by patch-id, so merge-queue trunks (e.g. Shopify World)
+-- where commits land on main with rewritten SHAs don't pollute the diff.
+-- Falls back to plain merge-base when no commits are unique to HEAD.
 local function get_merge_base()
-    local pr_merge_base = get_pr_merge_base()
+    local pr_merge_base = require("mmp.pr_base").get_merge_base()
     if pr_merge_base then
         return pr_merge_base
     end
