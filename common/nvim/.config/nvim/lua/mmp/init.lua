@@ -698,21 +698,7 @@ local get_commit_under_cursor = function()
     return vim.fn.expand("<cword>")
 end
 
--- Go to commit on github
-local open_commit_under_cursor_in_github = function()
-    local commit_hash = get_commit_under_cursor()
-    local get_repo_url_cmd = "git config --get remote.origin.url | tr -d '\n'"
-    -- Remove .git from the url
-    get_repo_url_cmd = get_repo_url_cmd .. " | sed 's/\\.git$//'"
-    local repo_url = vim.fn.system(get_repo_url_cmd)
-    local url = repo_url .. "/commit/" .. commit_hash
-
-    -- local cmd = "silent ! open -a Google\\ Chrome -n --args --new-window " .. url
-    local cmd = "silent ! open -a 'Google Chrome' -n --args " .. url
-    P(cmd)
-    vim.cmd(cmd)
-end
-vim.api.nvim_create_user_command("GithubCommitOpen", open_commit_under_cursor_in_github, {})
+require("mmp.github_commit_command").setup(get_commit_under_cursor)
 
 -- https://github.com/search?q=org%3AShopify%20otel-collector.shopify-map-etl-stg.shopifysdp.com%3A8125&type=code
 -- Search on Github
