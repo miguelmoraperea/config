@@ -21,18 +21,6 @@ local function get_current_branch()
     return branch
 end
 
--- Function to check if current branch is a PR branch
-local function is_pr_branch()
-    local current_branch = get_current_branch()
-    if not current_branch then
-        return false
-    end
-    
-    local main_branch = get_main_branch()
-    -- Consider it a PR branch if it's not main/master and not HEAD
-    return current_branch ~= main_branch and current_branch ~= "master" and current_branch ~= "HEAD"
-end
-
 -- Prefers provider PR metadata, then uses `git cherry` against trunk to find
 -- commits unique to HEAD by patch-id, so merge-queue trunks (e.g. Shopify World)
 -- where commits land on main with rewritten SHAs don't pollute the diff.
@@ -66,6 +54,49 @@ local function get_merge_base()
     return merge_base
 end
 
+local detached_head_cache = {}
+
+local function get_detached_merge_base()
+    local head = vim.fn.system("git rev-parse HEAD 2>/dev/null"):gsub("%s+", "")
+    if head == "" then
+        return nil
+    end
+
+    if detached_head_cache.head ~= head then
+        detached_head_cache = {
+            head = head,
+            merge_base = get_merge_base(),
+        }
+    end
+
+    local merge_base = detached_head_cache.merge_base
+    return merge_base ~= head and merge_base or nil
+end
+
+local function get_comparison_base()
+    if get_current_branch() == "HEAD" then
+        return get_detached_merge_base()
+    end
+    return get_merge_base()
+end
+
+-- Function to check if current branch is a PR branch
+local function is_pr_branch()
+    local current_branch = get_current_branch()
+    if not current_branch then
+        return false
+    end
+
+    local main_branch = get_main_branch()
+    if current_branch == main_branch or current_branch == "master" then
+        return false
+    end
+    if current_branch == "HEAD" then
+        return get_detached_merge_base() ~= nil
+    end
+    return true
+end
+
 M.get_merge_base = get_merge_base
 M.get_main_branch = get_main_branch
 
@@ -81,7 +112,7 @@ function M.enable_pr_diff_mode()
         return
     end
     
-    local merge_base = get_merge_base()
+    local merge_base = get_comparison_base()
     if not merge_base then
         vim.notify("Could not determine merge base", vim.log.levels.ERROR)
         return
@@ -162,7 +193,7 @@ function M.get_status()
         current_branch = current_branch,
         main_branch = main_branch,
         is_pr_branch = is_pr_branch(),
-        merge_base = pr_diff_mode and get_merge_base() or nil
+        merge_base = pr_diff_mode and get_comparison_base() or nil
     }
 end
 
@@ -265,12 +296,16 @@ function M.setup()
         callback = function()
             local current_branch = get_current_branch()
             local main_branch = get_main_branch()
-            
-            if pr_diff_mode and (current_branch == main_branch or current_branch == "master") then
+            local on_detached_trunk = current_branch == "HEAD" and get_detached_merge_base() == nil
+
+            local on_trunk = current_branch == main_branch or current_branch == "master" or on_detached_trunk
+            if pr_diff_mode and on_trunk then
                 M.disable_pr_diff_mode()
             end
         end,
     })
+
+    M.auto_enable_pr_diff_mode()
 end
 
 return M

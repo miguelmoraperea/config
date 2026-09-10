@@ -136,7 +136,11 @@ local function with_pr_base(result, system, callback)
     local previous_gitsigns = package.loaded["mmp.pr_gitsigns"]
     local previous_system = vim.fn.system
     local previous_systemlist = vim.fn.systemlist
-    package.loaded["mmp.pr_base"] = { get_merge_base = function() return result end }
+    package.loaded["mmp.pr_base"] = {
+        get_merge_base = function()
+            return type(result) == "function" and result() or result
+        end,
+    }
     package.loaded["mmp.pr_gitsigns"] = nil
     vim.fn.system = system
     vim.fn.systemlist = function(command)
@@ -151,6 +155,47 @@ local function with_pr_base(result, system, callback)
     vim.fn.systemlist = previous_systemlist
     package.loaded["mmp.pr_base"] = previous_base
     package.loaded["mmp.pr_gitsigns"] = previous_gitsigns
+    if not succeeded then
+        error(message, 0)
+    end
+end
+
+local function detached_system(command)
+    local responses = {
+        ["git rev-parse --abbrev-ref HEAD 2>/dev/null"] = "HEAD\n",
+        ["git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'"] = "main\n",
+        ["git rev-parse HEAD 2>/dev/null"] = HEAD .. "\n",
+    }
+    local response = responses[command]
+    check(response ~= nil, "unexpected detached HEAD command: " .. tostring(command))
+    return response
+end
+
+local function with_gitsigns(callback)
+    local previous_gitsigns = package.loaded["gitsigns"]
+    local changed_base
+    package.loaded["gitsigns"] = {
+        change_base = function(base, global)
+            changed_base = { base = base, global = global }
+        end,
+    }
+
+    local succeeded, message = xpcall(callback, debug.traceback)
+    package.loaded["gitsigns"] = previous_gitsigns
+    if not succeeded then
+        error(message, 0)
+    end
+    return changed_base
+end
+
+local function with_immediate_defer(callback)
+    local previous_defer_fn = vim.defer_fn
+    vim.defer_fn = function(deferred_callback)
+        deferred_callback()
+    end
+
+    local succeeded, message = xpcall(callback, debug.traceback)
+    vim.defer_fn = previous_defer_fn
     if not succeeded then
         error(message, 0)
     end
@@ -178,6 +223,75 @@ local function test_pr_gitsigns_retains_trunk_fallback()
     end, function(pr_gitsigns)
         check(pr_gitsigns.get_merge_base() == BASE, "trunk fallback did not return the unique commit parent")
     end)
+end
+
+local function test_pr_gitsigns_enables_detached_pr_head()
+    local resolutions = 0
+    local changed_base = with_gitsigns(function()
+        with_pr_base(function()
+            resolutions = resolutions + 1
+            return BASE
+        end, detached_system, function(pr_gitsigns)
+            pr_gitsigns.enable_pr_diff_mode()
+        end)
+    end)
+
+    check(changed_base ~= nil, "detached PR HEAD should enable PR diff mode")
+    check(changed_base.base == BASE, "detached PR HEAD should compare against the PR base")
+    check(changed_base.global == true, "detached PR HEAD should change the base globally")
+    check(resolutions == 1, "detached PR HEAD should resolve its base once")
+end
+
+local function test_pr_gitsigns_setup_enables_current_detached_pr()
+    local resolutions = 0
+    local changed_base = with_gitsigns(function()
+        with_immediate_defer(function()
+            with_pr_base(function()
+                resolutions = resolutions + 1
+                return BASE
+            end, detached_system, function(pr_gitsigns)
+                pr_gitsigns.setup()
+            end)
+        end)
+    end)
+
+    check(changed_base ~= nil, "setup should enable PR diff mode for the current detached PR")
+    check(changed_base.base == BASE, "setup should compare the current detached PR against its base")
+    check(changed_base.global == true, "setup should change the base globally")
+    check(resolutions == 1, "setup should resolve a detached PR base once")
+end
+
+local function test_pr_gitsigns_ignores_detached_trunk_head()
+    local changed_base = with_gitsigns(function()
+        with_pr_base(HEAD, detached_system, function(pr_gitsigns)
+            pr_gitsigns.enable_pr_diff_mode()
+        end)
+    end)
+
+    check(changed_base == nil, "detached trunk HEAD should keep the default Gitsigns base")
+end
+
+local function test_detached_head_resolution_is_cached_per_commit()
+    local current_head = HEAD
+    local resolutions = 0
+    local function system(command)
+        if command == "git rev-parse HEAD 2>/dev/null" then
+            return current_head .. "\n"
+        end
+        return detached_system(command)
+    end
+
+    with_pr_base(function()
+        resolutions = resolutions + 1
+        return resolutions == 1 and HEAD or BASE
+    end, system, function(pr_gitsigns)
+        check(not pr_gitsigns.get_status().is_pr_branch, "detached trunk HEAD should not be a PR")
+        check(not pr_gitsigns.get_status().is_pr_branch, "detached trunk HEAD status should stay stable")
+        current_head = GITHUB_BASE
+        check(pr_gitsigns.get_status().is_pr_branch, "a new detached PR HEAD should refresh its base")
+    end)
+
+    check(resolutions == 2, "detached HEAD classification should resolve once per commit")
 end
 
 local function test_telescope_uses_shared_base()
@@ -216,6 +330,10 @@ local function run()
     test_default_runner_handles_missing_provider_cli()
     test_pr_gitsigns_prefers_provider_base()
     test_pr_gitsigns_retains_trunk_fallback()
+    test_pr_gitsigns_enables_detached_pr_head()
+    test_pr_gitsigns_setup_enables_current_detached_pr()
+    test_pr_gitsigns_ignores_detached_trunk_head()
+    test_detached_head_resolution_is_cached_per_commit()
     test_telescope_uses_shared_base()
 end
 
