@@ -299,7 +299,7 @@ local function test_telescope_uses_shared_base()
     check(not source:find("local function get_pr_merge_base", 1, true), "Telescope still defines a PR-base resolver")
     check(not source:find("gh pr view --json baseRefOid", 1, true), "Telescope still invokes gh directly")
 
-    local needle = 'local merge_base = require("mmp.pr_gitsigns").get_merge_base()'
+    local needle = 'require("mmp.pr_gitsigns").get_merge_base()'
     local count = 0
     local offset = 1
     while true do

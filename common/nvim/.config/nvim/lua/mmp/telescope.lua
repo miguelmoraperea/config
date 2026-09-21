@@ -715,9 +715,16 @@ M.manual_user_pr_workflow = function()
 end
 
 -- Function to get current branch name
-local function get_current_branch()
-    local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null"):gsub("%s+", "")
-    if vim.v.shell_error ~= 0 or branch == "" then
+local function get_current_branch(cwd)
+    local command = { "git" }
+    if cwd then
+        vim.list_extend(command, { "-C", cwd })
+    end
+    vim.list_extend(command, { "rev-parse", "--abbrev-ref", "HEAD" })
+
+    local result = vim.system(command, { text = true }):wait()
+    local branch = vim.trim(result.stdout or "")
+    if result.code ~= 0 or branch == "" then
         return nil
     end
     return branch
@@ -797,44 +804,98 @@ M.open_current_branch_pr = function()
     vim.cmd(cmd)
 end
 
+local commit_field_separator = string.char(31)
+local commit_format = "%h%x1f%s%x1f%an%x1f%ad"
+
+local function find_git_root(cwd)
+    local result = vim.system({ "git", "-C", cwd, "rev-parse", "--show-toplevel" }, { text = true }):wait()
+    local git_root = vim.trim(result.stdout or "")
+    if result.code ~= 0 or git_root == "" then
+        return nil
+    end
+    return vim.fs.normalize(git_root)
+end
+
+local function find_history_scope(cwd, git_root)
+    local directory = vim.fs.normalize(cwd)
+    while directory == git_root or vim.startswith(directory, git_root .. "/") do
+        if vim.fn.filereadable(directory .. "/zone.nix") == 1 then
+            return directory, true
+        end
+        if directory == git_root then
+            break
+        end
+        directory = vim.fs.dirname(directory)
+    end
+    return vim.fs.normalize(cwd), false
+end
+
+local function relative_to_root(path, git_root)
+    if path == git_root then
+        return "."
+    end
+    return path:sub(#git_root + 2)
+end
+
+local function parse_commit(line)
+    local fields = vim.split(line, commit_field_separator, { plain = true })
+    if #fields ~= 4 then
+        return nil
+    end
+    return {
+        hash = fields[1],
+        subject = fields[2],
+        author = fields[3],
+        date = fields[4],
+    }
+end
+
 M.pr_commits = function(opts)
     opts = opts or {}
 
-    local merge_base = require("mmp.pr_gitsigns").get_merge_base()
-    if not merge_base then
-        vim.notify("Could not determine PR base or merge base", vim.log.levels.ERROR)
-        return
-    end
-
-    local git_root = vim.fn.systemlist("git rev-parse --show-toplevel")[1]
-    if not git_root or git_root == "" then
+    local cwd = vim.fn.getcwd()
+    local git_root = find_git_root(cwd)
+    if not git_root then
         vim.notify("Not in a git repository", vim.log.levels.ERROR)
         return
     end
 
-    local output = utils.get_os_command_output({
-        "git", "-C", git_root, "log",
-        "--no-merges",
-        "--pretty=format:%h/%s/%an/%ad",
-        "--date=format:%Y-%m-%d %H:%M",
-        "--abbrev-commit",
-        merge_base .. "..HEAD",
-    })
-
-    if vim.tbl_isempty(output) then
-        vim.notify("No commits in this branch vs " .. merge_base:sub(1, 8), vim.log.levels.INFO)
+    local current_branch = get_current_branch(git_root)
+    if not current_branch then
+        vim.notify("Could not determine current branch", vim.log.levels.ERROR)
         return
     end
 
-    local results = {}
-    for _, line in ipairs(output) do
-        local fields = vim.split(line, "/", true)
-        table.insert(results, {
-            hash = fields[1],
-            subject = fields[2],
-            author = fields[3],
-            date = fields[4],
-        })
+    local pr_gitsigns = require("mmp.pr_gitsigns")
+    local main_branch = pr_gitsigns.get_main_branch()
+    local is_trunk = current_branch == "main" or current_branch == "master" or current_branch == main_branch
+    local merge_base
+    local prompt_title
+    local command = {
+        "git", "-C", git_root, "log",
+        "--no-merges",
+        "--pretty=tformat:" .. commit_format,
+        "--date=format:%Y-%m-%d %H:%M",
+        "--abbrev-commit",
+    }
+
+    if is_trunk then
+        local scope, is_zone = find_history_scope(cwd, git_root)
+        local relative_scope = relative_to_root(scope, git_root)
+        table.insert(command, "--max-count=100")
+        vim.list_extend(command, { "HEAD", "--", relative_scope })
+        prompt_title = string.format(
+            "Recent %s Commits (%s)",
+            is_zone and "Zone" or "Directory",
+            relative_scope
+        )
+    else
+        merge_base = require("mmp.pr_gitsigns").get_merge_base()
+        if not merge_base then
+            vim.notify("Could not determine PR base or merge base", vim.log.levels.ERROR)
+            return
+        end
+        table.insert(command, merge_base .. "..HEAD")
     end
 
     local displayer = entry_display.create({
@@ -856,31 +917,56 @@ M.pr_commits = function(opts)
         })
     end
 
+    local make_entry = function(entry)
+        entry.value = entry.hash
+        entry.ordinal = entry.subject .. " " .. entry.author .. " " .. entry.hash
+        entry.display = make_display
+        return entry
+    end
+
+    local finder
+    if is_trunk then
+        finder = finders.new_oneshot_job(command, {
+            entry_maker = function(line)
+                local entry = parse_commit(line)
+                return entry and make_entry(entry) or nil
+            end,
+        })
+    else
+        local output = utils.get_os_command_output(command)
+        if vim.tbl_isempty(output) then
+            vim.notify("No commits in this branch vs " .. merge_base:sub(1, 8), vim.log.levels.INFO)
+            return
+        end
+
+        local results = {}
+        for _, line in ipairs(output) do
+            local entry = parse_commit(line)
+            if entry then
+                table.insert(results, entry)
+            end
+        end
+        finder = finders.new_table({
+            results = results,
+            entry_maker = make_entry,
+        })
+        prompt_title = "PR Commits (vs " .. merge_base:sub(1, 8) .. ")"
+    end
+
     local commit_previewer = previewers.new_buffer_previewer({
         title = "Commit",
         define_preview = function(self, entry)
-            local cmd = string.format(
-                "git -C %s show --color=never %s",
-                vim.fn.shellescape(git_root),
-                vim.fn.shellescape(entry.value)
-            )
-            local lines = vim.fn.systemlist(cmd)
+            local lines = vim.fn.systemlist({
+                "git", "-C", git_root, "show", "--color=never", entry.value,
+            })
             vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
             vim.bo[self.state.bufnr].filetype = "git"
         end,
     })
 
     pickers.new(opts, {
-        prompt_title = "PR Commits (vs " .. merge_base:sub(1, 8) .. ")",
-        finder = finders.new_table({
-            results = results,
-            entry_maker = function(entry)
-                entry.value = entry.hash
-                entry.ordinal = entry.subject .. " " .. entry.author .. " " .. entry.hash
-                entry.display = make_display
-                return entry
-            end,
-        }),
+        prompt_title = prompt_title,
+        finder = finder,
         previewer = commit_previewer,
         sorter = conf.file_sorter(opts),
         attach_mappings = function(_, map)
